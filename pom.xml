@@ -25,6 +25,7 @@
         <version.commons-io>2.4</version.commons-io>
         <version.netty>4.1.10.Final</version.netty>
         <version.jackson>2.9.9</version.jackson>
+        <version.rabbitmq>4.0.0</version.rabbitmq>
     </properties>
 
 </project>

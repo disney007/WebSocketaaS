@@ -10,6 +10,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
@@ -75,6 +77,8 @@ public class NettyService {
     @Slf4j
     static class NettyServer implements Runnable {
 
+        @Autowired
+        WebSocketChannelInitializer channelInitializer;
         volatile EventLoopGroup bossGroup;
         volatile EventLoopGroup workerGroup;
 
@@ -101,7 +105,7 @@ public class NettyService {
                 ServerBootstrap b = new ServerBootstrap();
                 b.group(bossGroup, workerGroup)
                         .channel(NioServerSocketChannel.class)
-                        .childHandler(new WebSocketChannelInitializer())
+                        .childHandler(channelInitializer)
                         .option(ChannelOption.SO_BACKLOG, 128)
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
                 ChannelFuture f = b.bind(8089).sync();
@@ -117,9 +121,12 @@ public class NettyService {
         }
     }
 
-    NettyServer nettyServer = new NettyServer();
+    NettyServer nettyServer;
 
-    public NettyService() {
+    @Autowired
+    public NettyService(ApplicationContext context) {
+        nettyServer = new NettyServer();
+        context.getAutowireCapableBeanFactory().autowireBean(nettyServer);
         new Thread(nettyServer).start();
     }
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.linker</groupId>
+    <artifactId>base</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>connector</module>
+        <module>processor</module>
+        <module>linker-common-lib</module>
+    </modules>
+    <properties>
+        <version.spring-boot>2.1.2.RELEASE</version.spring-boot>
+        <version.lombok>1.18.4</version.lombok>
+        <version.guava>27.0.1-jre</version.guava>
+        <version.validation-api>2.0.1.Final</version.validation-api>
+        <version.postgresql>42.2.5</version.postgresql>
+        <version.flyway>5.2.4</version.flyway>
+        <version.commons-lang3>3.8.1</version.commons-lang3>
+        <version.commons-text>1.6</version.commons-text>
+        <version.commons-io>2.4</version.commons-io>
+        <version.netty>4.1.10.Final</version.netty>
+        <version.jackson>2.9.9</version.jackson>
+    </properties>
+
+</project>

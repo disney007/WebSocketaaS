@@ -1,5 +1,8 @@
 package com.linker.connector;
 
+import com.linker.common.Message;
+import com.linker.common.MessageContent;
+import com.linker.common.Utils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -18,7 +21,15 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     }
 
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-        this.messageService.sendMessage(msg.text());
+        String msgContentJson = msg.text();
+        MessageContent msgContent = Utils.fromJson(msgContentJson, MessageContent.class);
+
+        Message message = Message.builder()
+                .content(msgContent)
+                .from("abc")
+                .build();
+
+        this.messageService.sendMessage(message);
     }
 
     @Override

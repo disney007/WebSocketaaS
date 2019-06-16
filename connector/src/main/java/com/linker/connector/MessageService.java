@@ -1,5 +1,7 @@
 package com.linker.connector;
 
+import com.linker.common.Message;
+import com.linker.common.Utils;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -20,6 +22,28 @@ public class MessageService {
     Channel channel;
     Connection connection;
 
+    static class OutgoingMesssageConsumer extends DefaultConsumer {
+        MessageService messageService;
+
+        public OutgoingMesssageConsumer(MessageService messageService, Channel channel) {
+            super(channel);
+            this.messageService = messageService;
+        }
+
+        @Override
+        public void handleDelivery(
+                String consumerTag,
+                Envelope envelope,
+                AMQP.BasicProperties properties,
+                byte[] body) throws IOException {
+
+
+            Message message = Utils.fromJson(new String(body, "UTF-8"), Message.class);
+            log.info("received message from outgoing queue {}", message);
+            this.messageService.onMessageReceived(message);
+        }
+    }
+
     public MessageService() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -31,19 +55,7 @@ public class MessageService {
             channel.queueDeclare("message_incoming_queue", false, false, false, null);
             channel.queueDeclare("message_outgoing_queue", false, false, false, null);
 
-            Consumer consumer = new DefaultConsumer(channel) {
-                @Override
-                public void handleDelivery(
-                        String consumerTag,
-                        Envelope envelope,
-                        AMQP.BasicProperties properties,
-                        byte[] body) throws IOException {
-
-                    String message = new String(body, "UTF-8");
-                    log.info("received message from outgoing queue {}", message);
-                    WebSocketHandler.sendMessage(message);
-                }
-            };
+            Consumer consumer = new OutgoingMesssageConsumer(this, channel);
             channel.basicConsume("message_outgoing_queue", true, consumer);
             log.info("connected to message queue");
         } catch (IOException | TimeoutException e) {
@@ -70,8 +82,14 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(String message) throws IOException {
-        log.debug("send message:{}", message);
-        channel.basicPublish("", "message_incoming_queue", null, message.getBytes());
+    public void sendMessage(Message message) throws IOException {
+        log.info("send message:{}", message);
+        String msg = Utils.toJson(message);
+        channel.basicPublish("", "message_incoming_queue", null, msg.getBytes());
+    }
+
+    public void onMessageReceived(Message message) throws IOException {
+        String content = Utils.toJson(message.getContent());
+        WebSocketHandler.sendMessage(content);
     }
 }

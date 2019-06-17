@@ -1,4 +1,4 @@
-package com.linker.processor.models;
+package com.linker.common.models;
 
 import com.linker.common.MessageResult;
 import lombok.AllArgsConstructor;

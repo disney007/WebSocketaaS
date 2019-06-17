@@ -1,4 +1,4 @@
-package com.linker.processor.models;
+package com.linker.common.models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

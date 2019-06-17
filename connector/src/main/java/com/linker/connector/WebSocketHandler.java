@@ -3,20 +3,22 @@ package com.linker.connector;
 import com.linker.common.Message;
 import com.linker.common.MessageContent;
 import com.linker.common.Utils;
+import com.linker.connector.messageprocessors.MessageProcessorService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    MessageService messageService;
+    @Autowired
+    MessageProcessorService messageProcessorService;
     ChannelHandlerContext context;
     public static WebSocketHandler instance;
 
-    public WebSocketHandler(MessageService messageService) {
-        this.messageService = messageService;
+    public WebSocketHandler() {
         instance = this;
     }
 
@@ -29,7 +31,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                 .from("abc")
                 .build();
 
-        this.messageService.sendMessage(message);
+        this.messageProcessorService.processIncomingMessage(message, this);
     }
 
     @Override
@@ -43,7 +45,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         log.info("channel removed");
     }
 
-    public static void sendMessage(String message) {
+    public void sendMessage(String message) {
+        context.writeAndFlush(new TextWebSocketFrame(message));
+    }
+
+    public static void sendMessage0(String message) {
         instance.context.writeAndFlush(new TextWebSocketFrame(message));
     }
 }

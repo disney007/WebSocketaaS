@@ -22,10 +22,10 @@ public class MessageService {
     Channel channel;
     Connection connection;
 
-    static class OutgoingMesssageConsumer extends DefaultConsumer {
+    static class OutgoingMessageConsumer extends DefaultConsumer {
         MessageService messageService;
 
-        public OutgoingMesssageConsumer(MessageService messageService, Channel channel) {
+        public OutgoingMessageConsumer(MessageService messageService, Channel channel) {
             super(channel);
             this.messageService = messageService;
         }
@@ -55,7 +55,7 @@ public class MessageService {
             channel.queueDeclare("message_incoming_queue", false, false, false, null);
             channel.queueDeclare("message_outgoing_queue", false, false, false, null);
 
-            Consumer consumer = new OutgoingMesssageConsumer(this, channel);
+            Consumer consumer = new OutgoingMessageConsumer(this, channel);
             channel.basicConsume("message_outgoing_queue", true, consumer);
             log.info("connected to message queue");
         } catch (IOException | TimeoutException e) {
@@ -90,6 +90,6 @@ public class MessageService {
 
     public void onMessageReceived(Message message) throws IOException {
         String content = Utils.toJson(message.getContent());
-        WebSocketHandler.sendMessage(content);
+        WebSocketHandler.sendMessage0(content);
     }
 }

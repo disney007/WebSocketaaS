@@ -1,11 +1,9 @@
-package com.linker.processor.messageprocessors;
+package com.linker.common;
 
 import com.google.common.reflect.TypeToken;
-import com.linker.common.Message;
-import com.linker.common.Utils;
-import com.linker.processor.exceptions.ProcessMessageException;
-import com.linker.common.MessageType;
+import com.linker.common.exceptions.ProcessMessageException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +20,10 @@ public abstract class MessageProcessor<T> {
 
     }
 
+    public static Map<MessageType, MessageProcessor> getMessageProcessors() {
+        return messageProcessors;
+    }
+
     private final TypeToken<T> typeToken = new TypeToken<T>(getClass()) {
     };
 
@@ -29,14 +31,18 @@ public abstract class MessageProcessor<T> {
         messageProcessors.put(this.getMessageType(), this);
     }
 
-    public void process(Message message) {
+    public void process(Message message, MessageContext context) {
         typeToken.getRawType();
 
-        T data = (T) Utils.convert(message.getContent().getData(), typeToken.getRawType());
-        doProcess(message, data);
+        try {
+            T data = (T) Utils.convert(message.getContent().getData(), typeToken.getRawType());
+            doProcess(message, data, context);
+        } catch (IOException e) {
+            throw new ProcessMessageException(e);
+        }
     }
 
     public abstract MessageType getMessageType();
 
-    public abstract void doProcess(Message message, T data);
+    public abstract void doProcess(Message message, T data, MessageContext context) throws IOException;
 }

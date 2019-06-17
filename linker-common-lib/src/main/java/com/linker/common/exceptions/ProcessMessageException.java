@@ -1,4 +1,4 @@
-package com.linker.processor.exceptions;
+package com.linker.common.exceptions;
 
 public class ProcessMessageException extends RuntimeException {
     public ProcessMessageException() {

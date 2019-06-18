@@ -7,7 +7,7 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.connector.MessageService;
 import com.linker.connector.WebSocketHandler;
-import io.netty.channel.ChannelHandlerContext;
+import com.linker.connector.configurations.ApplicationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,9 @@ import java.util.Set;
 public class MessageProcessorService {
     @Autowired
     MessageService messageService;
+    @Autowired
+    ApplicationConfig applicationConfig;
+
     Set<MessageType> supportedIncomingMessageTypes = ImmutableSet.of(MessageType.AUTH_CLIENT, MessageType.AUTH_MASTER);
 
     public void processIncomingMessage(Message message, WebSocketHandler socketHandler) {
@@ -36,6 +39,8 @@ public class MessageProcessorService {
         MessageProcessor<?> processor = MessageProcessor.getProcessor(type);
         MessageContext messageContext = new MessageContext();
         messageContext.put("SOCKET_HANDLER", socketHandler);
+        messageContext.put("DOMAIN_NAME", applicationConfig.getDomainName());
+        messageContext.put("CONNECTOR_NAME", applicationConfig.getConnectorName());
         processor.process(message, messageContext);
     }
 }

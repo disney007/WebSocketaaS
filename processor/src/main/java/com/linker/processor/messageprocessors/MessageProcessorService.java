@@ -1,8 +1,10 @@
 package com.linker.processor.messageprocessors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.Message;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
+import com.linker.common.Utils;
 import com.linker.processor.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,11 @@ public class MessageProcessorService {
 
     public void process(Message message) {
         log.info("start processing message [{}]", message);
+        try {
+            log.info("json:{}", Utils.toJson(message));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         MessageType messageType = MessageType.valueOf(message.getContent().getType());
         MessageProcessor<?> processor = MessageProcessor.getProcessor(messageType);
         processor.process(message, null);

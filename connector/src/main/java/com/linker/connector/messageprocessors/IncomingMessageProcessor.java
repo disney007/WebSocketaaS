@@ -1,14 +1,15 @@
 package com.linker.connector.messageprocessors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.linker.common.Address;
 import com.linker.common.Message;
 import com.linker.common.MessageContext;
+import com.linker.common.MessageMeta;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import com.linker.connector.MessageService;
 import com.linker.connector.WebSocketHandler;
-import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -39,7 +40,14 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
 
     @Override
     public void doProcess(Message message, T data, MessageContext context) throws IOException {
-        doProcess(message, data, (WebSocketHandler) context.get("SOCKET_HANDLER"));
+        MessageMeta meta = new MessageMeta();
+        meta.setOriginalAddress(new Address(
+                context.getValue("DOMAIN_NAME"),
+                context.getValue("CONNECTOR_NAME")
+        ));
+        message.setMeta(meta);
+        WebSocketHandler socketHandler = context.getValue("SOCKET_HANDLER");
+        doProcess(message, data, socketHandler);
     }
 
     public abstract void doProcess(Message message, T data, WebSocketHandler webSocketHandler) throws IOException;

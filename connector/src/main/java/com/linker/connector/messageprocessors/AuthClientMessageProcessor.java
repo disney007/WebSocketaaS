@@ -5,7 +5,6 @@ import com.linker.common.MessageType;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.connector.MessageService;
 import com.linker.connector.WebSocketHandler;
-import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +25,7 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
 
     @Override
     public void doProcess(Message message, AuthClientMessage data, WebSocketHandler socketHandler) throws IOException {
+        message.setFrom(data.getUserId());
         this.messageService.sendMessage(message);
     }
 }

@@ -9,6 +9,7 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import com.linker.connector.MessageService;
+import com.linker.connector.SocketHandler;
 import com.linker.connector.WebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,9 +47,9 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
                 context.getValue("CONNECTOR_NAME")
         ));
         message.setMeta(meta);
-        WebSocketHandler socketHandler = context.getValue("SOCKET_HANDLER");
+        SocketHandler socketHandler = context.getValue("SOCKET_HANDLER");
         doProcess(message, data, socketHandler);
     }
 
-    public abstract void doProcess(Message message, T data, WebSocketHandler webSocketHandler) throws IOException;
+    public abstract void doProcess(Message message, T data, SocketHandler SocketHandler) throws IOException;
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class Utils {
     static ObjectMapper objectMapper;
@@ -24,5 +25,9 @@ public class Utils {
 
     public static <T> T convert(Object object, Class<T> clazz) {
         return objectMapper.convertValue(object, clazz);
+    }
+
+    public static String normaliseUserId(String userId) {
+        return userId + "-" + UUID.randomUUID().toString().replaceAll("-", "");
     }
 }

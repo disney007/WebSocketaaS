@@ -11,11 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> implements SocketHandler {
 
     @Autowired
     MessageProcessorService messageProcessorService;
     ChannelHandlerContext context;
+    String userId;
     public static WebSocketHandler instance;
 
     public WebSocketHandler() {
@@ -47,6 +48,16 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
     public void sendMessage(String message) {
         context.writeAndFlush(new TextWebSocketFrame(message));
+    }
+
+    @Override
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public String getUserId() {
+        return this.userId;
     }
 
     public static void sendMessage0(String message) {

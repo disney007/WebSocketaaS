@@ -3,7 +3,7 @@ package com.linker.connector.messageprocessors;
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.connector.MessageService;
-import com.linker.connector.WebSocketHandler;
+import com.linker.connector.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Ob
     }
 
     @Override
-    public void doProcess(Message message, Object data, WebSocketHandler socketHandler) throws IOException {
+    public void doProcess(Message message, Object data, SocketHandler socketHandler) throws IOException {
         this.messageService.sendMessage(message);
     }
 

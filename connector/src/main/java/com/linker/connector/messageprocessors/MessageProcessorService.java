@@ -6,7 +6,7 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.connector.MessageService;
-import com.linker.connector.WebSocketHandler;
+import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
@@ -25,7 +25,7 @@ public class MessageProcessorService {
 
     Set<MessageType> supportedIncomingMessageTypes = ImmutableSet.of(MessageType.AUTH_CLIENT, MessageType.AUTH_MASTER);
 
-    public void processIncomingMessage(Message message, WebSocketHandler socketHandler) {
+    public void processIncomingMessage(Message message, SocketHandler socketHandler) {
         log.info("start processing incoming message [{}]", message);
         MessageType type = null;
         String typeString = message.getContent().getType();

@@ -1,9 +1,12 @@
 package com.linker.connector;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.Message;
 import com.linker.common.MessageContent;
 import com.linker.common.Utils;
+import com.linker.common.exceptions.ProcessMessageException;
 import com.linker.connector.messageprocessors.MessageProcessorService;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -46,8 +49,21 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         log.info("channel removed");
     }
 
-    public void sendMessage(String message) {
-        context.writeAndFlush(new TextWebSocketFrame(message));
+    public ChannelFuture sendMessage(String message) {
+        return context.writeAndFlush(new TextWebSocketFrame(message));
+    }
+
+    public ChannelFuture sendMessage(Message message) {
+        try {
+            return sendMessage(Utils.toJson(message.getContent()));
+        } catch (JsonProcessingException e) {
+            String msg = String.format("failed to convert message content to json %s", message);
+            throw new ProcessMessageException(msg, e);
+        }
+    }
+
+    public ChannelFuture close() {
+        return this.context.close();
     }
 
     @Override
@@ -63,4 +79,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     public static void sendMessage0(String message) {
         instance.context.writeAndFlush(new TextWebSocketFrame(message));
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("exception received", cause);
+    }
+
+
 }

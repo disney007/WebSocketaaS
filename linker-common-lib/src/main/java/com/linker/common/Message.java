@@ -59,6 +59,11 @@ public class Message {
             return this;
         }
 
+        public MessageBuilder meta(MessageMeta meta) {
+            message.setMeta(meta);
+            return this;
+        }
+
         public MessageBuilder createdAt(long timestamp) {
             message.setCreatedAt(timestamp);
             return this;

@@ -1,8 +1,7 @@
-package com.linker.connector.messageprocessors;
+package com.linker.connector.messageprocessors.incomming;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;
-import com.linker.common.Utils;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.connector.MessageService;
 import com.linker.connector.NetworkUserService;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -31,10 +31,11 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
 
     @Override
     public void doProcess(Message message, AuthClientMessage data, SocketHandler socketHandler) throws IOException {
-        String userId = Utils.normaliseUserId(data.getUserId());
+        String userId = data.getUserId();
         message.setFrom(userId);
+        message.getMeta().setNote(UUID.randomUUID().toString());
         socketHandler.setUserId(userId);
-        networkUserService.addUser(userId, socketHandler);
+        networkUserService.addPendingUser(userId, socketHandler);
         this.messageService.sendMessage(message);
     }
 }

@@ -6,14 +6,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class NetworkUserService {
-    ConcurrentHashMap<String, SocketHandler> userMap = new ConcurrentHashMap<>();
-
+    ConcurrentHashMap<String, SocketHandler> users = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, SocketHandler> pendingUsers = new ConcurrentHashMap<>();
 
     public void addUser(String userId, SocketHandler socketHandler) {
-        userMap.put(userId, socketHandler);
+        users.put(userId, socketHandler);
     }
 
-    public void removeUser(String userId) {
-        userMap.remove(userId);
+    public SocketHandler removeUser(String userId) {
+        return users.remove(userId);
+    }
+
+    public SocketHandler getUser(String userId) {
+        return users.get(userId);
+    }
+
+    public void addPendingUser(String userId, SocketHandler socketHandler) {
+        pendingUsers.put(userId, socketHandler);
+    }
+
+    public SocketHandler removePendingUser(String userId) {
+        return pendingUsers.remove(userId);
     }
 }

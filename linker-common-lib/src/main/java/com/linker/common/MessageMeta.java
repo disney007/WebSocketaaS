@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class MessageMeta {
     Address originalAddress;
     Address targetAddress;
+    String note;
 }

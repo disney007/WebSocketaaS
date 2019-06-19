@@ -2,6 +2,7 @@ package com.linker.connector;
 
 import com.linker.common.Message;
 import com.linker.common.Utils;
+import com.linker.connector.messageprocessors.MessageProcessorService;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -10,6 +11,7 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
@@ -21,6 +23,9 @@ import java.util.concurrent.TimeoutException;
 public class MessageService {
     Channel channel;
     Connection connection;
+
+    @Autowired
+    MessageProcessorService messageProcessorService;
 
     static class OutgoingMessageConsumer extends DefaultConsumer {
         MessageService messageService;
@@ -89,7 +94,6 @@ public class MessageService {
     }
 
     public void onMessageReceived(Message message) throws IOException {
-        String content = Utils.toJson(message.getContent());
-        WebSocketHandler.sendMessage0(content);
+        messageProcessorService.processOutgoingMessage(message);
     }
 }

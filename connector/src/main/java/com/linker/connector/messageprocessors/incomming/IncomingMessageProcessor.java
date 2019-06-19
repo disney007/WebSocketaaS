@@ -1,4 +1,4 @@
-package com.linker.connector.messageprocessors;
+package com.linker.connector.messageprocessors.incomming;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.Address;

@@ -74,6 +74,11 @@
             <artifactId>amqp-client</artifactId>
             <version>${version.rabbitmq}</version>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${version.reflections}</version>
+        </dependency>
     </dependencies>
 
 </project>

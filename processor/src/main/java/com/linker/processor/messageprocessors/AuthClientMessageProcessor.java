@@ -8,6 +8,7 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageResult;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
+import com.linker.common.ResultStatus;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.common.models.AuthClientReplyMessage;
 import com.linker.processor.MessageService;
@@ -31,12 +32,16 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
     @Override
     public void doProcess(Message message, AuthClientMessage data, MessageContext context) throws IOException {
         AuthClientReplyMessage replyMessageData = new AuthClientReplyMessage(MessageResult.ok());
+        replyMessageData.setAppId(data.getAppId());
+        replyMessageData.setToken(data.getToken());
+        replyMessageData.setUserId(data.getUserId());
         MessageContent content = MessageUtils.createMessageContent(MessageType.AUTH_CLIENT_REPLY, replyMessageData);
 
         Message replyMessage = Message.builder()
                 .content(content)
                 .from(Keywords.SYSTEM)
                 .to(message.getFrom())
+                .meta(message.getMeta())
                 .build();
         messageService.sendMessage(replyMessage);
     }

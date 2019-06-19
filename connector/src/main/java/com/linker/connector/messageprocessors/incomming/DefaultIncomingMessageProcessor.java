@@ -1,4 +1,4 @@
-package com.linker.connector.messageprocessors;
+package com.linker.connector.messageprocessors.incomming;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;

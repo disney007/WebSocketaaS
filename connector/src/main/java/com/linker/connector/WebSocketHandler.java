@@ -32,7 +32,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
         Message message = Message.builder()
                 .content(msgContent)
-                .from("abc")
+                .from(this.userId)
                 .build();
 
         this.messageProcessorService.processIncomingMessage(message, this);
@@ -74,10 +74,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public String getUserId() {
         return this.userId;
-    }
-
-    public static void sendMessage0(String message) {
-        instance.context.writeAndFlush(new TextWebSocketFrame(message));
     }
 
     @Override

@@ -52,7 +52,7 @@ public class MessageProcessorService {
                 type = MessageType.ANY;
         }
 
-        return MessageProcessor.getProcessor(type);
+        return processorMap.get(type);
     }
 
     public void processIncomingMessage(Message message, SocketHandler socketHandler) {

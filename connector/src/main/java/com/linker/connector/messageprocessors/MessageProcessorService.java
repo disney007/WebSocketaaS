@@ -67,7 +67,10 @@ public class MessageProcessorService {
 
     public void processOutgoingMessage(Message message) {
         log.info("start processing outgoing message [{}]", message);
+        MessageContext messageContext = new MessageContext();
+        messageContext.put("DOMAIN_NAME", applicationConfig.getDomainName());
+        messageContext.put("CONNECTOR_NAME", applicationConfig.getConnectorName());
         MessageProcessor<?> processor = getProcessor(message, outgoingMessageProcessors);
-        processor.process(message, null);
+        processor.process(message, messageContext);
     }
 }

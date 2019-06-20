@@ -3,7 +3,7 @@ package com.linker.connector.messageprocessors.incomming;
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.models.AuthClientMessage;
-import com.linker.connector.MessageService;
+import com.linker.connector.PostOffice;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.SocketHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
     NetworkUserService networkUserService;
 
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     @Override
     public MessageType getMessageType() {
@@ -39,6 +39,6 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
         message.getMeta().setNote(UUID.randomUUID().toString());
         socketHandler.setUserId(userId);
         networkUserService.addPendingUser(userId, socketHandler);
-        this.messageService.sendMessage(message);
+        this.postOffice.deliveryMessage(message);
     }
 }

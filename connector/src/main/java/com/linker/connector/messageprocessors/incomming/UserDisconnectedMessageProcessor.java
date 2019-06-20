@@ -3,7 +3,7 @@ package com.linker.connector.messageprocessors.incomming;
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.models.UserDisconnectedMessage;
-import com.linker.connector.MessageService;
+import com.linker.connector.PostOffice;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.SocketHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +19,7 @@ public class UserDisconnectedMessageProcessor extends IncomingMessageProcessor<U
     NetworkUserService networkUserService;
 
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     @Override
     public void doProcess(Message message, UserDisconnectedMessage data, SocketHandler SocketHandler) throws IOException {
@@ -27,7 +27,7 @@ public class UserDisconnectedMessageProcessor extends IncomingMessageProcessor<U
         if (StringUtils.isNotEmpty(userId)) {
             networkUserService.removeUser(userId);
             networkUserService.removePendingUser(userId);
-            messageService.sendMessage(message);
+            postOffice.deliveryMessage(message);
         }
     }
 

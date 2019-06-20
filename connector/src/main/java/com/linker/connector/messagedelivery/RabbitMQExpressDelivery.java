@@ -1,8 +1,8 @@
-package com.linker.connector;
+package com.linker.connector.messagedelivery;
 
 import com.linker.common.Message;
 import com.linker.common.Utils;
-import com.linker.connector.messageprocessors.MessageProcessorService;
+import com.linker.connector.PostOffice;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -21,19 +21,19 @@ import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
-public class MessageService {
+public class RabbitMQExpressDelivery implements ExpressDelivery {
     Channel channel;
     Connection connection;
 
     @Autowired
-    MessageProcessorService messageProcessorService;
+    PostOffice postOffice;
 
     static class OutgoingMessageConsumer extends DefaultConsumer {
-        MessageService messageService;
+        RabbitMQExpressDelivery expressDelivery;
 
-        public OutgoingMessageConsumer(MessageService messageService, Channel channel) {
+        public OutgoingMessageConsumer(RabbitMQExpressDelivery expressDelivery, Channel channel) {
             super(channel);
-            this.messageService = messageService;
+            this.expressDelivery = expressDelivery;
         }
 
         @Override
@@ -46,16 +46,12 @@ public class MessageService {
 
             Message message = Utils.fromJson(new String(body, "UTF-8"), Message.class);
             log.info("received message from outgoing queue {}", message);
-            this.messageService.onMessageReceived(message);
+            this.expressDelivery.onMessageArrived(message);
         }
     }
 
-    public MessageService() {
-
-    }
-
     @PostConstruct
-    void connect(){
+    void connect() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         factory.setPort(5672);
@@ -94,18 +90,15 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(Message message) throws IOException {
+    @Override
+    public void deliveryMessage(Message message) throws IOException {
         log.info("send message:{}", message);
         String msg = Utils.toJson(message);
         channel.basicPublish("", "message_incoming_queue", null, msg.getBytes());
     }
 
-    public void onMessageReceived(Message message) throws IOException {
-        try {
-            messageProcessorService.processOutgoingMessage(message);
-        } catch (Exception e) {
-            log.error("error occurred during message processing", e);
-        }
-
+    @Override
+    public void onMessageArrived(Message message) {
+        postOffice.onMessageArrived(message);
     }
 }

@@ -11,7 +11,7 @@ import com.linker.common.MessageUtils;
 import com.linker.common.ResultStatus;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.common.models.AuthClientReplyMessage;
-import com.linker.processor.MessageService;
+import com.linker.processor.messagedelivery.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.io.IOException;
 @Slf4j
 public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessage> {
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     @Override
     public MessageType getMessageType() {
@@ -47,6 +47,6 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
                 .to(message.getFrom())
                 .meta(message.getMeta())
                 .build();
-        messageService.sendMessage(replyMessage);
+        postOffice.deliveryMessage(replyMessage);
     }
 }

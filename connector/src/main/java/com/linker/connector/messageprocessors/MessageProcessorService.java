@@ -4,7 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
-import com.linker.connector.MessageService;
+import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.incomming.IncomingMessageProcessor;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public class MessageProcessorService {
     @Autowired
-    MessageService messageService;
+    PostOffice messageService;
     @Autowired
     ApplicationConfig applicationConfig;
 

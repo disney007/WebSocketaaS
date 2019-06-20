@@ -8,7 +8,7 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.models.MessageForwardMessage;
 import com.linker.common.models.MessageRequestMessage;
-import com.linker.processor.MessageService;
+import com.linker.processor.messagedelivery.PostOffice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 public class CustomMessageProcessor extends MessageProcessor<MessageRequestMessage> {
 
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     @Override
     public MessageType getMessageType() {
@@ -32,7 +32,7 @@ public class CustomMessageProcessor extends MessageProcessor<MessageRequestMessa
         MessageForwardMessage messageData = new MessageForwardMessage(from, data.getContent());
         MessageContent content = MessageUtils.createMessageContent(MessageType.MESSAGE, messageData);
 
-        messageService.sendMessage(
+        postOffice.deliveryMessage(
                 Message.builder()
                         .content(content)
                         .from(from)

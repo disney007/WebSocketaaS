@@ -1,9 +1,7 @@
-package com.linker.processor;
-
+package com.linker.processor.messagedelivery;
 
 import com.linker.common.Message;
 import com.linker.common.Utils;
-import com.linker.processor.messageprocessors.MessageProcessorService;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -22,20 +20,20 @@ import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
-public class MessageService {
-
+public class RabbitMQExpressDelivery implements ExpressDelivery {
     Connection connection;
     Channel channel;
+
     @Autowired
-    MessageProcessorService messageProcessor;
+    PostOffice postOffice;
 
     static class IncomingMessageConsumer extends DefaultConsumer {
 
-        MessageService messageService;
+        RabbitMQExpressDelivery expressDelivery;
 
-        IncomingMessageConsumer(MessageService messageService, Channel channel) {
+        IncomingMessageConsumer(RabbitMQExpressDelivery expressDelivery, Channel channel) {
             super(channel);
-            this.messageService = messageService;
+            this.expressDelivery = expressDelivery;
         }
 
         @Override
@@ -47,13 +45,8 @@ public class MessageService {
 
             String message = new String(body, "UTF-8");
             Message msg = Utils.fromJson(message, Message.class);
-            this.messageService.onMessageReceived(msg);
+            this.expressDelivery.onMessageArrived(msg);
         }
-    }
-
-
-    public MessageService() {
-
     }
 
     @PostConstruct
@@ -77,16 +70,12 @@ public class MessageService {
         }
     }
 
-    void onMessageReceived(Message message) {
-        log.info("{}", message);
-        try {
-            messageProcessor.process(message);
-        } catch (Exception e) {
-            log.error("error occurred during message processing", e);
-        }
+
+    public void onMessageArrived(Message message) {
+        postOffice.onMessageArrived(message);
     }
 
-    public void sendMessage(Message message) throws IOException {
+    public void deliveryMessage(Message message) throws IOException {
         String msg = Utils.toJson(message);
         channel.basicPublish("", "message_outgoing_queue", null, msg.getBytes());
     }

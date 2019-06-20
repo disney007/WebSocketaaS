@@ -8,7 +8,7 @@ import com.linker.common.MessageUtils;
 import com.linker.common.ResultStatus;
 import com.linker.common.models.AuthClientReplyMessage;
 import com.linker.common.models.UserConnectedMessage;
-import com.linker.connector.MessageService;
+import com.linker.connector.PostOffice;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.SocketHandler;
 import io.netty.channel.ChannelFutureListener;
@@ -25,7 +25,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
     NetworkUserService networkUserService;
 
     @Autowired
-    MessageService messageService;
+    PostOffice messageService;
 
     @Override
     public MessageType getMessageType() {
@@ -47,7 +47,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
                     )
                     .from(Keywords.SYSTEM)
                     .build();
-            messageService.sendMessage(userConnectedMessage);
+            messageService.deliveryMessage(userConnectedMessage);
         } else {
             socketHandler.sendMessage(message).addListener((ChannelFutureListener) future -> socketHandler.close());
         }

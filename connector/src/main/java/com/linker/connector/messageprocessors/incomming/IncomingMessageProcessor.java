@@ -9,7 +9,6 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import com.linker.connector.SocketHandler;
-import com.linker.connector.WebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
             super.process(message, context);
         } catch (Exception e) {
             log.error("processing incoming message failed {}", message, e);
-            WebSocketHandler socketHandler = (WebSocketHandler) context.get("SOCKET_HANDLER");
+            SocketHandler socketHandler = (SocketHandler) context.get("SOCKET_HANDLER");
             message.getContent().setType(MessageType.GENERAL_ERROR.name());
             try {
                 socketHandler.sendMessage(Utils.toJson(message.getContent()));

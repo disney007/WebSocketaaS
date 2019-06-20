@@ -2,7 +2,7 @@ package com.linker.connector.messageprocessors.incomming;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;
-import com.linker.connector.MessageService;
+import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Object> {
 
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     public DefaultIncomingMessageProcessor() {
 
@@ -21,7 +21,7 @@ public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Ob
 
     @Override
     public void doProcess(Message message, Object data, SocketHandler socketHandler) throws IOException {
-        this.messageService.sendMessage(message);
+        this.postOffice.deliveryMessage(message);
     }
 
     @Override

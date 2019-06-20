@@ -3,7 +3,7 @@ package com.linker.processor.messageprocessors;
 import com.linker.common.Message;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
-import com.linker.processor.MessageService;
+import com.linker.processor.messagedelivery.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +20,7 @@ public class MessageProcessorService {
     ApplicationContext applicationContext;
 
     @Autowired
-    MessageService messageService;
+    PostOffice postOffice;
 
     Map<MessageType, MessageProcessor<?>> processors = new HashMap<>();
 

@@ -19,6 +19,9 @@ public class PostOffice {
     @Autowired
     RabbitMQExpressDelivery rabbitMQExpressDelivery;
 
+    @Autowired
+    KafkaExpressDelivery kafkaExpressDelivery;
+
     public PostOffice() {
 
     }
@@ -37,7 +40,7 @@ public class PostOffice {
     }
 
     ExpressDelivery getExpressDelivery() {
-        return rabbitMQExpressDelivery;
+        return kafkaExpressDelivery;
     }
 
 }

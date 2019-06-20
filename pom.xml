@@ -26,6 +26,7 @@
         <version.netty>4.1.10.Final</version.netty>
         <version.jackson>2.9.9</version.jackson>
         <version.rabbitmq>4.0.0</version.rabbitmq>
+        <version.kafka>2.2.1</version.kafka>
     </properties>
 
 </project>

@@ -69,5 +69,10 @@
             <artifactId>amqp-client</artifactId>
             <version>${version.rabbitmq}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${version.kafka}</version>
+        </dependency>
     </dependencies>
 </project>

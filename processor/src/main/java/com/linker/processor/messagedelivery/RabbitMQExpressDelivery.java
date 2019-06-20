@@ -64,14 +64,15 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
 
             Consumer consumer = new IncomingMessageConsumer(this, channel);
             channel.basicConsume("message_incoming_queue", true, consumer);
-            log.info("connected to message queue");
+            log.info("rabbitmq:connected to message queue");
         } catch (IOException | TimeoutException e) {
-            log.error("failed to connect message queue", e);
+            log.error("rabbitmq:failed to connect message queue", e);
         }
     }
 
 
     public void onMessageArrived(Message message) {
+        log.info("rabbitmq:message arrived:{}", message);
         postOffice.onMessageArrived(message);
     }
 
@@ -82,19 +83,19 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
 
     @PreDestroy
     void onDestroy() {
-        log.info("deregister from message queue");
+        log.info("rabbitmq:deregister from message queue");
         if (channel != null) {
             try {
                 channel.close();
             } catch (IOException | TimeoutException e) {
-                log.error("close message channel failed", e);
+                log.error("rabbitmq:close message channel failed", e);
             }
         }
         if (connection != null) {
             try {
                 connection.close();
             } catch (IOException e) {
-                log.error("close message connection failed", e);
+                log.error("rabbitmq:close message connection failed", e);
             }
         }
     }

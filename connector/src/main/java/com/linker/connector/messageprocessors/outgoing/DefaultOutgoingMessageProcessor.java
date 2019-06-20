@@ -4,6 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageContext;
 import com.linker.common.MessageType;
 import com.linker.connector.NetworkUserService;
+import com.linker.connector.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
 
     @Override
     public void doProcess(Message message, Object data, MessageContext context) throws IOException {
-        networkUserService.getUser(message.getTo()).sendMessage(message);
+        SocketHandler user = networkUserService.getUser(message.getTo());
+        if (user != null) {
+            user.sendMessage(message);
+        }
     }
 }

@@ -8,7 +8,6 @@ import com.linker.common.MessageMeta;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
-import com.linker.connector.MessageService;
 import com.linker.connector.SocketHandler;
 import com.linker.connector.WebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +16,8 @@ import java.io.IOException;
 
 @Slf4j
 public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
-    protected MessageService messageService;
 
-    public IncomingMessageProcessor(MessageService messageService) {
-        this.messageService = messageService;
+    public IncomingMessageProcessor() {
     }
 
     @Override

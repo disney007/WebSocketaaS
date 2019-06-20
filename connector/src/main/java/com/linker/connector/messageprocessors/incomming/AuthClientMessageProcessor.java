@@ -20,13 +20,16 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
     @Autowired
     NetworkUserService networkUserService;
 
+    @Autowired
+    MessageService messageService;
+
     @Override
     public MessageType getMessageType() {
         return MessageType.AUTH_CLIENT;
     }
 
-    public AuthClientMessageProcessor(MessageService messageService) {
-        super(messageService);
+    public AuthClientMessageProcessor() {
+
     }
 
     @Override

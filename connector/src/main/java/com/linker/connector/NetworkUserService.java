@@ -18,7 +18,7 @@ public class NetworkUserService {
     }
 
     public SocketHandler getUser(String userId) {
-        return users.get(userId);
+        return users.getOrDefault(userId, null);
     }
 
     public void addPendingUser(String userId, SocketHandler socketHandler) {

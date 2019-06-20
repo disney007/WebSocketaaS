@@ -1,10 +1,14 @@
 package com.linker.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.linker.common.Keywords;
 import com.linker.common.Message;
 import com.linker.common.MessageContent;
+import com.linker.common.MessageType;
+import com.linker.common.MessageUtils;
 import com.linker.common.Utils;
 import com.linker.common.exceptions.ProcessMessageException;
+import com.linker.common.models.UserDisconnectedMessage;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -47,6 +51,13 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         log.info("channel removed");
+        Message message = Message.builder()
+                .content(
+                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId))
+                )
+                .from(Keywords.SYSTEM)
+                .build();
+        this.messageProcessorService.processIncomingMessage(message, this);
     }
 
     public ChannelFuture sendMessage(String message) {

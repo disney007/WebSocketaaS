@@ -3,7 +3,6 @@ package com.linker.processor;
 
 import com.linker.common.Message;
 import com.linker.common.Utils;
-import com.linker.common.exceptions.ProcessMessageException;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -56,7 +55,7 @@ public class MessageService {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         factory.setPort(5672);
-
+        factory.setAutomaticRecoveryEnabled(true);
 
         try {
             connection = factory.newConnection();
@@ -74,10 +73,14 @@ public class MessageService {
 
     void onMessageReceived(Message message) {
         log.info("{}", message);
-        messageProcessor.process(message);
+        try {
+            messageProcessor.process(message);
+        } catch (Exception e) {
+            log.error("error occurred during message processing", e);
+        }
     }
 
-    public void sendMessage(Message message) throws IOException{
+    public void sendMessage(Message message) throws IOException {
         String msg = Utils.toJson(message);
         channel.basicPublish("", "message_outgoing_queue", null, msg.getBytes());
     }

@@ -53,6 +53,7 @@ public class MessageService {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         factory.setPort(5672);
+        factory.setAutomaticRecoveryEnabled(true);
 
         try {
             connection = factory.newConnection();
@@ -94,6 +95,11 @@ public class MessageService {
     }
 
     public void onMessageReceived(Message message) throws IOException {
-        messageProcessorService.processOutgoingMessage(message);
+        try {
+            messageProcessorService.processOutgoingMessage(message);
+        } catch (Exception e) {
+            log.error("error occurred during message processing", e);
+        }
+
     }
 }

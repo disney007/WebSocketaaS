@@ -18,11 +18,6 @@ public class MessageProcessorService {
 
     public void process(Message message) {
         log.info("start processing message [{}]", message);
-        try {
-            log.info("json:{}", Utils.toJson(message));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
         MessageType messageType = MessageType.valueOf(message.getContent().getType());
         MessageProcessor<?> processor = MessageProcessor.getProcessor(messageType);
         processor.process(message, null);

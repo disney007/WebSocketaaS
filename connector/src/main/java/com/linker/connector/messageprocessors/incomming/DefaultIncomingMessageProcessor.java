@@ -13,8 +13,10 @@ import java.io.IOException;
 public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Object> {
 
     @Autowired
-    public DefaultIncomingMessageProcessor(MessageService messageService) {
-        super(messageService);
+    MessageService messageService;
+
+    public DefaultIncomingMessageProcessor() {
+
     }
 
     @Override

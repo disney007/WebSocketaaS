@@ -1,11 +1,14 @@
 package com.linker.connector.messagedelivery;
 
-import com.linker.common.Message;
+import com.linker.common.express.ExpressDeliveryType;
 
 import java.io.IOException;
 
 public interface ExpressDelivery {
-    void deliveryMessage(Message message) throws IOException;
 
-    void onMessageArrived(Message message);
+    ExpressDeliveryType getType();
+
+    void deliveryMessage(String message) throws IOException;
+
+    void onMessageArrived(String message);
 }

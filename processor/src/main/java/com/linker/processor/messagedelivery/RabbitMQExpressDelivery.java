@@ -1,7 +1,6 @@
 package com.linker.processor.messagedelivery;
 
-import com.linker.common.Message;
-import com.linker.common.Utils;
+import com.linker.common.express.ExpressDeliveryType;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -44,8 +43,7 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
                 byte[] body) throws IOException {
 
             String message = new String(body, "UTF-8");
-            Message msg = Utils.fromJson(message, Message.class);
-            this.expressDelivery.onMessageArrived(msg);
+            this.expressDelivery.onMessageArrived(message);
         }
     }
 
@@ -71,14 +69,12 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
     }
 
 
-    public void onMessageArrived(Message message) {
-        log.info("rabbitmq:message arrived:{}", message);
-        postOffice.onMessageArrived(message);
+    public void onMessageArrived(String message) {
+        postOffice.onMessageArrived(message, this);
     }
 
-    public void deliveryMessage(Message message) throws IOException {
-        String msg = Utils.toJson(message);
-        channel.basicPublish("", "message_outgoing_queue", null, msg.getBytes());
+    public void deliveryMessage(String message) throws IOException {
+        channel.basicPublish("", "message_outgoing_queue", null, message.getBytes());
     }
 
     @PreDestroy
@@ -98,5 +94,10 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
                 log.error("rabbitmq:close message connection failed", e);
             }
         }
+    }
+
+    @Override
+    public ExpressDeliveryType getType() {
+        return ExpressDeliveryType.RABBITMQ;
     }
 }

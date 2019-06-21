@@ -1,7 +1,6 @@
 package com.linker.connector.messagedelivery;
 
-import com.linker.common.Message;
-import com.linker.common.Utils;
+import com.linker.common.express.ExpressDeliveryType;
 import com.linker.connector.PostOffice;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -42,11 +41,7 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
                 Envelope envelope,
                 AMQP.BasicProperties properties,
                 byte[] body) throws IOException {
-
-
-            Message message = Utils.fromJson(new String(body, "UTF-8"), Message.class);
-            log.info("received message from outgoing queue {}", message);
-            this.expressDelivery.onMessageArrived(message);
+            this.expressDelivery.onMessageArrived(new String(body, "UTF-8"));
         }
     }
 
@@ -91,14 +86,17 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliveryMessage(Message message) throws IOException {
-        log.info("send message:{}", message);
-        String msg = Utils.toJson(message);
-        channel.basicPublish("", "message_incoming_queue", null, msg.getBytes());
+    public void deliveryMessage(String message) throws IOException {
+        channel.basicPublish("", "message_incoming_queue", null, message.getBytes());
     }
 
     @Override
-    public void onMessageArrived(Message message) {
-        postOffice.onMessageArrived(message);
+    public void onMessageArrived(String message) {
+        postOffice.onMessageArrived(message, this);
+    }
+
+    @Override
+    public ExpressDeliveryType getType() {
+        return ExpressDeliveryType.RABBITMQ;
     }
 }

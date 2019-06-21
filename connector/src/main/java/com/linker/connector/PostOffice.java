@@ -1,7 +1,9 @@
 package com.linker.connector;
 
 import com.linker.common.Message;
+import com.linker.common.Utils;
 import com.linker.connector.messagedelivery.ExpressDelivery;
+import com.linker.connector.messagedelivery.KafkaExpressDelivery;
 import com.linker.connector.messagedelivery.RabbitMQExpressDelivery;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,19 +22,27 @@ public class PostOffice {
     @Autowired
     RabbitMQExpressDelivery rabbitMQExpressDelivery;
 
+    @Autowired
+    KafkaExpressDelivery kafkaExpressDelivery;
+
     public void deliveryMessage(Message message) throws IOException {
-        getExpressDelivery().deliveryMessage(message);
+        ExpressDelivery expressDelivery = getExpressDelivery();
+        log.info("delivery message with {}:{}", expressDelivery.getType(), message);
+        String json = Utils.toJson(message);
+        expressDelivery.deliveryMessage(json);
     }
 
-    ExpressDelivery getExpressDelivery() {
-        return rabbitMQExpressDelivery;
-    }
-
-    public void onMessageArrived(Message message) {
+    public void onMessageArrived(String message, ExpressDelivery expressDelivery) {
         try {
-            messageProcessorService.processOutgoingMessage(message);
+            Message msg = Utils.fromJson(message, Message.class);
+            log.info("message received from {}:{}", expressDelivery.getType(), message);
+            messageProcessorService.processOutgoingMessage(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);
         }
+    }
+
+    ExpressDelivery getExpressDelivery() {
+        return kafkaExpressDelivery;
     }
 }

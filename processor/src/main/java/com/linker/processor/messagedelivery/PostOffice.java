@@ -2,6 +2,7 @@ package com.linker.processor.messagedelivery;
 
 
 import com.linker.common.Message;
+import com.linker.common.Utils;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +27,21 @@ public class PostOffice {
 
     }
 
-    void onMessageArrived(Message message) {
-        log.info("{}", message);
+    void onMessageArrived(String message, ExpressDelivery expressDelivery) {
         try {
-            messageProcessor.process(message);
+            Message msg = Utils.fromJson(message, Message.class);
+            log.info("message arrived from {}:{}", expressDelivery.getType(), message);
+            messageProcessor.process(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);
         }
     }
 
     public void deliveryMessage(Message message) throws IOException {
-        getExpressDelivery().deliveryMessage(message);
+        ExpressDelivery expressDelivery = getExpressDelivery();
+        log.info("delivery message with {}:{}", expressDelivery.getType(), message);
+        String json = Utils.toJson(message);
+        expressDelivery.deliveryMessage(json);
     }
 
     ExpressDelivery getExpressDelivery() {

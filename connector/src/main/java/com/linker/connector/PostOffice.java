@@ -4,6 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.Utils;
 import com.linker.connector.messagedelivery.ExpressDelivery;
 import com.linker.connector.messagedelivery.KafkaExpressDelivery;
+import com.linker.connector.messagedelivery.NatsExpressDelivery;
 import com.linker.connector.messagedelivery.RabbitMQExpressDelivery;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class PostOffice {
     @Autowired
     KafkaExpressDelivery kafkaExpressDelivery;
 
+    @Autowired
+    NatsExpressDelivery natsExpressDelivery;
+
     public void deliveryMessage(Message message) throws IOException {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
@@ -45,7 +49,7 @@ public class PostOffice {
     ExpressDelivery getExpressDelivery(Message message) {
         switch (message.getContent().getFeature()) {
             case FAST:
-                return null;
+                return natsExpressDelivery;
             case STABLE:
                 return rabbitMQExpressDelivery;
             default:

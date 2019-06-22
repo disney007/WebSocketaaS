@@ -79,6 +79,11 @@
             <artifactId>kafka-clients</artifactId>
             <version>${version.kafka}</version>
         </dependency>
+        <dependency>
+            <groupId>io.nats</groupId>
+            <artifactId>jnats</artifactId>
+            <version>${version.nats}</version>
+        </dependency>
     </dependencies>
 
 </project>

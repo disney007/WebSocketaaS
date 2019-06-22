@@ -33,3 +33,9 @@ services:
     extra_hosts:
       - "moby:127.0.0.1"
       - "localhost: 127.0.0.1"
+  nats:
+    image: 'nats:latest'
+    hostname: 'nats-server'
+    ports:
+      - "8222:8222"
+      - "4222:4222"

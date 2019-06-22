@@ -23,6 +23,9 @@ public class PostOffice {
     @Autowired
     KafkaExpressDelivery kafkaExpressDelivery;
 
+    @Autowired
+    NatsExpressDelivery natsExpressDelivery;
+
     public PostOffice() {
 
     }
@@ -47,7 +50,7 @@ public class PostOffice {
     ExpressDelivery getExpressDelivery(Message message) {
         switch (message.getContent().getFeature()) {
             case FAST:
-                return null;
+                return natsExpressDelivery;
             case STABLE:
                 return rabbitMQExpressDelivery;
             default:

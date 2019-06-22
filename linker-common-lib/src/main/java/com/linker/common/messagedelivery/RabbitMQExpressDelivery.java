@@ -1,6 +1,5 @@
-package com.linker.processor.messagedelivery;
+package com.linker.common.messagedelivery;
 
-import com.linker.common.express.ExpressDeliveryType;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -8,29 +7,33 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-@Service
+
 @Slf4j
 public class RabbitMQExpressDelivery implements ExpressDelivery {
-    Connection connection;
     Channel channel;
+    Connection connection;
 
-    @Autowired
-    PostOffice postOffice;
+    @Setter
+    ExpressDeliveryListener listener;
 
-    static class IncomingMessageConsumer extends DefaultConsumer {
+    String hosts;
+    String consumerQueue;
 
+    public RabbitMQExpressDelivery(String hosts, String consumerQueue) {
+        this.hosts = hosts;
+        this.consumerQueue = consumerQueue;
+    }
+
+    static class OutgoingMessageConsumer extends DefaultConsumer {
         RabbitMQExpressDelivery expressDelivery;
 
-        IncomingMessageConsumer(RabbitMQExpressDelivery expressDelivery, Channel channel) {
+        public OutgoingMessageConsumer(RabbitMQExpressDelivery expressDelivery, Channel channel) {
             super(channel);
             this.expressDelivery = expressDelivery;
         }
@@ -41,14 +44,13 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
                 Envelope envelope,
                 AMQP.BasicProperties properties,
                 byte[] body) throws IOException {
-
-            String message = new String(body, "UTF-8");
-            this.expressDelivery.onMessageArrived(message);
+            this.expressDelivery.onMessageArrived(new String(body, "UTF-8"));
         }
     }
 
-    @PostConstruct
-    void connect() {
+
+    @Override
+    public void start() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         factory.setPort(5672);
@@ -57,43 +59,43 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();
-            channel.queueDeclare("message_incoming_queue", false, false, false, null);
-            channel.queueDeclare("message_outgoing_queue", false, false, false, null);
-
-            Consumer consumer = new IncomingMessageConsumer(this, channel);
-            channel.basicConsume("message_incoming_queue", true, consumer);
-            log.info("rabbitmq:connected to message queue");
+            channel.queueDeclare(consumerQueue, false, false, false, null);
+            Consumer consumer = new OutgoingMessageConsumer(this, channel);
+            channel.basicConsume(consumerQueue, true, consumer);
+            log.info("connected to message queue");
         } catch (IOException | TimeoutException e) {
-            log.error("rabbitmq:failed to connect message queue", e);
+            log.error("connect to message queue failed", e);
         }
     }
 
-
-    public void onMessageArrived(String message) {
-        postOffice.onMessageArrived(message, this);
-    }
-
-    public void deliveryMessage(String message) throws IOException {
-        channel.basicPublish("", "message_outgoing_queue", null, message.getBytes());
-    }
-
-    @PreDestroy
-    void onDestroy() {
-        log.info("rabbitmq:deregister from message queue");
+    @Override
+    public void stop() {
+        log.info("deregister from message queue");
         if (channel != null) {
             try {
                 channel.close();
             } catch (IOException | TimeoutException e) {
-                log.error("rabbitmq:close message channel failed", e);
+                log.error("close message channel failed", e);
             }
         }
         if (connection != null) {
             try {
                 connection.close();
             } catch (IOException e) {
-                log.error("rabbitmq:close message connection failed", e);
+                log.error("close message connection failed", e);
             }
         }
+    }
+
+    @Override
+    public void deliveryMessage(String target, String message) throws IOException {
+        channel.queueDeclare(target, false, false, false, null);
+        channel.basicPublish("", target, null, message.getBytes());
+    }
+
+    @Override
+    public void onMessageArrived(String message) {
+        listener.onMessageArrived(this, message);
     }
 
     @Override

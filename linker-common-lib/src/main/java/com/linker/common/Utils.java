@@ -3,6 +3,7 @@ package com.linker.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linker.common.messagedelivery.ExpressDeliveryType;
 
 import java.io.IOException;
 
@@ -24,5 +25,16 @@ public class Utils {
 
     public static <T> T convert(Object object, Class<T> clazz) {
         return objectMapper.convertValue(object, clazz);
+    }
+
+    public static ExpressDeliveryType calcExpressDelivery(MessageFeature feature) {
+        switch (feature) {
+            case FAST:
+                return ExpressDeliveryType.NATS;
+            case RELIABLE:
+                return ExpressDeliveryType.RABBITMQ;
+            default:
+                return ExpressDeliveryType.KAFKA;
+        }
     }
 }

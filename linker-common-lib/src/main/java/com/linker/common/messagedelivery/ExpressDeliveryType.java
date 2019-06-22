@@ -1,4 +1,4 @@
-package com.linker.common.express;
+package com.linker.common.messagedelivery;
 
 public enum ExpressDeliveryType {
     RABBITMQ, KAFKA, NATS

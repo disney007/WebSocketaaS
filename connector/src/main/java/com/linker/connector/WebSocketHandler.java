@@ -55,7 +55,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         Message message = Message.builder()
                 .content(
                         MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId)
-                                , MessageFeature.STABLE)
+                                , MessageFeature.RELIABLE)
                 )
                 .from(Keywords.SYSTEM)
                 .build();

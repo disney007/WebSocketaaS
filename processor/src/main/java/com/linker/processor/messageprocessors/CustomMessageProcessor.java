@@ -8,7 +8,7 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.models.MessageForwardMessage;
 import com.linker.common.models.MessageRequestMessage;
-import com.linker.processor.messagedelivery.PostOffice;
+import com.linker.processor.PostOffice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

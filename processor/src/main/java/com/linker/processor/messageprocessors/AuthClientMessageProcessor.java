@@ -11,7 +11,7 @@ import com.linker.common.MessageUtils;
 import com.linker.common.ResultStatus;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.common.models.AuthClientReplyMessage;
-import com.linker.processor.messagedelivery.PostOffice;
+import com.linker.processor.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

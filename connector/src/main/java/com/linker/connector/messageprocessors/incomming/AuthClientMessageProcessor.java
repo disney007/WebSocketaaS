@@ -38,7 +38,7 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
         String userId = data.getUserId();
         message.setFrom(userId);
         message.getMeta().setNote(UUID.randomUUID().toString());
-        message.getContent().setFeature(MessageFeature.STABLE);
+        message.getContent().setFeature(MessageFeature.RELIABLE);
         socketHandler.setUserId(userId);
         networkUserService.addPendingUser(userId, socketHandler);
         this.postOffice.deliveryMessage(message);

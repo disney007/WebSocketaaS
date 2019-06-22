@@ -49,5 +49,21 @@
             <artifactId>commons-lang3</artifactId>
             <version>${version.commons-lang3}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${version.rabbitmq}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${version.kafka}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.nats</groupId>
+            <artifactId>jnats</artifactId>
+            <version>${version.nats}</version>
+        </dependency>
     </dependencies>
 </project>

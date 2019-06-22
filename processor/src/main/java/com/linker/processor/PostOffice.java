@@ -1,4 +1,5 @@
-package com.linker.connector;
+package com.linker.processor;
+
 
 import com.google.common.collect.ImmutableList;
 import com.linker.common.Message;
@@ -9,7 +10,7 @@ import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.common.messagedelivery.RabbitMQExpressDelivery;
-import com.linker.connector.messageprocessors.MessageProcessorService;
+import com.linker.processor.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,16 +25,16 @@ import java.util.stream.Collectors;
 public class PostOffice implements ExpressDeliveryListener {
 
     @Autowired
-    MessageProcessorService messageProcessorService;
+    MessageProcessorService messageProcessor;
 
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
         expressDeliveryMap = ImmutableList.of(
-                new KafkaExpressDelivery("localhost:29092", "connector-01", "connector-01"),
-                new RabbitMQExpressDelivery("", "connector-01"),
-                new NatsExpressDelivery("nats://localhost:4222", "connector-01")
+                new KafkaExpressDelivery("localhost:29092", "topic-incoming", "group-incoming"),
+                new RabbitMQExpressDelivery("", "topic-incoming"),
+                new NatsExpressDelivery("nats://localhost:4222", "topic-incoming")
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
             expressDelivery.start();
@@ -44,22 +45,22 @@ public class PostOffice implements ExpressDeliveryListener {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
         String json = Utils.toJson(message);
-        expressDelivery.deliveryMessage("topic-incoming", json);
+        expressDelivery.deliveryMessage("connector-01", json);
+    }
+
+    ExpressDelivery getExpressDelivery(Message message) {
+        ExpressDeliveryType type = Utils.calcExpressDelivery(message.getContent().getFeature());
+        return this.expressDeliveryMap.get(type);
     }
 
     @Override
     public void onMessageArrived(ExpressDelivery expressDelivery, String message) {
         try {
             Message msg = Utils.fromJson(message, Message.class);
-            log.info("message received from {}:{}", expressDelivery.getType(), message);
-            messageProcessorService.processOutgoingMessage(msg);
+            log.info("message arrived from {}:{}", expressDelivery.getType(), message);
+            messageProcessor.process(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);
         }
-    }
-
-    ExpressDelivery getExpressDelivery(Message message) {
-        ExpressDeliveryType type = Utils.calcExpressDelivery(message.getContent().getFeature());
-        return this.expressDeliveryMap.get(type);
     }
 }

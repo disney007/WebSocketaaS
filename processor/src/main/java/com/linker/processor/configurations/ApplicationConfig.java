@@ -1,4 +1,4 @@
-package com.linker.connector.configurations;
+package com.linker.processor.configurations;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,11 +11,10 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class ApplicationConfig {
     String domainName;
-    String connectorName;
+    String processorName;
 
     String rabbitmqHosts;
     String kafkaHosts;
     String natsHosts;
     String consumerTopics;
-    String deliveryTopics;
 }

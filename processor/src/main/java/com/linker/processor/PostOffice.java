@@ -10,6 +10,7 @@ import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.common.messagedelivery.RabbitMQExpressDelivery;
+import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,18 @@ public class PostOffice implements ExpressDeliveryListener {
     @Autowired
     MessageProcessorService messageProcessor;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
+        String consumerTopics = applicationConfig.getConsumerTopics();
         expressDeliveryMap = ImmutableList.of(
-                new KafkaExpressDelivery("localhost:29092", "topic-incoming", "group-incoming"),
-                new RabbitMQExpressDelivery("", "topic-incoming"),
-                new NatsExpressDelivery("nats://localhost:4222", "topic-incoming")
+                new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming"),
+                new RabbitMQExpressDelivery(applicationConfig.getRabbitmqHosts(), consumerTopics),
+                new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
             expressDelivery.start();

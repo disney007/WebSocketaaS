@@ -9,6 +9,7 @@ import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.common.messagedelivery.RabbitMQExpressDelivery;
+import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +27,20 @@ public class PostOffice implements ExpressDeliveryListener {
     @Autowired
     MessageProcessorService messageProcessorService;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
+        String connectorName = applicationConfig.getConnectorName();
+        String consumerTopics = applicationConfig.getConsumerTopics();
+
         expressDeliveryMap = ImmutableList.of(
-                new KafkaExpressDelivery("localhost:29092", "connector-01", "connector-01"),
-                new RabbitMQExpressDelivery("", "connector-01"),
-                new NatsExpressDelivery("nats://localhost:4222", "connector-01")
+                new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, connectorName),
+                new RabbitMQExpressDelivery(applicationConfig.getRabbitmqHosts(), consumerTopics),
+                new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
             expressDelivery.start();
@@ -44,7 +51,7 @@ public class PostOffice implements ExpressDeliveryListener {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
         String json = Utils.toJson(message);
-        expressDelivery.deliveryMessage("topic-incoming", json);
+        expressDelivery.deliveryMessage(applicationConfig.getDeliveryTopics(), json);
     }
 
     @Override

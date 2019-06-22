@@ -39,7 +39,8 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
         replyMessageData.setAppId(data.getAppId());
         replyMessageData.setToken(data.getToken());
         replyMessageData.setUserId(data.getUserId());
-        MessageContent content = MessageUtils.createMessageContent(MessageType.AUTH_CLIENT_REPLY, replyMessageData);
+        MessageContent content = MessageUtils.createMessageContent(MessageType.AUTH_CLIENT_REPLY, replyMessageData,
+                message.getContent().getFeature());
 
         Message replyMessage = Message.builder()
                 .content(content)

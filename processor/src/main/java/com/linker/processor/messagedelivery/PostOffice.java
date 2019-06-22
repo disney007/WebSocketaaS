@@ -38,14 +38,21 @@ public class PostOffice {
     }
 
     public void deliveryMessage(Message message) throws IOException {
-        ExpressDelivery expressDelivery = getExpressDelivery();
+        ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
         String json = Utils.toJson(message);
         expressDelivery.deliveryMessage(json);
     }
 
-    ExpressDelivery getExpressDelivery() {
-        return kafkaExpressDelivery;
+    ExpressDelivery getExpressDelivery(Message message) {
+        switch (message.getContent().getFeature()) {
+            case FAST:
+                return null;
+            case STABLE:
+                return rabbitMQExpressDelivery;
+            default:
+                return kafkaExpressDelivery;
+        }
     }
 
 }

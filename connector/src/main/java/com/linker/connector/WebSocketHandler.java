@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.Keywords;
 import com.linker.common.Message;
 import com.linker.common.MessageContent;
+import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.Utils;
@@ -53,7 +54,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         log.info("channel removed");
         Message message = Message.builder()
                 .content(
-                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId))
+                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId)
+                                , MessageFeature.STABLE)
                 )
                 .from(Keywords.SYSTEM)
                 .build();

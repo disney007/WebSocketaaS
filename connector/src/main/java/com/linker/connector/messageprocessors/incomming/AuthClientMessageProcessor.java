@@ -1,6 +1,7 @@
 package com.linker.connector.messageprocessors.incomming;
 
 import com.linker.common.Message;
+import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.connector.PostOffice;
@@ -37,6 +38,7 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
         String userId = data.getUserId();
         message.setFrom(userId);
         message.getMeta().setNote(UUID.randomUUID().toString());
+        message.getContent().setFeature(MessageFeature.STABLE);
         socketHandler.setUserId(userId);
         networkUserService.addPendingUser(userId, socketHandler);
         this.postOffice.deliveryMessage(message);

@@ -30,7 +30,7 @@ public class CustomMessageProcessor extends MessageProcessor<MessageRequestMessa
         String from = message.getFrom();
         String to = data.getTo();
         MessageForwardMessage messageData = new MessageForwardMessage(from, data.getContent());
-        MessageContent content = MessageUtils.createMessageContent(MessageType.MESSAGE, messageData);
+        MessageContent content = MessageUtils.createMessageContent(MessageType.MESSAGE, messageData, message.getContent().getFeature());
 
         postOffice.deliveryMessage(
                 Message.builder()

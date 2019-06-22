@@ -43,7 +43,8 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
 
             Message userConnectedMessage = Message.builder()
                     .content(
-                            MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnectedMessage(userId))
+                            MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnectedMessage(userId),
+                                    message.getContent().getFeature())
                     )
                     .from(Keywords.SYSTEM)
                     .build();

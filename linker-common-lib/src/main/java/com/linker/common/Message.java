@@ -19,7 +19,7 @@ public class Message {
     String from;
     String to;
     MessageMeta meta;
-    long createdAt = ZonedDateTime.now().toEpochSecond();
+    long createdAt = ZonedDateTime.now().toInstant().toEpochMilli();
     MessageState state = MessageState.CREATED;
 
     @Override

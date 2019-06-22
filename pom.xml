@@ -28,6 +28,7 @@
         <version.rabbitmq>4.0.0</version.rabbitmq>
         <version.kafka>2.2.1</version.kafka>
         <version.nats>2.5.2</version.nats>
+        <vesrion.jedis>2.9.0</vesrion.jedis>
     </properties>
 
 </project>

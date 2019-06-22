@@ -3,6 +3,7 @@ package com.linker.connector.messageprocessors.outgoing;
 import com.linker.common.Keywords;
 import com.linker.common.Message;
 import com.linker.common.MessageContext;
+import com.linker.common.MessageMeta;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.ResultStatus;
@@ -11,6 +12,7 @@ import com.linker.common.models.UserConnectedMessage;
 import com.linker.connector.PostOffice;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.SocketHandler;
+import com.linker.connector.Utils;
 import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
     NetworkUserService networkUserService;
 
     @Autowired
-    PostOffice messageService;
+    PostOffice postOffice;
 
     @Override
     public MessageType getMessageType() {
@@ -41,14 +43,17 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
             networkUserService.addUser(userId, socketHandler);
             socketHandler.sendMessage(message);
 
+            MessageMeta meta = new MessageMeta();
+            meta.setOriginalAddress(Utils.getOriginalAddress(context));
             Message userConnectedMessage = Message.builder()
                     .content(
                             MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnectedMessage(userId),
                                     message.getContent().getFeature())
                     )
                     .from(Keywords.SYSTEM)
+                    .meta(meta)
                     .build();
-            messageService.deliveryMessage(userConnectedMessage);
+            postOffice.deliveryMessage(userConnectedMessage);
         } else {
             socketHandler.sendMessage(message).addListener((ChannelFutureListener) future -> socketHandler.close());
         }

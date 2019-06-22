@@ -32,9 +32,6 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
     @Override
     public void doProcess(Message message, AuthClientMessage data, MessageContext context) throws IOException {
         MessageResult result = MessageResult.ok();
-        if ("ANZ-wrong".equals(data.getUserId())) {
-            result = new MessageResult(ResultStatus.FAILED, "wrong user name or token");
-        }
         AuthClientReplyMessage replyMessageData = new AuthClientReplyMessage(result);
         replyMessageData.setAppId(data.getAppId());
         replyMessageData.setToken(data.getToken());

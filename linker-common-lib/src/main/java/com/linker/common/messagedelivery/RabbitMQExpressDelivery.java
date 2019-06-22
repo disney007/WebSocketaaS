@@ -51,9 +51,10 @@ public class RabbitMQExpressDelivery implements ExpressDelivery {
 
     @Override
     public void start() {
+        String[] strs = this.hosts.split(":");
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        factory.setPort(5672);
+        factory.setHost(strs[0]);
+        factory.setPort(Integer.parseInt(strs[1]));
         factory.setAutomaticRecoveryEnabled(true);
 
         try {

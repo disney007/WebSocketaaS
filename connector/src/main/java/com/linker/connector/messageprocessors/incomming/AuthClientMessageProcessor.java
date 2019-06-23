@@ -4,6 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
 import com.linker.common.models.AuthClientMessage;
+import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;
@@ -34,12 +35,15 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
 
     @Override
     public void doProcess(Message message, AuthClientMessage data, SocketHandler socketHandler) throws IOException {
-        String userId = data.getUserId();
-        message.setFrom(userId);
-        message.getMeta().setNote(socketHandler.getSocketId().toString());
-        message.getContent().setFeature(MessageFeature.RELIABLE);
-        socketHandler.setUserId(userId);
-        networkUserService.addPendingUser(userId, socketHandler);
-        this.postOffice.deliveryMessage(message);
+        if (socketHandler.getAuthStatus() == AuthStatus.NOT_AUTHENTICATED) {
+            String userId = data.getUserId();
+            message.setFrom(userId);
+            message.getMeta().setNote(socketHandler.getSocketId().toString());
+            message.getContent().setFeature(MessageFeature.RELIABLE);
+            socketHandler.setUserId(userId);
+            socketHandler.setAuthStatus(AuthStatus.AUTHENTICATING);
+            networkUserService.addPendingUser(userId, socketHandler);
+            this.postOffice.deliveryMessage(message);
+        }
     }
 }

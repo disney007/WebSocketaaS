@@ -56,10 +56,13 @@ public class NetworkUserService {
 
     static void removeUser(ConcurrentHashMap<String, List<SocketHandler>> map, String userId, Long socketId) {
         List<SocketHandler> socketHandlers = map.get(userId);
-        socketHandlers.removeIf(s -> s.getSocketId().equals(socketId));
-        if (socketHandlers.isEmpty()) {
-            map.remove(userId);
+        if (socketHandlers != null) {
+            socketHandlers.removeIf(s -> s.getSocketId().equals(socketId));
+            if (socketHandlers.isEmpty()) {
+                map.remove(userId);
+            }
         }
+
     }
 
     static SocketHandler getUser(ConcurrentHashMap<String, List<SocketHandler>> map, String userId, Long socketId) {

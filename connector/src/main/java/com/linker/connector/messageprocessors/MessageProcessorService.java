@@ -60,17 +60,12 @@ public class MessageProcessorService {
         MessageProcessor<?> processor = getProcessor(message, incomingMessageProcessors);
         MessageContext messageContext = new MessageContext();
         messageContext.put("SOCKET_HANDLER", socketHandler);
-        messageContext.put("DOMAIN_NAME", applicationConfig.getDomainName());
-        messageContext.put("CONNECTOR_NAME", applicationConfig.getConnectorName());
         processor.process(message, messageContext);
     }
 
     public void processOutgoingMessage(Message message) {
         log.info("start processing outgoing message [{}]", message);
-        MessageContext messageContext = new MessageContext();
-        messageContext.put("DOMAIN_NAME", applicationConfig.getDomainName());
-        messageContext.put("CONNECTOR_NAME", applicationConfig.getConnectorName());
         MessageProcessor<?> processor = getProcessor(message, outgoingMessageProcessors);
-        processor.process(message, messageContext);
+        processor.process(message, null);
     }
 }

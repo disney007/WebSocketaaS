@@ -19,6 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,7 +32,14 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     ApplicationConfig applicationConfig;
 
     ChannelHandlerContext context;
+
+    @Getter
+    @Setter
     String userId;
+
+    @Getter
+    @Setter
+    AuthStatus authStatus = AuthStatus.NOT_AUTHENTICATED;
 
     @Getter
     Long socketId;
@@ -46,7 +54,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         String msgContentJson = msg.text();
         MessageContent msgContent = Utils.fromJson(msgContentJson, MessageContent.class);
 
-        MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName()), null, null);
+        MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), this.socketId));
         Message message = Message.builder()
                 .content(msgContent)
                 .from(this.userId)
@@ -65,7 +73,10 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         log.info("channel removed");
-        MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName()), null, null);
+        if (this.authStatus == AuthStatus.NOT_AUTHENTICATED) {
+            return;
+        }
+        MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), socketId));
         Message message = Message.builder()
                 .content(
                         MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId)
@@ -95,19 +106,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     }
 
     @Override
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String getUserId() {
-        return this.userId;
-    }
-
-    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("exception received", cause);
     }
-
-
 }

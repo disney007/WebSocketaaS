@@ -12,4 +12,10 @@ import lombok.NoArgsConstructor;
 public class Address {
     String domainName;
     String connectorName;
+    Long socketId;
+
+    public Address(String domainName, String connectorName) {
+        this.domainName = domainName;
+        this.connectorName = connectorName;
+    }
 }

@@ -37,12 +37,6 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
 
     @Override
     public void doProcess(Message message, T data, MessageContext context) throws IOException {
-        MessageMeta meta = new MessageMeta();
-        meta.setOriginalAddress(new Address(
-                context.getValue("DOMAIN_NAME"),
-                context.getValue("CONNECTOR_NAME")
-        ));
-        message.setMeta(meta);
         SocketHandler socketHandler = context.getValue("SOCKET_HANDLER");
         doProcess(message, data, socketHandler);
     }

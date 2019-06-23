@@ -2,7 +2,6 @@ package com.linker.processor;
 
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.linker.common.Address;
 import com.linker.common.Message;
 import com.linker.common.Utils;
@@ -24,10 +23,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,13 +58,15 @@ public class PostOffice implements ExpressDeliveryListener {
     public void deliveryMessage(Message message) throws IOException {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
-        String json = Utils.toJson(message);
 
-        Set<Address> targetAddresses = getRouteTargetAddresses(message);
+
+        List<Address> targetAddresses = getRouteTargetAddresses(message);
         if (targetAddresses.isEmpty()) {
             throw new AddressNotFoundException(message);
         }
         for (Address address : targetAddresses) {
+            message.getMeta().setTargetAddress(address);
+            String json = Utils.toJson(message);
             expressDelivery.deliveryMessage(address.getConnectorName(), json);
         }
     }
@@ -88,22 +87,19 @@ public class PostOffice implements ExpressDeliveryListener {
         }
     }
 
-    Set<Address> getRouteTargetAddresses(Message message) {
+    List<Address> getRouteTargetAddresses(Message message) {
         String to = message.getTo();
         if (StringUtils.isNotBlank(to)) {
             if (StringUtils.startsWithIgnoreCase(to, "connector")) {
-                return ImmutableSet.of(new Address(applicationConfig.getDomainName(), to));
+                return ImmutableList.of(new Address(applicationConfig.getDomainName(), to));
             }
 
             UserChannel userChannel = userChannelRepository.findById(message.getTo()).orElse(null);
             if (userChannel != null) {
-                List<Address> addresses = userChannel.getAddresses();
-                if (addresses != null) {
-                    return new HashSet<>(addresses);
-                }
+                return userChannel.getAddresses();
             }
         }
 
-        return ImmutableSet.of();
+        return ImmutableList.of();
     }
 }

@@ -13,6 +13,9 @@ public interface SocketHandler {
 
     String getUserId();
 
+    AuthStatus getAuthStatus();
+    void setAuthStatus(AuthStatus authStatus);
+
     ChannelFuture close();
 
     Long getSocketId();

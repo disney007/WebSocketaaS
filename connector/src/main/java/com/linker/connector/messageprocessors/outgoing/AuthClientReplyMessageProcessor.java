@@ -37,7 +37,10 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
     @Override
     public void doProcess(Message message, AuthClientReplyMessage data, MessageContext context) throws IOException {
         String userId = data.getUserId();
-        SocketHandler socketHandler = networkUserService.removePendingUser(userId);
+        Long socketId = Long.parseLong(message.getMeta().getNote());
+        SocketHandler socketHandler = networkUserService.getPendingUser(userId, socketId);
+        networkUserService.removePendingUser(userId, socketId);
+
         if (data.getResult().getStatus() == ResultStatus.OK) {
             log.info("user [{}] is authenticated", userId);
             networkUserService.addUser(userId, socketHandler);

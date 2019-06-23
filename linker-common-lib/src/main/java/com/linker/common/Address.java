@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class Address {
     String domainName;
-    String connector;
+    String connectorName;
 }

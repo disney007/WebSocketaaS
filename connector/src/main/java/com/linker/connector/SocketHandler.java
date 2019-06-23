@@ -14,4 +14,6 @@ public interface SocketHandler {
     String getUserId();
 
     ChannelFuture close();
+
+    Long getSocketId();
 }

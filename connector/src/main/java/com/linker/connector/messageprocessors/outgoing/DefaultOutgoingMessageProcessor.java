@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -24,9 +25,9 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
 
     @Override
     public void doProcess(Message message, Object data, MessageContext context) throws IOException {
-        SocketHandler user = networkUserService.getUser(message.getTo());
-        if (user != null) {
-            user.sendMessage(message);
+        List<SocketHandler> handlers = networkUserService.getUser(message.getTo());
+        if (!handlers.isEmpty()) {
+            handlers.forEach(handler -> handler.sendMessage(message));
         } else {
             String domainName = context.getValue("DOMAIN_NAME");
             String connectorName = context.getValue("CONNECTOR_NAME");

@@ -16,6 +16,7 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
 
     @Autowired
     ApplicationContext applicationContext;
+    Long counter = 0L;
 
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
@@ -23,7 +24,7 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast(new HttpObjectAggregator(8192));
         pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
 
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        WebSocketHandler webSocketHandler = new WebSocketHandler(++counter);
         applicationContext.getAutowireCapableBeanFactory().autowireBean(webSocketHandler);
         pipeline.addLast(webSocketHandler);
     }

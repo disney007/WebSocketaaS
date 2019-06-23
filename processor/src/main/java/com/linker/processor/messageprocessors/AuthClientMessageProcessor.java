@@ -8,7 +8,6 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageResult;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.ResultStatus;
 import com.linker.common.models.AuthClientMessage;
 import com.linker.common.models.AuthClientReplyMessage;
 import com.linker.processor.PostOffice;
@@ -42,7 +41,7 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
         Message replyMessage = Message.builder()
                 .content(content)
                 .from(Keywords.SYSTEM)
-                .to(message.getFrom())
+                .to(message.getMeta().getOriginalAddress().getConnectorName())
                 .meta(message.getMeta())
                 .build();
         postOffice.deliveryMessage(replyMessage);

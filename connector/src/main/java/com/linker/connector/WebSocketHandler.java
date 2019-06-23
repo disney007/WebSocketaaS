@@ -18,6 +18,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,10 +32,14 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
     ChannelHandlerContext context;
     String userId;
+
+    @Getter
+    Long socketId;
     public static WebSocketHandler instance;
 
-    public WebSocketHandler() {
+    public WebSocketHandler(Long socketId) {
         instance = this;
+        this.socketId = socketId;
     }
 
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {

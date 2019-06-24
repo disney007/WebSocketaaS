@@ -1,0 +1,1 @@
+docker run -e "SPRING_PROFILES_ACTIVE=dev-docker" -e "domainName=02" -e "connectorName=02" connector

@@ -62,7 +62,6 @@ public class NetworkUserService {
                 map.remove(userId);
             }
         }
-
     }
 
     static SocketHandler getUser(ConcurrentHashMap<String, List<SocketHandler>> map, String userId, Long socketId) {

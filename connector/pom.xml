@@ -17,10 +17,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <domain-number>01</domain-number>
-                <connector-number>01</connector-number>
-            </properties>
         </profile>
     </profiles>
 

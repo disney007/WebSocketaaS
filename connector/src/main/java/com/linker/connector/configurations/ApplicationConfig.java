@@ -28,7 +28,7 @@ public class ApplicationConfig {
 
 
     @PostConstruct
-    public void doSomethingAfterStartup() {
+    public void init() {
         log.info("domain name = {}, connector name = {}", getDomainName(), getConnectorName());
     }
 }

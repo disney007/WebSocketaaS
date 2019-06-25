@@ -3,3 +3,6 @@ connector/target
 linker-common-lib/target
 processor/target
 linker-common-lib/linker-common-lib.iml
+base.iml
+connector/connector.iml 
+processor/processor.iml

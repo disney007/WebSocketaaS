@@ -1,5 +1,6 @@
 package com.linker.connector;
 
+import com.linker.connector.configurations.ApplicationConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -78,6 +79,9 @@ public class NettyService {
     static class NettyServer implements Runnable {
 
         @Autowired
+        ApplicationConfig applicationConfig;
+
+        @Autowired
         WebSocketChannelInitializer channelInitializer;
         volatile EventLoopGroup bossGroup;
         volatile EventLoopGroup workerGroup;
@@ -108,7 +112,7 @@ public class NettyService {
                         .childHandler(channelInitializer)
                         .option(ChannelOption.SO_BACKLOG, 128)
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
-                ChannelFuture f = b.bind(8089).sync();
+                ChannelFuture f = b.bind(applicationConfig.getWsPort()).sync();
                 log.info("netty server started");
                 f.channel().closeFuture().sync();
 

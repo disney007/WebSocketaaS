@@ -34,8 +34,8 @@ public class PostOffice implements ExpressDeliveryListener {
 
     @PostConstruct
     public void setup() {
-        String connectorName = applicationConfig.getConnectorName();
-        String consumerTopics = applicationConfig.getConsumerTopics();
+        final String connectorName = applicationConfig.getConnectorName();
+        final String consumerTopics = connectorName;
 
         expressDeliveryMap = ImmutableList.of(
                 new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, connectorName),

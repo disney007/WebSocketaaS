@@ -43,3 +43,28 @@ services:
     image: redis
     ports:
       - "6379:6379"
+  connector-02:
+    image: b064801b87f7
+    environment:
+      SPRING_PROFILES_ACTIVE: dev-docker
+      domainName: domain-01
+      connectorName: connector-02
+    ports:
+      - "8088:8088"
+    depends_on:
+      - rabbit-mq
+      - zookeeper
+      - kafka
+      - nats
+  processor-02:
+    image: c7bf0c458a07
+    environment:
+      SPRING_PROFILES_ACTIVE: dev-docker
+      domainName: domain-01
+      processorName: processor-02
+    depends_on:
+      - rabbit-mq
+      - zookeeper
+      - kafka
+      - nats
+      - redis

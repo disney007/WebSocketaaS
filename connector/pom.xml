@@ -60,28 +60,44 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.9</version>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <id>build-image</id>
-                        <phase>deploy</phase>
+                        <id>build-docker</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>build</goal>
+                            <goal>exec</goal>
                         </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <arguments>
+                                <argument>build</argument>
+                                <argument>.</argument>
+                                <argument>--build-arg</argument>
+                                <argument>JAR_FILE=target/${project.build.finalName}.jar</argument>
+                                <argument>-t</argument>
+                                <argument>linker.spendzer.com/${project.artifactId}:latest</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>tag-docker</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <arguments>
+                                <argument>tag</argument>
+                                <argument>linker.spendzer.com/${project.artifactId}:latest</argument>
+                                <argument>linker.spendzer.com/${project.artifactId}:${project.version}</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>
-                    <repository>linker.spendzer.com/${project.artifactId}</repository>
-                    <imageName>linker.spendzer.com/${project.artifactId}:${project.version}</imageName>
-                    <buildArgs>
-                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-                    </buildArgs>
-                    <forceTags>true</forceTags>
-                    <tag>${project.version}</tag>
-                </configuration>
             </plugin>
         </plugins>
     </build>

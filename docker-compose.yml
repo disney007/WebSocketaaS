@@ -44,7 +44,7 @@ services:
     ports:
       - "6379:6379"
   connector-02:
-    image: b064801b87f7
+    image: linker.spendzer.com/connector:latest
     environment:
       SPRING_PROFILES_ACTIVE: dev-docker
       domainName: domain-01
@@ -57,7 +57,7 @@ services:
       - kafka
       - nats
   processor-02:
-    image: c7bf0c458a07
+    image: linker.spendzer.com/processor:latest
     environment:
       SPRING_PROFILES_ACTIVE: dev-docker
       domainName: domain-01

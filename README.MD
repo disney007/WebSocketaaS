@@ -1,3 +1,7 @@
+##pre-requirement
+* install nodejs
+* add `127.0.0.1 kafka` to `/etc/hosts`
+
 ##how to build containers
 run `mvn clean install` 
 

@@ -1,4 +1,4 @@
-package com.linker.common.models;
+package com.linker.common.messages;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AuthClientMessage {
+public class AuthClient {
     String appId;
     String userId;
     String token;

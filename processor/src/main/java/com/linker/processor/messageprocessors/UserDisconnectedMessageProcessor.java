@@ -4,7 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
-import com.linker.common.models.UserDisconnectedMessage;
+import com.linker.common.messages.UserDisconnected;
 import com.linker.processor.repositories.UserChannelRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisconnectedMessage> {
+public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisconnected> {
     @Autowired
     UserChannelRepository userChannelRepository;
 
@@ -24,7 +24,7 @@ public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisco
     }
 
     @Override
-    public void doProcess(Message message, UserDisconnectedMessage data, MessageContext context) throws IOException {
+    public void doProcess(Message message, UserDisconnected data, MessageContext context) throws IOException {
         log.info("user [{}] disconnected", data.getUserId());
         userChannelRepository.findById(data.getUserId())
                 .ifPresent(userChannel -> {

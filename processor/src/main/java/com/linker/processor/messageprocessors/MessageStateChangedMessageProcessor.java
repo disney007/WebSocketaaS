@@ -6,7 +6,7 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
-import com.linker.common.models.MessageStateChangedMessage;
+import com.linker.common.messages.MessageStateChanged;
 import com.linker.processor.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class MessageStateChangedMessageProcessor extends MessageProcessor<MessageStateChangedMessage> {
+public class MessageStateChangedMessageProcessor extends MessageProcessor<MessageStateChanged> {
     @Autowired
     MessageRepository messageRepository;
 
@@ -29,7 +29,7 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
     }
 
     @Override
-    public void doProcess(Message message, MessageStateChangedMessage data, MessageContext context) throws IOException {
+    public void doProcess(Message message, MessageStateChanged data, MessageContext context) throws IOException {
 
         if (data.getState() == MessageState.TARGET_NOT_FOUND) {
             // if target not found, try one time, if still not found, state will be updated by post office

@@ -1,13 +1,13 @@
-package com.linker.common.models;
+package com.linker.common.messages;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class MessageForwardMessage {
-    String from;
+@AllArgsConstructor
+public class MessageRequest {
+    String to;
     String content;
 }

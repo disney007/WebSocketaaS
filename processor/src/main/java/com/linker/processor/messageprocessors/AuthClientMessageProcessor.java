@@ -8,8 +8,8 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageResult;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.models.AuthClientMessage;
-import com.linker.common.models.AuthClientReplyMessage;
+import com.linker.common.messages.AuthClient;
+import com.linker.common.messages.AuthClientReply;
 import com.linker.processor.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessage> {
+public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
     @Autowired
     PostOffice postOffice;
 
@@ -29,9 +29,9 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClientMessa
     }
 
     @Override
-    public void doProcess(Message message, AuthClientMessage data, MessageContext context) throws IOException {
+    public void doProcess(Message message, AuthClient data, MessageContext context) throws IOException {
         MessageResult result = MessageResult.ok();
-        AuthClientReplyMessage replyMessageData = new AuthClientReplyMessage(result);
+        AuthClientReply replyMessageData = new AuthClientReply(result);
         replyMessageData.setAppId(data.getAppId());
         replyMessageData.setToken(data.getToken());
         replyMessageData.setUserId(data.getUserId());

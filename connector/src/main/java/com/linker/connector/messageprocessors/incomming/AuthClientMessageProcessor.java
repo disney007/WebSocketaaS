@@ -3,7 +3,7 @@ package com.linker.connector.messageprocessors.incomming;
 import com.linker.common.Message;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
-import com.linker.common.models.AuthClientMessage;
+import com.linker.common.messages.AuthClient;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.PostOffice;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthClientMessage> {
+public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthClient> {
 
     @Autowired
     NetworkUserService networkUserService;
@@ -34,7 +34,7 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
     }
 
     @Override
-    public void doProcess(Message message, AuthClientMessage data, SocketHandler socketHandler) throws IOException {
+    public void doProcess(Message message, AuthClient data, SocketHandler socketHandler) throws IOException {
         if (socketHandler.getAuthStatus() == AuthStatus.NOT_AUTHENTICATED) {
             String userId = data.getUserId();
             message.setFrom(userId);

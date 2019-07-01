@@ -2,7 +2,7 @@ package com.linker.connector.messageprocessors.incomming;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;
-import com.linker.common.models.UserDisconnectedMessage;
+import com.linker.common.messages.UserDisconnected;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class UserDisconnectedMessageProcessor extends IncomingMessageProcessor<UserDisconnectedMessage> {
+public class UserDisconnectedMessageProcessor extends IncomingMessageProcessor<UserDisconnected> {
 
     @Autowired
     NetworkUserService networkUserService;
@@ -22,7 +22,7 @@ public class UserDisconnectedMessageProcessor extends IncomingMessageProcessor<U
     PostOffice postOffice;
 
     @Override
-    public void doProcess(Message message, UserDisconnectedMessage data, SocketHandler socketHandler) throws IOException {
+    public void doProcess(Message message, UserDisconnected data, SocketHandler socketHandler) throws IOException {
         String userId = data.getUserId();
         if (StringUtils.isNotEmpty(userId)) {
             networkUserService.removeUser(userId, socketHandler.getSocketId());

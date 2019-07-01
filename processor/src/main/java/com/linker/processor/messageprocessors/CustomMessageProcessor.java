@@ -6,8 +6,8 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.exceptions.AddressNotFoundException;
-import com.linker.common.models.MessageForwardMessage;
-import com.linker.common.models.MessageRequestMessage;
+import com.linker.common.messages.MessageForward;
+import com.linker.common.messages.MessageRequest;
 import com.linker.processor.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class CustomMessageProcessor extends MessageProcessor<MessageRequestMessage> {
+public class CustomMessageProcessor extends MessageProcessor<MessageRequest> {
 
     @Autowired
     PostOffice postOffice;
@@ -31,11 +31,15 @@ public class CustomMessageProcessor extends MessageProcessor<MessageRequestMessa
     }
 
     @Override
-    public void doProcess(Message message, MessageRequestMessage data, MessageContext context) throws IOException {
-        String from = message.getFrom();
-        MessageForwardMessage messageData = new MessageForwardMessage(from, data.getContent());
-        message.getContent().setData(messageData);
+    public void doPreprocess(Message message, MessageRequest data, MessageContext context) {
         message.setTo(data.getTo());
+    }
+
+    @Override
+    public void doProcess(Message message, MessageRequest data, MessageContext context) throws IOException {
+        String from = message.getFrom();
+        MessageForward messageData = new MessageForward(from, data.getContent());
+        message.getContent().setData(messageData);
 
         try {
             postOffice.deliveryMessage(message);

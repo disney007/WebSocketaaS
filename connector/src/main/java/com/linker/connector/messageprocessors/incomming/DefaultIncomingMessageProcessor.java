@@ -5,7 +5,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.models.EmptyMessage;
+import com.linker.common.messages.EmptyMessage;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;

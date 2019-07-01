@@ -42,18 +42,16 @@ public class MessageProcessorService {
 
     public void process(Message message) {
         log.info("start processing message [{}]", message);
-        preprocess(message);
+
         MessageType messageType = message.getContent().getType();
         MessageProcessor<?> processor = processors.getOrDefault(messageType, null);
         if (processor != null) {
+            processor.preprocess(message, null);
+            saveMessage(message);
             processor.process(message, null);
         } else {
             log.warn("no processor found for message type {}", messageType);
         }
-    }
-
-    void preprocess(Message message) {
-        saveMessage(message);
     }
 
     boolean shouldPersistMessage(MessageFeature feature, MessageType type) {

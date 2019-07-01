@@ -1,4 +1,4 @@
-package com.linker.common.models;
+package com.linker.common.messages;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserConnectedMessage {
+public class UserConnected {
     String userId;
 }

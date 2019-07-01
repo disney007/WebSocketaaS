@@ -1,4 +1,4 @@
-package com.linker.common.models;
+package com.linker.common.messages;
 
 import com.linker.common.MessageResult;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthClientReplyMessage extends AuthClientMessage{
+public class AuthClientReply extends AuthClient {
     MessageResult result;
 }

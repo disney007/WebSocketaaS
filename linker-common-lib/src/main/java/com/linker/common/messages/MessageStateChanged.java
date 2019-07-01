@@ -1,4 +1,4 @@
-package com.linker.common.models;
+package com.linker.common.messages;
 
 import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageState;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageStateChangedMessage {
+public class MessageStateChanged {
     MessageSnapshot message;
     MessageState state;
 }

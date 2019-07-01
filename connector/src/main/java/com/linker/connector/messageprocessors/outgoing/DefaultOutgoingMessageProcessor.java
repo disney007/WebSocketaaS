@@ -9,7 +9,7 @@ import com.linker.common.MessageMeta;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.models.MessageStateChangedMessage;
+import com.linker.common.messages.MessageStateChanged;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.PostOffice;
 import com.linker.connector.SocketHandler;
@@ -62,7 +62,7 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
                 .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName())))
                 .content(
                         MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
-                                new MessageStateChangedMessage(message.toSnapshot(), state), MessageFeature.RELIABLE)
+                                new MessageStateChanged(message.toSnapshot(), state), MessageFeature.RELIABLE)
                 )
                 .build();
         postOffice.deliveryMessage(confirmMessage);

@@ -8,8 +8,8 @@ import com.linker.common.MessageMeta;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.ResultStatus;
-import com.linker.common.models.AuthClientReplyMessage;
-import com.linker.common.models.UserConnectedMessage;
+import com.linker.common.messages.AuthClientReply;
+import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
 import com.linker.connector.PostOffice;
@@ -24,7 +24,7 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<AuthClientReplyMessage> {
+public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<AuthClientReply> {
     @Autowired
     NetworkUserService networkUserService;
 
@@ -40,7 +40,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
     }
 
     @Override
-    public void doProcess(Message message, AuthClientReplyMessage data, MessageContext context) throws IOException {
+    public void doProcess(Message message, AuthClientReply data, MessageContext context) throws IOException {
         String userId = data.getUserId();
         Long socketId = Long.parseLong(message.getMeta().getNote());
         SocketHandler socketHandler = networkUserService.getPendingUser(userId, socketId);
@@ -56,7 +56,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
             meta.setOriginalAddress(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), socketId));
             Message userConnectedMessage = Message.builder()
                     .content(
-                            MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnectedMessage(userId),
+                            MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnected(userId),
                                     message.getContent().getFeature())
                     )
                     .from(Keywords.SYSTEM)

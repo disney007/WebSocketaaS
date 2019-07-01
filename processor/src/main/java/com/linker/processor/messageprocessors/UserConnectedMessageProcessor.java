@@ -4,7 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
-import com.linker.common.models.UserConnectedMessage;
+import com.linker.common.messages.UserConnected;
 import com.linker.processor.models.UserChannel;
 import com.linker.processor.repositories.UserChannelRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 @Service
 @Slf4j
-public class UserConnectedMessageProcessor extends MessageProcessor<UserConnectedMessage> {
+public class UserConnectedMessageProcessor extends MessageProcessor<UserConnected> {
     @Autowired
     UserChannelRepository userChannelRepository;
 
@@ -27,7 +27,7 @@ public class UserConnectedMessageProcessor extends MessageProcessor<UserConnecte
     }
 
     @Override
-    public void doProcess(Message message, UserConnectedMessage data, MessageContext context) throws IOException {
+    public void doProcess(Message message, UserConnected data, MessageContext context) throws IOException {
         log.info("user [{}] connected", data.getUserId());
         UserChannel userChannel = userChannelRepository.findById(data.getUserId()).orElse(null);
         if (userChannel == null) {

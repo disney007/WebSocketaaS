@@ -11,7 +11,7 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.Utils;
 import com.linker.common.exceptions.ProcessMessageException;
-import com.linker.common.models.UserDisconnectedMessage;
+import com.linker.common.messages.UserDisconnected;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import io.netty.channel.ChannelFuture;
@@ -79,7 +79,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), socketId));
         Message message = Message.builder()
                 .content(
-                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnectedMessage(this.userId)
+                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnected(this.userId)
                                 , MessageFeature.RELIABLE)
                 )
                 .from(Keywords.SYSTEM)

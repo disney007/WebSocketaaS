@@ -44,12 +44,9 @@ public class MessageProcessorService {
     }
 
     MessageProcessor<?> getProcessor(Message message, Map<MessageType, MessageProcessor> processorMap) {
-        MessageType type = null;
-        String typeString = message.getContent().getType();
-        if (EnumUtils.isValidEnum(MessageType.class, typeString)) {
-            type = MessageType.valueOf(typeString);
-            if (!processorMap.containsKey(type))
-                type = MessageType.ANY;
+        MessageType type = message.getContent().getType();
+        if (!processorMap.containsKey(type)){
+            type = MessageType.ANY;
         }
 
         return processorMap.get(type);

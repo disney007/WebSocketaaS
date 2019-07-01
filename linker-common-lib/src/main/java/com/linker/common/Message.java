@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -12,20 +15,28 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "message")
 public class Message {
-    String messageId = UUID.randomUUID().toString();
+    @Id
+    String id = UUID.randomUUID().toString();
     String version = "0.1.0";
     MessageContent content;
     String from;
+    @Indexed
     String to;
     MessageMeta meta;
     long createdAt = ZonedDateTime.now().toInstant().toEpochMilli();
+    @Indexed
     MessageState state = MessageState.CREATED;
 
     @Override
     public String toString() {
-        return String.format("[version=%s, messageId=%s, type=%s, from=%s, to=%s, createdAt=%d, state=%s]",
-                version, messageId, (content != null ? content.getType() : "unknown"), from, to, createdAt, state);
+        return String.format("[version=%s, id=%s, type=%s, from=%s, to=%s, createdAt=%d, state=%s]",
+                version, id, (content != null ? content.getType() : "unknown"), from, to, createdAt, state);
+    }
+
+    public MessageSnapshot toSnapshot() {
+        return new MessageSnapshot(id, version, from, to, state, content.getType(), content.getFeature(), createdAt);
     }
 
     public static MessageBuilder builder() {
@@ -39,8 +50,8 @@ public class Message {
             message = new Message();
         }
 
-        public MessageBuilder messageId(String messageId) {
-            message.setMessageId(messageId);
+        public MessageBuilder id(String id) {
+            message.setId(id);
             return this;
         }
 

@@ -9,9 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageContent {
+public class MessageSnapshot {
+    String id;
+    String version;
+    String from;
+    String to;
+    MessageState state;
     MessageType type;
-    Object data;
-    String reference;
-    MessageFeature feature = MessageFeature.NORMAL;
+    MessageFeature feature;
+    long createdAt;
 }

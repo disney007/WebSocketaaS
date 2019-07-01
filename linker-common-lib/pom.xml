@@ -65,5 +65,11 @@
             <artifactId>jnats</artifactId>
             <version>${version.nats}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>${version.spring-boot}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

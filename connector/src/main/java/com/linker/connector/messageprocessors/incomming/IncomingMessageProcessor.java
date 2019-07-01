@@ -26,7 +26,7 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
         } catch (Exception e) {
             log.error("processing incoming message failed {}", message, e);
             SocketHandler socketHandler = (SocketHandler) context.get("SOCKET_HANDLER");
-            message.getContent().setType(MessageType.GENERAL_ERROR.name());
+            message.getContent().setType(MessageType.GENERAL_ERROR);
             try {
                 socketHandler.sendMessage(Utils.toJson(message.getContent()));
             } catch (JsonProcessingException ex) {

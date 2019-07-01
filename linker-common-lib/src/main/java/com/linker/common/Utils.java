@@ -33,8 +33,6 @@ public class Utils {
         switch (feature) {
             case FAST:
                 return ExpressDeliveryType.NATS;
-            case RELIABLE:
-                return ExpressDeliveryType.RABBITMQ;
             default:
                 return ExpressDeliveryType.KAFKA;
         }

@@ -13,5 +13,5 @@ public class MessageContent {
     MessageType type;
     Object data;
     String reference;
-    MessageFeature feature = MessageFeature.NORMAL;
+    MessageFeature feature = MessageFeature.RELIABLE;
 }

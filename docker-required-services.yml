@@ -1,12 +1,5 @@
 version: '3'
 services:
-  rabbit-mq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    labels:
-      NAME: "rabbitmq1"
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     ports:

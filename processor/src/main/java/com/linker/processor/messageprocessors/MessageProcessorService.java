@@ -57,8 +57,7 @@ public class MessageProcessorService {
     }
 
     boolean shouldPersistMessage(MessageFeature feature, MessageType type) {
-        return (feature == MessageFeature.NORMAL || feature == MessageFeature.RELIABLE)
-                && persistentMessageTypes.contains(type);
+        return feature == MessageFeature.RELIABLE && persistentMessageTypes.contains(type);
     }
 
     void saveMessage(Message message) {

@@ -11,7 +11,6 @@ import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
-import com.linker.common.messagedelivery.RabbitMQExpressDelivery;
 import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import com.linker.processor.models.UserChannel;
@@ -47,7 +46,6 @@ public class PostOffice implements ExpressDeliveryListener {
         String consumerTopics = applicationConfig.getConsumerTopics();
         expressDeliveryMap = ImmutableList.of(
                 new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming"),
-                new RabbitMQExpressDelivery(applicationConfig.getRabbitmqHosts(), consumerTopics),
                 new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);

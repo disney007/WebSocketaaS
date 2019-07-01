@@ -8,7 +8,6 @@ import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
-import com.linker.common.messagedelivery.RabbitMQExpressDelivery;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ public class PostOffice implements ExpressDeliveryListener {
 
         expressDeliveryMap = ImmutableList.of(
                 new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, connectorName),
-                new RabbitMQExpressDelivery(applicationConfig.getRabbitmqHosts(), consumerTopics),
                 new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);

@@ -4,7 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.messages.UserDisconnected;
 import com.linker.connector.NetworkUserService;
-import com.linker.connector.PostOffice;
+import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

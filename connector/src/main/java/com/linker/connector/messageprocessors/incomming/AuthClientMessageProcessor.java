@@ -6,7 +6,7 @@ import com.linker.common.MessageType;
 import com.linker.common.messages.AuthClient;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
-import com.linker.connector.PostOffice;
+import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

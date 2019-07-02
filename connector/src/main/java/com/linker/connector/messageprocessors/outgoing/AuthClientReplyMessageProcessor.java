@@ -12,7 +12,7 @@ import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
-import com.linker.connector.PostOffice;
+import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
 import io.netty.channel.ChannelFutureListener;

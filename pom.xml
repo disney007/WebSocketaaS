@@ -29,6 +29,7 @@
         <version.kafka>2.2.1</version.kafka>
         <version.nats>2.5.2</version.nats>
         <vesrion.jedis>2.9.0</vesrion.jedis>
+        <vesrion.junit>4.12</vesrion.junit>
     </properties>
 
 </project>

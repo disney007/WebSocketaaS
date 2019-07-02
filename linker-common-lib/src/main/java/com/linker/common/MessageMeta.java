@@ -7,7 +7,7 @@ public class MessageMeta {
     Address originalAddress;
     Address targetAddress;
     String note;
-
+    Integer ttl = 10;
     public MessageMeta() {
 
     }

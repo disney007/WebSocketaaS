@@ -7,7 +7,7 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.messages.EmptyMessage;
 import com.linker.connector.AuthStatus;
-import com.linker.connector.PostOffice;
+import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -6,6 +6,7 @@ import com.linker.common.MessageFeature;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
+import com.linker.common.MessageUtils;
 import com.linker.processor.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,12 @@ public class MessageProcessorService {
 
     public void process(Message message) {
         log.info("start processing message [{}]", message);
+
+        MessageUtils.touchMessage(message);
+        if(!MessageUtils.isMessageAlive(message)){
+            log.info("message [{}] is not alive", message);
+            return;
+        }
 
         MessageType messageType = message.getContent().getType();
         MessageProcessor<?> processor = processors.getOrDefault(messageType, null);

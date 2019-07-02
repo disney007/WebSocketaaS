@@ -1,4 +1,4 @@
-package com.linker.connector;
+package com.linker.connector.express;
 
 import com.google.common.collect.ImmutableList;
 import com.linker.common.Message;
@@ -6,8 +6,6 @@ import com.linker.common.Utils;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
-import com.linker.common.messagedelivery.KafkaExpressDelivery;
-import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,16 +27,16 @@ public class PostOffice implements ExpressDeliveryListener {
     @Autowired
     ApplicationConfig applicationConfig;
 
+    @Autowired
+    ExpressDeliveryFactory expressDeliveryFactory;
+
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
-        final String connectorName = applicationConfig.getConnectorName();
-        final String consumerTopics = connectorName;
-
         expressDeliveryMap = ImmutableList.of(
-                new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, connectorName),
-                new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
+                expressDeliveryFactory.createKafkaExpressDelivery(),
+                expressDeliveryFactory.createNatsExpressDelivery()
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
             expressDelivery.start();

@@ -10,6 +10,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,60 +21,12 @@ import javax.annotation.PreDestroy;
 @Service
 @Slf4j
 public class NettyService {
-
-    @Slf4j
-    static class NettyServerHandler extends ChannelInboundHandlerAdapter {
-
-        public NettyServerHandler() {
-            log.info("new client connected");
-        }
-
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel active {}", ctx);
-        }
-
-        @Override
-        public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel registered {}", ctx);
-        }
-
-        @Override
-        public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel unregistered {}", ctx);
-        }
-
-        @Override
-        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel inactive {}", ctx);
-        }
-
-        @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel read complete {}", ctx);
-        }
-
-        @Override
-        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-            log.info("user event triggered {}", ctx);
-        }
-
-        @Override
-        public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-            log.info("channel writability changed {}", ctx);
-        }
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            log.info(msg.toString());
-        }
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            log.error("exception received {}", ctx, cause);
-            ctx.close();
-        }
+    public interface NettyServiceListener {
+        void onNettyServiceStarted();
     }
+
+    @Setter
+    NettyServiceListener listener;
 
     @Slf4j
     static class NettyServer implements Runnable {
@@ -83,8 +36,14 @@ public class NettyService {
 
         @Autowired
         WebSocketChannelInitializer channelInitializer;
+
         volatile EventLoopGroup bossGroup;
         volatile EventLoopGroup workerGroup;
+        NettyService nettyService;
+
+        NettyServer(NettyService nettyService) {
+            this.nettyService = nettyService;
+        }
 
         public void shutdown() {
             log.info("shutdown netty server");
@@ -114,6 +73,7 @@ public class NettyService {
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
                 ChannelFuture f = b.bind(applicationConfig.getWsPort()).sync();
                 log.info("netty server started");
+                nettyService.fireNettyServerStartedEvent();
                 f.channel().closeFuture().sync();
 
             } catch (InterruptedException e) {
@@ -127,9 +87,15 @@ public class NettyService {
 
     NettyServer nettyServer;
 
+    void fireNettyServerStartedEvent() {
+        if (this.listener != null) {
+            this.listener.onNettyServiceStarted();
+        }
+    }
+
     @Autowired
     public NettyService(ApplicationContext context) {
-        nettyServer = new NettyServer();
+        nettyServer = new NettyServer(this);
         context.getAutowireCapableBeanFactory().autowireBean(nettyServer);
         new Thread(nettyServer).start();
     }

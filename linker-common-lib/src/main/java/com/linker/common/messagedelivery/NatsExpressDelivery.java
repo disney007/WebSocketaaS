@@ -1,5 +1,6 @@
 package com.linker.common.messagedelivery;
 
+import com.linker.common.Utils;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
@@ -18,6 +19,8 @@ public class NatsExpressDelivery implements ExpressDelivery {
     @Setter
     ExpressDeliveryListener listener;
 
+    Dispatcher consumerDispatcher;
+
     String hosts;
     String consumerTopic;
 
@@ -31,11 +34,11 @@ public class NatsExpressDelivery implements ExpressDelivery {
         try {
             Options o = new Options.Builder().server(hosts).build();
             connection = Nats.connect(o);
-            Dispatcher dispatcher = connection.createDispatcher(message -> {
+            consumerDispatcher = connection.createDispatcher(message -> {
                 String msg = new String(message.getData(), StandardCharsets.UTF_8);
                 this.onMessageArrived(msg);
             });
-            dispatcher.subscribe(consumerTopic);
+            consumerDispatcher.subscribe(consumerTopic);
             log.info("Nats:connected");
         } catch (IOException | InterruptedException e) {
             log.error("Nats:failed to start", e);
@@ -44,6 +47,12 @@ public class NatsExpressDelivery implements ExpressDelivery {
 
     @Override
     public void stop() {
+        log.info("Nats: close consumer");
+        if (consumerDispatcher != null) {
+            consumerDispatcher.unsubscribe(consumerTopic);
+        }
+        Utils.sleep(3000L);
+        log.info("Nats: close connection");
         if (connection != null) {
             try {
                 connection.close();

@@ -100,4 +100,9 @@ public class PostOffice implements ExpressDeliveryListener {
 
         return ImmutableList.of();
     }
+
+    public void shutdown() {
+        log.info("showdown post office");
+        expressDeliveryMap.values().forEach(ExpressDelivery::stop);
+    }
 }

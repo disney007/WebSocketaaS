@@ -1,5 +1,6 @@
 package com.linker.common.messagedelivery;
 
+import com.linker.common.Utils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -100,6 +101,7 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     public void stop() {
         log.info("kafka:close consumer");
         consumer.wakeup();
+        Utils.sleep(3000L);
         log.info("kafka:close producer");
         producer.close();
     }

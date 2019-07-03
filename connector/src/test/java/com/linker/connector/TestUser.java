@@ -1,5 +1,7 @@
 package com.linker.connector;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.linker.common.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -93,10 +95,21 @@ public class TestUser {
 
     void onClosed(String str) {
         log.info("user [{}] closed", username);
-        this.onCloseCallback.accept(str);
+        if (this.onMessageCallback != null) {
+            this.onCloseCallback.accept(str);
+        }
     }
 
     public void onClosed(Consumer<String> consumer) {
         this.onCloseCallback = consumer;
+    }
+
+    public void send(TestMessage message) {
+        try {
+            String json = Utils.toJson(message);
+            this.webSocketClient.send(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("failed to convert test message to json", e);
+        }
     }
 }

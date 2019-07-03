@@ -1,6 +1,7 @@
 package com.linker.common.messagedelivery;
 
 import com.linker.common.Utils;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -39,6 +40,7 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Setter
+    @Getter
     ExpressDeliveryListener listener;
 
     Consumer<String, String> consumer;
@@ -112,6 +114,9 @@ public class KafkaExpressDelivery implements ExpressDelivery {
         producer.send(record, (recordMetadata, e) -> {
             log.info("kafka:send message complete");
         });
+        if (listener != null) {
+            listener.onMessageDelivered(this, target, message);
+        }
     }
 
     @Override

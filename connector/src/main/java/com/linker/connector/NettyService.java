@@ -14,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 @Service
 @Slf4j
 public class NettyService {
@@ -23,6 +28,8 @@ public class NettyService {
 
     @Setter
     NettyServiceListener listener;
+
+    ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @Slf4j
     static class NettyServer implements Runnable {
@@ -93,7 +100,11 @@ public class NettyService {
     public NettyService(ApplicationContext context) {
         nettyServer = new NettyServer(this);
         context.getAutowireCapableBeanFactory().autowireBean(nettyServer);
-        new Thread(nettyServer).start();
+    }
+
+    @PostConstruct
+    void start() {
+        executorService.schedule(nettyServer, 1, TimeUnit.SECONDS);
     }
 
     void shutdown() {

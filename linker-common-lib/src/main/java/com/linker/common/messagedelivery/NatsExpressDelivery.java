@@ -5,6 +5,7 @@ import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +18,7 @@ public class NatsExpressDelivery implements ExpressDelivery {
     Connection connection;
 
     @Setter
+    @Getter
     ExpressDeliveryListener listener;
 
     Dispatcher consumerDispatcher;
@@ -70,10 +72,15 @@ public class NatsExpressDelivery implements ExpressDelivery {
     @Override
     public void deliveryMessage(String target, String message) throws IOException {
         connection.publish(target, message.getBytes(StandardCharsets.UTF_8));
+        if (listener != null) {
+            listener.onMessageDelivered(this, target, message);
+        }
     }
 
     @Override
     public void onMessageArrived(String message) {
-        listener.onMessageArrived(this, message);
+        if (listener != null) {
+            listener.onMessageArrived(this, message);
+        }
     }
 }

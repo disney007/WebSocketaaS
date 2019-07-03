@@ -34,10 +34,10 @@ public class IntegrationTest {
     }
 
 
-    protected static class AsyncTest {
-        CompletableFuture<AsyncTest> future;
+    protected static class AsyncStep {
+        CompletableFuture<AsyncStep> future;
 
-        public AsyncTest(CompletableFuture<AsyncTest> future) {
+        public AsyncStep(CompletableFuture<AsyncStep> future) {
             this.future = future;
         }
 
@@ -46,9 +46,9 @@ public class IntegrationTest {
         }
     }
 
-    protected void asyncTest(Consumer<AsyncTest> consumer) {
-        CompletableFuture<AsyncTest> future = new CompletableFuture<>();
-        AsyncTest asyncTest = new AsyncTest(future);
+    protected void async(Consumer<AsyncStep> consumer) {
+        CompletableFuture<AsyncStep> future = new CompletableFuture<>();
+        AsyncStep asyncTest = new AsyncStep(future);
         consumer.accept(asyncTest);
 
         try {

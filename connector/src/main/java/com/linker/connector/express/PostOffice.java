@@ -65,4 +65,9 @@ public class PostOffice implements ExpressDeliveryListener {
         ExpressDeliveryType type = Utils.calcExpressDelivery(message.getContent().getFeature());
         return this.expressDeliveryMap.get(type);
     }
+
+    public void showdown() {
+        log.info("showdown post office");
+        expressDeliveryMap.values().forEach(ExpressDelivery::stop);
+    }
 }

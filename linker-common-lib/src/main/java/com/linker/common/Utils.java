@@ -5,9 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class Utils {
     static ObjectMapper objectMapper;
 
@@ -35,6 +37,14 @@ public class Utils {
                 return ExpressDeliveryType.NATS;
             default:
                 return ExpressDeliveryType.KAFKA;
+        }
+    }
+
+    public static void sleep(long ms){
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            log.info("thread interrupted during sleep, ignore");
         }
     }
 }

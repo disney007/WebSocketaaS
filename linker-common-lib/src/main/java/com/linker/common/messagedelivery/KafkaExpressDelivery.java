@@ -13,6 +13,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -67,17 +68,24 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     void runConsumer() {
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
-            for (TopicPartition partition : records.partitions()) {
-                List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
-                for (ConsumerRecord<String, String> record : partitionRecords) {
-                    this.onMessageArrived(record.value());
+        try {
+            while (true) {
+                ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
+                for (TopicPartition partition : records.partitions()) {
+                    List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
+                    for (ConsumerRecord<String, String> record : partitionRecords) {
+                        this.onMessageArrived(record.value());
+                    }
+                    long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
+                    consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
                 }
-                long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
-                consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
             }
+        } catch (WakeupException e) {
+            log.info("wake up consumer to showdown");
+        } finally {
+            consumer.close();
         }
+
     }
 
     @Override
@@ -91,7 +99,9 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     @Override
     public void stop() {
         log.info("kafka:close consumer");
-        consumer.close();
+        consumer.wakeup();
+        log.info("kafka:close producer");
+        producer.close();
     }
 
     @Override

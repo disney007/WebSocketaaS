@@ -3,8 +3,6 @@ package com.linker.connector;
 import com.linker.connector.configurations.ApplicationConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -15,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PreDestroy;
 
 @Service
 @Slf4j
@@ -100,8 +96,7 @@ public class NettyService {
         new Thread(nettyServer).start();
     }
 
-    @PreDestroy
-    void onDestroy() throws InterruptedException {
+    void shutdown() {
         nettyServer.shutdown();
     }
 }

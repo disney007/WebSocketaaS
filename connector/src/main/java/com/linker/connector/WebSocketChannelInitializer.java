@@ -28,4 +28,8 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         applicationContext.getAutowireCapableBeanFactory().autowireBean(webSocketHandler);
         pipeline.addLast(webSocketHandler);
     }
+
+    public void resetCounter() {
+        counter = 0L;
+    }
 }

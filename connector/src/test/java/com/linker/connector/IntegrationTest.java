@@ -1,5 +1,7 @@
 package com.linker.connector;
 
+import com.linker.common.Utils;
+import com.linker.connector.express.MockKafkaExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,7 +12,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -20,19 +24,35 @@ import java.util.function.Consumer;
 @ActiveProfiles("test")
 @SpringBootTest
 @Import(TestConfig.class)
-@Ignore
 @Slf4j
-public class IntegrationTest {
+public abstract class IntegrationTest {
 
     @Autowired
     IntegrationTestEnv integrationTestEnv;
+
+    @Autowired
+    NetworkUserService userService;
+
+    @Autowired
+    WebSocketChannelInitializer webSocketChannelInitializer;
+
+    @Autowired
+    MockKafkaExpressDelivery kafkaExpressDelivery;
 
     @Before
     public void integrationSetup() {
         log.info("init integration env");
         integrationTestEnv.waitForReady();
+        closeAllUsers(userService.pendingUsers);
+        closeAllUsers(userService.users);
+        webSocketChannelInitializer.resetCounter();
+        kafkaExpressDelivery.reset();
+        Utils.sleep(30L);
     }
 
+    void closeAllUsers(ConcurrentHashMap<String, List<SocketHandler>> map) {
+        map.forEach((key, value) -> value.forEach(SocketHandler::close));
+    }
 
     protected static class AsyncStep {
         CompletableFuture<AsyncStep> future;

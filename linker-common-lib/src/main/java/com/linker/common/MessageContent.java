@@ -16,4 +16,8 @@ public class MessageContent {
     Object data;
     String reference;
     MessageFeature feature = MessageFeature.RELIABLE;
+
+    public <T> T getData(Class<T> clazz) {
+        return Utils.convert(data, clazz);
+    }
 }

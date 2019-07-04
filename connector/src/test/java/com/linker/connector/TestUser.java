@@ -1,13 +1,18 @@
 package com.linker.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.linker.common.MessageContent;
+import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -28,6 +33,7 @@ public class TestUser {
 
         @Override
         public void onMessage(String s) {
+            user.onMessage(s);
         }
 
         @Override
@@ -47,6 +53,7 @@ public class TestUser {
     Consumer<Exception> onErrorCallback;
     Consumer<String> onCloseCallback;
     Consumer<String> onMessageCallback;
+    LinkedBlockingQueue<MessageContent> receivedMessageQueue = new LinkedBlockingQueue<>();
 
     public TestUser(String username) {
         this.username = username;
@@ -64,7 +71,16 @@ public class TestUser {
 
     void onMessage(String message) {
         log.info("user [{}] received message {}", username, message);
-        this.onMessageCallback.accept(message);
+        try {
+            MessageContent testMessage = Utils.fromJson(message, MessageContent.class);
+            this.receivedMessageQueue.add(testMessage);
+            if (onMessageCallback != null) {
+                this.onMessageCallback.accept(message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void onMessage(Consumer<String> consumer) {
@@ -104,12 +120,29 @@ public class TestUser {
         this.onCloseCallback = consumer;
     }
 
-    public void send(TestMessage message) {
+    public void send(MessageContent message) {
         try {
             String json = Utils.toJson(message);
             this.webSocketClient.send(json);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("failed to convert test message to json", e);
         }
+    }
+
+    public void close() {
+        log.info("[{}] closed", this.username);
+        this.webSocketClient.close();
+    }
+
+    public MessageContent getReceivedMessage() throws InterruptedException {
+        return this.receivedMessageQueue.poll(10L, TimeUnit.SECONDS);
+    }
+
+    public MessageContent getReceivedMessage(MessageType type) throws InterruptedException {
+        MessageContent testMessage;
+        do {
+            testMessage = getReceivedMessage();
+        } while (testMessage.getType() != type);
+        return testMessage;
     }
 }

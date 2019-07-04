@@ -1,19 +1,20 @@
 package com.linker.connector.express;
 
 import com.linker.common.Message;
+import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
-import com.linker.connector.TestFailedException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@Slf4j
 public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
 
-    CompletableFuture<Message> deliveryMessageFuture;
+    LinkedBlockingQueue<Message> deliveredMessageQueue = new LinkedBlockingQueue<>();
 
     public MockKafkaExpressDelivery() {
         super(null, null, null);
@@ -24,7 +25,7 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
         if (getListener() != null) {
             getListener().onMessageDelivered(this, target, message);
         }
-        deliveryMessageFuture.complete(Utils.fromJson(message, Message.class));
+        deliveredMessageQueue.add(Utils.fromJson(message, Message.class));
     }
 
     @Override
@@ -32,6 +33,10 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
         if (getListener() != null) {
             getListener().onMessageArrived(this, message);
         }
+    }
+
+    public void reset() {
+        deliveredMessageQueue.clear();
     }
 
     @Override
@@ -44,12 +49,19 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
 
     }
 
-    public Message getDeliveredMessage() {
-        deliveryMessageFuture = new CompletableFuture<>();
-        try {
-            return deliveryMessageFuture.get(3000L, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new TestFailedException(e);
-        }
+    public Message getDeliveredMessage() throws InterruptedException {
+        return deliveredMessageQueue.poll(3L, TimeUnit.SECONDS);
+    }
+
+    public Message getDeliveredMessage(MessageType type) throws InterruptedException, TimeoutException {
+        log.info("kafka:wanting for message {}", type);
+        Message message;
+        do {
+            message = getDeliveredMessage();
+            if (message == null) {
+                throw new TimeoutException("kafka:failed to get message " + type);
+            }
+        } while (message.getContent().getType() != type);
+        return message;
     }
 }

@@ -6,10 +6,23 @@ import com.linker.common.MessageContent;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
+import com.linker.connector.express.MockKafkaExpressDelivery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
 
+@Component
 public class TestUtils {
+
+    static MockKafkaExpressDelivery kafkaExpressDelivery;
+
+    @Autowired
+    public void setApplicationContext(MockKafkaExpressDelivery kafkaExpressDelivery) {
+        this.kafkaExpressDelivery = kafkaExpressDelivery;
+    }
 
     public static void messageEquals(Message expectedMsg, Message actualMsg) {
         Object actualData = Utils.convert(actualMsg.getContent().getData(), expectedMsg.getContent().getData().getClass());
@@ -39,4 +52,19 @@ public class TestUtils {
         return testUser;
     }
 
+    public static TestUser loginClientUser(String userId) throws TimeoutException {
+        TestUser testUser = connectClientUser(userId);
+        kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
+        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"token\":\"token-12345\",\"result\":{\"status\":\"OK\"}},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
+        testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
+        return testUser;
+    }
+
+    public static void logout(TestUser testUser) throws TimeoutException {
+        if (testUser != null) {
+            testUser.close();
+            kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED);
+        }
+    }
 }

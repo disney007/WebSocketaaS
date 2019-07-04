@@ -34,7 +34,7 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
     TestUser testUser;
 
     @After
-    public void clean() throws InterruptedException, TimeoutException {
+    public void clean() throws TimeoutException {
         if (testUser != null) {
             testUser.close();
             kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED);
@@ -42,11 +42,11 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void testProcessor() throws InterruptedException {
+    public void testProcessor() throws TimeoutException {
         String userId = "ANZ-123223";
         assertEquals(0, networkUserService.getPendingUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);
-        Message actualMessage = kafkaExpressDelivery.getDeliveredMessage();
+        Message actualMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
         Message expectedMessage = Message.builder()
                 .content(
                         MessageUtils.createMessageContent(MessageType.AUTH_CLIENT, new AuthClient("app-id-343", "ANZ-123223", "token-12345")

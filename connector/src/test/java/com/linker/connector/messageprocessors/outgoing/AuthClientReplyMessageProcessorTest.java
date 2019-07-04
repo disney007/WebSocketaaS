@@ -42,7 +42,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
     TestUser testUser;
 
     @After
-    public void clean() throws InterruptedException, TimeoutException {
+    public void clean() throws TimeoutException {
         if (testUser != null) {
             testUser.close();
             kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED);
@@ -50,7 +50,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_authenticated() throws InterruptedException, TimeoutException {
+    public void test_authenticated() throws TimeoutException {
         assertEquals(0, networkUserService.getUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);
         kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
@@ -65,7 +65,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_not_authenticated() throws InterruptedException, TimeoutException {
+    public void test_not_authenticated() throws TimeoutException {
         assertEquals(0, networkUserService.getUser(userId).size());
         assertEquals(0, networkUserService.getPendingUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);

@@ -2,9 +2,9 @@ package com.linker.connector;
 
 import com.linker.common.Utils;
 import com.linker.connector.express.MockKafkaExpressDelivery;
+import com.linker.connector.express.MockNatsExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +39,9 @@ public abstract class IntegrationTest {
     @Autowired
     MockKafkaExpressDelivery kafkaExpressDelivery;
 
+    @Autowired
+    MockNatsExpressDelivery natsExpressDelivery;
+
     @Before
     public void integrationSetup() {
         log.info("init integration env");
@@ -47,6 +50,7 @@ public abstract class IntegrationTest {
         closeAllUsers(userService.users);
         webSocketChannelInitializer.resetCounter();
         kafkaExpressDelivery.reset();
+        natsExpressDelivery.reset();
         Utils.sleep(30L);
     }
 

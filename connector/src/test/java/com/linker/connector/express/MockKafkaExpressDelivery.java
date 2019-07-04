@@ -53,15 +53,22 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
         return deliveredMessageQueue.poll(3L, TimeUnit.SECONDS);
     }
 
-    public Message getDeliveredMessage(MessageType type) throws InterruptedException, TimeoutException {
-        log.info("kafka:wanting for message {}", type);
+    public Message getDeliveredMessage(MessageType type) throws TimeoutException {
+        log.info("kafka:waiting for message {}", type);
         Message message;
         do {
-            message = getDeliveredMessage();
+            try {
+                message = getDeliveredMessage();
+            } catch (InterruptedException e) {
+                log.error("kafka:waiting for message {} interrupted", type);
+                message = null;
+            }
+
             if (message == null) {
                 throw new TimeoutException("kafka:failed to get message " + type);
             }
         } while (message.getContent().getType() != type);
+
         return message;
     }
 }

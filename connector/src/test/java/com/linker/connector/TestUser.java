@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -135,13 +136,23 @@ public class TestUser {
     }
 
     public MessageContent getReceivedMessage() throws InterruptedException {
-        return this.receivedMessageQueue.poll(10L, TimeUnit.SECONDS);
+        return this.receivedMessageQueue.poll(3L, TimeUnit.SECONDS);
     }
 
-    public MessageContent getReceivedMessage(MessageType type) throws InterruptedException {
+    public MessageContent getReceivedMessage(MessageType type) throws TimeoutException {
+        log.info("test user [{}]:waiting for message {}", username, type);
         MessageContent testMessage;
         do {
-            testMessage = getReceivedMessage();
+            try {
+                testMessage = getReceivedMessage();
+            } catch (InterruptedException e) {
+                log.error("test user [{}] waiting for message {} interrupted", username, type);
+                testMessage = null;
+            }
+
+            if (testMessage == null) {
+                throw new TimeoutException(String.format("test user [%s]: failed to get message %s", username, type));
+            }
         } while (testMessage.getType() != type);
         return testMessage;
     }

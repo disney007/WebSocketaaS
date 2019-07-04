@@ -5,7 +5,7 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.messages.UserDisconnected;
-import com.linker.processor.repositories.UserChannelRepository;
+import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.io.IOException;
 @Slf4j
 public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisconnected> {
     @Autowired
-    UserChannelRepository userChannelRepository;
+    UserChannelService userChannelService;
 
     @Override
     public MessageType getMessageType() {
@@ -26,14 +26,6 @@ public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisco
     @Override
     public void doProcess(Message message, UserDisconnected data, MessageContext context) throws IOException {
         log.info("user [{}] disconnected", data.getUserId());
-        userChannelRepository.findById(data.getUserId())
-                .ifPresent(userChannel -> {
-                    userChannel.getAddresses().remove(message.getMeta().getOriginalAddress());
-                    if (userChannel.getAddresses().size() == 0) {
-                        userChannelRepository.delete(userChannel);
-                    } else {
-                        userChannelRepository.save(userChannel);
-                    }
-                });
+        userChannelService.removeAddress(data.getUserId(), message.getMeta().getOriginalAddress());
     }
 }

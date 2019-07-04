@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
+import java.util.Set;
 
 @RedisHash("user-channel")
 @Data
@@ -16,6 +17,6 @@ import java.util.List;
 public class UserChannel {
     @Id
     String username;
-    List<Address> addresses;
+    Set<Address> addresses;
     Long createdAt;
 }

@@ -5,21 +5,18 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.messages.UserConnected;
-import com.linker.processor.models.UserChannel;
-import com.linker.processor.repositories.UserChannelRepository;
+import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
 @Service
 @Slf4j
 public class UserConnectedMessageProcessor extends MessageProcessor<UserConnected> {
     @Autowired
-    UserChannelRepository userChannelRepository;
+    UserChannelService userChannelService;
 
     @Override
     public MessageType getMessageType() {
@@ -29,11 +26,6 @@ public class UserConnectedMessageProcessor extends MessageProcessor<UserConnecte
     @Override
     public void doProcess(Message message, UserConnected data, MessageContext context) throws IOException {
         log.info("user [{}] connected", data.getUserId());
-        UserChannel userChannel = userChannelRepository.findById(data.getUserId()).orElse(null);
-        if (userChannel == null) {
-            userChannel = new UserChannel(data.getUserId(), new ArrayList<>(), ZonedDateTime.now().toInstant().toEpochMilli());
-        }
-        userChannel.getAddresses().add(message.getMeta().getOriginalAddress());
-        userChannelRepository.save(userChannel);
+        userChannelService.addAddress(data.getUserId(), message.getMeta().getOriginalAddress());
     }
 }

@@ -11,9 +11,9 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.messages.MessageStateChanged;
 import com.linker.connector.NetworkUserService;
-import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
+import com.linker.connector.express.PostOffice;
 import io.netty.channel.ChannelFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
     void confirmMessage(Message message, MessageState state) throws IOException {
         Message confirmMessage = Message.builder()
                 .from(Keywords.SYSTEM)
-                .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName())))
+                .meta(new MessageMeta(message.getMeta().getTargetAddress()))
                 .content(
                         MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
                                 new MessageStateChanged(message.toSnapshot(), state), MessageFeature.RELIABLE)

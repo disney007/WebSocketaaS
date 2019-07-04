@@ -8,6 +8,7 @@ import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.messages.MessageStateChanged;
 import com.linker.processor.repositories.MessageRepository;
+import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
     @Autowired
     MessageProcessorService messageProcessorService;
 
+    @Autowired
+    UserChannelService userChannelService;
+
     @Override
     public MessageType getMessageType() {
         return MessageType.MESSAGE_STATE_CHANGED;
@@ -32,13 +36,21 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
     public void doProcess(Message message, MessageStateChanged data, MessageContext context) throws IOException {
 
         if (data.getState() == MessageState.TARGET_NOT_FOUND) {
-            // if target not found, try one time, if still not found, state will be updated by post office
-            Message originalMessage = messageRepository.findById(data.getMessage().getId());
-            messageProcessorService.process(originalMessage);
+            processTargetNotFound(message, data);
         } else {
             MessageSnapshot msg = data.getMessage();
             log.info("change message [{}] state to [{}]", msg.getId(), data.getState());
             messageProcessorService.updateMessageState(msg.getFeature(), msg.getType(), msg.getId(), data.getState());
         }
+    }
+
+    void processTargetNotFound(Message message, MessageStateChanged data) {
+        /*
+         * 1. remove invalid address.
+         * 2. try to send one time, if still not found, state will be updated by post office
+         * */
+        userChannelService.removeAddress(data.getMessage().getTo(), message.getMeta().getOriginalAddress());
+        Message originalMessage = messageRepository.findById(data.getMessage().getId());
+        messageProcessorService.process(originalMessage);
     }
 }

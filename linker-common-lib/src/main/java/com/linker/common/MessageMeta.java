@@ -18,6 +18,11 @@ public class MessageMeta {
         this.originalAddress = originalAddress;
     }
 
+    public MessageMeta(Address originalAddress, Address targetAddress) {
+        this.originalAddress = originalAddress;
+        this.targetAddress = targetAddress;
+    }
+
     public MessageMeta(Address originalAddress, String note) {
         this.originalAddress = originalAddress;
         this.note = note;

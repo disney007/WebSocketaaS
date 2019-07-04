@@ -1,10 +1,8 @@
 package com.linker.connector.messageprocessors.incomming;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
 import com.linker.common.Message;
 import com.linker.common.MessageContext;
-import com.linker.common.MessageMeta;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;

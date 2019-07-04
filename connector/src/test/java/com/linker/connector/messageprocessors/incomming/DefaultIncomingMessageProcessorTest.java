@@ -10,13 +10,9 @@ import com.linker.common.messages.MessageRequest;
 import com.linker.connector.IntegrationTest;
 import com.linker.connector.TestUser;
 import com.linker.connector.TestUtils;
-import com.linker.connector.configurations.ApplicationConfig;
-import com.linker.connector.express.MockKafkaExpressDelivery;
-import com.linker.connector.express.MockNatsExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeoutException;
 
@@ -25,15 +21,6 @@ public class DefaultIncomingMessageProcessorTest extends IntegrationTest {
 
     TestUser testUser;
     String userId = "ANZ-123223";
-
-    @Autowired
-    MockKafkaExpressDelivery kafkaExpressDelivery;
-
-    @Autowired
-    MockNatsExpressDelivery natsExpressDelivery;
-
-    @Autowired
-    ApplicationConfig applicationConfig;
 
     @After
     public void clean() throws TimeoutException {

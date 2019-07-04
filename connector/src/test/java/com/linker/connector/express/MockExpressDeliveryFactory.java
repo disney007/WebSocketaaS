@@ -3,12 +3,9 @@ package com.linker.connector.express;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
-import com.linker.connector.express.ExpressDeliveryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 @Primary

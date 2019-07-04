@@ -1,6 +1,7 @@
 package com.linker.connector;
 
 import com.linker.common.Utils;
+import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.express.MockKafkaExpressDelivery;
 import com.linker.connector.express.MockNatsExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
@@ -28,26 +29,29 @@ import java.util.function.Consumer;
 public abstract class IntegrationTest {
 
     @Autowired
-    IntegrationTestEnv integrationTestEnv;
+    protected IntegrationTestEnv integrationTestEnv;
 
     @Autowired
-    NetworkUserService userService;
+    protected NetworkUserService networkUserService;
 
     @Autowired
-    WebSocketChannelInitializer webSocketChannelInitializer;
+    protected WebSocketChannelInitializer webSocketChannelInitializer;
 
     @Autowired
-    MockKafkaExpressDelivery kafkaExpressDelivery;
+    protected MockKafkaExpressDelivery kafkaExpressDelivery;
 
     @Autowired
-    MockNatsExpressDelivery natsExpressDelivery;
+    protected MockNatsExpressDelivery natsExpressDelivery;
+
+    @Autowired
+    protected ApplicationConfig applicationConfig;
 
     @Before
     public void integrationSetup() {
         log.info("init integration env");
         integrationTestEnv.waitForReady();
-        closeAllUsers(userService.pendingUsers);
-        closeAllUsers(userService.users);
+        closeAllUsers(networkUserService.pendingUsers);
+        closeAllUsers(networkUserService.users);
         webSocketChannelInitializer.resetCounter();
         kafkaExpressDelivery.reset();
         natsExpressDelivery.reset();

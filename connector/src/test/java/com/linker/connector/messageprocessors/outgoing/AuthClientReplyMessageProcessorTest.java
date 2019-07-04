@@ -14,15 +14,11 @@ import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.IntegrationTest;
-import com.linker.connector.NetworkUserService;
 import com.linker.connector.TestUser;
 import com.linker.connector.TestUtils;
-import com.linker.connector.configurations.ApplicationConfig;
-import com.linker.connector.express.MockKafkaExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeoutException;
 
@@ -31,13 +27,6 @@ import static org.junit.Assert.assertEquals;
 @Slf4j
 public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
 
-    @Autowired
-    MockKafkaExpressDelivery kafkaExpressDelivery;
-    @Autowired
-    NetworkUserService networkUserService;
-
-    @Autowired
-    ApplicationConfig applicationConfig;
     String userId = "ANZ-123223";
     TestUser testUser;
 

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 public class MockNatsExpressDelivery extends NatsExpressDelivery {
 
     LinkedBlockingQueue<Message> deliveredMessageQueue = new LinkedBlockingQueue<>();
+
     public MockNatsExpressDelivery() {
         super(null, null);
     }

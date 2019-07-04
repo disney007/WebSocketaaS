@@ -4,9 +4,9 @@ import com.linker.common.Message;
 import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
-import com.linker.connector.express.PostOffice;
 import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
+import com.linker.connector.express.PostOffice;
 import com.linker.connector.messageprocessors.incomming.IncomingMessageProcessor;
 import com.linker.connector.messageprocessors.outgoing.OutgoingMessageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class MessageProcessorService {
 
     MessageProcessor<?> getProcessor(Message message, Map<MessageType, MessageProcessor> processorMap) {
         MessageType type = message.getContent().getType();
-        if (!processorMap.containsKey(type)){
+        if (!processorMap.containsKey(type)) {
             type = MessageType.ANY;
         }
 

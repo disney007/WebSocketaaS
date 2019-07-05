@@ -27,7 +27,7 @@ public class Application {
     PostOffice postOffice;
 
     @PreDestroy
-    void showdown() {
+    void shutdown() {
         log.info("shutting down application");
         networkUserService.users.forEach((key, value) -> value.forEach(SocketHandler::close));
         sleep(3000L);

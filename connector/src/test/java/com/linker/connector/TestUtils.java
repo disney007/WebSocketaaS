@@ -54,8 +54,9 @@ public class TestUtils {
 
     public static TestUser loginClientUser(String userId) throws TimeoutException {
         TestUser testUser = connectClientUser(userId);
-        kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"token\":\"token-12345\",\"result\":{\"status\":\"OK\"}},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
+        String note = deliveredMessage.getMeta().getNote();
+        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"" + userId + "\",\"token\":\"token-12345\",\"result\":{\"status\":\"OK\"}},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"" + note + "\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
         kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         return testUser;

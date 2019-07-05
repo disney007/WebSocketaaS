@@ -14,6 +14,7 @@ import com.linker.common.exceptions.ProcessMessageException;
 import com.linker.common.messages.UserDisconnected;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -108,5 +109,10 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("exception received", cause);
+    }
+
+    @Override
+    public Channel getChannel() {
+        return context.channel();
     }
 }

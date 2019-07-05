@@ -1,6 +1,7 @@
 package com.linker.connector;
 
 import com.linker.common.Message;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 public interface SocketHandler {
@@ -19,4 +20,6 @@ public interface SocketHandler {
     ChannelFuture close();
 
     Long getSocketId();
+
+    Channel getChannel();
 }

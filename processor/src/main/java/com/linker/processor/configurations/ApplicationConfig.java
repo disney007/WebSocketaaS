@@ -1,5 +1,6 @@
 package com.linker.processor.configurations;
 
+import com.linker.processor.models.ClientApp;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableConfigurationProperties
@@ -24,6 +27,9 @@ public class ApplicationConfig {
     String kafkaHosts;
     String natsHosts;
     String consumerTopics;
+
+
+    List<ClientApp> clientApps = new ArrayList<>();
 
     @PostConstruct
     public void init() {

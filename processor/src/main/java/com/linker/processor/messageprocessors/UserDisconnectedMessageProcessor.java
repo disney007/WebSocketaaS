@@ -5,6 +5,7 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.messages.UserDisconnected;
+import com.linker.processor.ProcessorUtils;
 import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisco
     @Autowired
     UserChannelService userChannelService;
 
+    @Autowired
+    ProcessorUtils processorUtils;
+
     @Override
     public MessageType getMessageType() {
         return MessageType.USER_DISCONNECTED;
@@ -27,5 +31,8 @@ public class UserDisconnectedMessageProcessor extends MessageProcessor<UserDisco
     public void doProcess(Message message, UserDisconnected data, MessageContext context) throws IOException {
         log.info("user [{}] disconnected", data.getUserId());
         userChannelService.removeAddress(data.getUserId(), message.getMeta().getOriginalAddress());
+
+        log.info("send user [{}] disconnected message to master user", data.getUserId());
+        processorUtils.sendMessageToMasterUser(MessageType.USER_DISCONNECTED, data, data.getUserId());
     }
 }

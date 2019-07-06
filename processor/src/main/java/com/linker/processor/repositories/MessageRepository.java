@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class MessageRepository {
@@ -36,12 +37,12 @@ public class MessageRepository {
         mongoTemplate.updateFirst(query, update, Message.class);
     }
 
-    public Page<Message> findMessages(String toUser, MessageType type, MessageState state, Integer pageSize) {
+    public Page<Message> findMessages(String toUser, Set<MessageType> types, Set<MessageState> states, Integer pageSize) {
         PageRequest pageable = PageRequest.of(0, pageSize, new Sort(Sort.Direction.ASC, "createdAt"));
         Query query = Query.query(
                 Criteria.where("to").is(toUser)
-                        .and("content.type").is(type)
-                        .and("state").is(state)
+                        .and("content.type").in(types)
+                        .and("state").in(states)
         ).with(pageable);
 
         long total = mongoTemplate.count(query, Message.class);

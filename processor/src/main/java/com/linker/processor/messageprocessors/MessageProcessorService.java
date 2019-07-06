@@ -33,7 +33,7 @@ public class MessageProcessorService {
 
     Map<MessageType, MessageProcessor<?>> processors = new HashMap<>();
 
-    Set<MessageType> persistentMessageTypes = ImmutableSet.of(MessageType.MESSAGE);
+    Set<MessageType> persistentMessageTypes = ImmutableSet.of(MessageType.MESSAGE, MessageType.USER_CONNECTED, MessageType.USER_DISCONNECTED);
 
     @PostConstruct
     public void setup() {
@@ -45,7 +45,7 @@ public class MessageProcessorService {
         log.info("start processing message [{}]", message);
 
         MessageUtils.touchMessage(message);
-        if(!MessageUtils.isMessageAlive(message)){
+        if (!MessageUtils.isMessageAlive(message)) {
             log.info("message [{}] is not alive", message);
             return;
         }

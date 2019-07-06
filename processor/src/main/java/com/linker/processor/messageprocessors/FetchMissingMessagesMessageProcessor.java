@@ -1,5 +1,6 @@
 package com.linker.processor.messageprocessors;
 
+import com.google.common.collect.ImmutableSet;
 import com.linker.common.Keywords;
 import com.linker.common.Message;
 import com.linker.common.MessageContext;
@@ -8,6 +9,7 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
+import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messages.FetchMissingMessagesComplete;
 import com.linker.common.messages.FetchMissingMessagesRequest;
 import com.linker.processor.PostOffice;
@@ -42,9 +44,16 @@ public class FetchMissingMessagesMessageProcessor extends MessageProcessor<Fetch
     public void doProcess(Message message, FetchMissingMessagesRequest data, MessageContext context) throws IOException {
         Integer count = Math.min(MAX_COUNT, data.getCount());
         String toUser = message.getFrom();
-        Page<Message> page = messageRepository.findMessages(toUser, MessageType.MESSAGE, MessageState.TARGET_NOT_FOUND, count);
+        Page<Message> page = messageRepository.findMessages(toUser, ImmutableSet.of(MessageType.MESSAGE, MessageType.USER_CONNECTED, MessageType.USER_DISCONNECTED),
+                ImmutableSet.of(MessageState.TARGET_NOT_FOUND), count);
         log.info("found {} missing messages for user [{}]", page.getTotalElements(), toUser);
-        page.get().forEach(msg -> messageProcessorService.process(msg));
+        for (Message msg : page.getContent()) {
+            try {
+                postOffice.deliveryMessage(msg);
+            } catch (AddressNotFoundException e) {
+                log.warn("address not found for msg [{}], ignore", message);
+            }
+        }
 
         sendCompleteMessage(message, page.getTotalElements() - page.getNumberOfElements());
     }

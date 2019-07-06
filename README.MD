@@ -44,6 +44,11 @@ ws.onopen = function () {
     ws.send(JSON.stringify(message));
 };
 ```
+- `appId` is the arbitrary string, e.g uuid
+- `userId` the current user who connects to server, and the only identifier to send and receive messages, the structure of user id must be 
+`app short name` + `-` + `numbers`, e.g `ANZ-123223`
+- `token` is the reversed keyword which will be used in authentication together with client application in the future
+
 server does not actually valid the user and replies successfully authenticated
 ```javascript 
 { 
@@ -130,3 +135,15 @@ it can trigger another fetch
     }
 }
 ```
+#### client application configurations
+client application settings are in application properties
+```javascript
+clientApps[0].appName=ANZ
+clientApps[0].appId=app-id-343
+clientApps[0].masterUserId=ANZ-123223
+```
+- `appName` is the application name or short name and also the prefix for user id, which should be unique between client applications
+- `appId` is a long unique string, uuid would be the best
+- `masterUserId` is the user id that can send and receive messages like other users, the only difference is that
+the master user id can receive `USER_DISCONNECTED` and `USER_CONNECTED` messages of other users
+

@@ -94,3 +94,39 @@ if message received from server, `onmessage` will be fired.
         console.log(message);           
     };
 ```
+#### fetch missing messages
+if target user is not found (connected and authenticated), the message will be persisted in database. The target user can 
+fetch the missing messages when login next time.\
+\
+user sends with following request
+```javascript 
+
+{
+    "type": "FETCH_MISSING_MESSAGES_REQUEST",
+    "data": {
+        "count": 100
+    }
+}
+
+```
+user will receive missing messages and FETCH_MISSING_MESSAGES_COMPLETE message at the end, which indicates currently fetching procedure is done and how many left,
+it can trigger another fetch
+``` javascript
+{
+    "type": "MESSAGE",
+    "data": {
+        "from": "ANZ-123223",
+        "content": "some thing here to send"
+    },
+    "feature": "FAST"
+}
+// ...
+// other missing messages
+// ...
+{
+    "type": "FETCH_MISSING_MESSAGES_COMPLETE",
+    "data": {
+        "count": 25
+    }
+}
+```

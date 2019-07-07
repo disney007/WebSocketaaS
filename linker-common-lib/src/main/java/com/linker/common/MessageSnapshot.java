@@ -5,12 +5,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class MessageSnapshot {
     String id;
     String version;
@@ -19,6 +21,7 @@ public class MessageSnapshot {
     MessageState state;
     MessageType type;
     MessageFeature feature;
+    String reference;
     long createdAt;
 
     public Message toMessage() {
@@ -28,7 +31,7 @@ public class MessageSnapshot {
                 .from(from)
                 .to(to)
                 .state(state)
-                .content(MessageUtils.createMessageContent(type, null, feature))
+                .content(MessageUtils.createMessageContent(type, null, reference, feature))
                 .createdAt(createdAt)
                 .build();
     }

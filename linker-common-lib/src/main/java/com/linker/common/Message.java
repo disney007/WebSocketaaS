@@ -36,7 +36,7 @@ public class Message {
     }
 
     public MessageSnapshot toSnapshot() {
-        return new MessageSnapshot(id, version, from, to, state, content.getType(), content.getFeature(), createdAt);
+        return new MessageSnapshot(id, version, from, to, state, content.getType(), content.getFeature(), content.getReference(), createdAt);
     }
 
     public static MessageBuilder builder() {

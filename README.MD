@@ -72,7 +72,8 @@ server does not actually valid the user and replies successfully authenticated
                   "to": "ANZ-1232121",
                   "content": "some thing here to send"
               },
-             "feature":"RELIABLE"
+             "feature":"RELIABLE",
+             "reference":"abc123"
           };
     ws.send(JSON.stringify(message));
 ```
@@ -80,6 +81,21 @@ server does not actually valid the user and replies successfully authenticated
 * `feature` can be `RELIABLE` and `FAST`, the default value is `RELIABLE`.  
 `RELIABLE` guarantees message will not get lost and safely routed to target user, but relatively slow. 
 `FAST` messages are only in memory, which might get lost if computer suddenly shutdown, but fast.
+* `reference` is optional, if it's given, `MESSAGE_CONFIRMATION` message will be received when current message successfully delivered to target user.
+Default value is `null`, which means no confirmation message will send back.
+
+```javascript 
+{
+    "type": "MESSAGE_CONFIRMATION", 
+    "data": {
+        "reference": "abc123"
+    }, 
+    "feature": "RELIABLE"
+}
+```
+The confirmation message is always sent with feature `RELIABLE`, which guarantees the confirmation message will not get
+lost even if the sender is not connected at the moment. 
+
 #### receive message from server
 if message received from server, `onmessage` will be fired.
 ```javascript

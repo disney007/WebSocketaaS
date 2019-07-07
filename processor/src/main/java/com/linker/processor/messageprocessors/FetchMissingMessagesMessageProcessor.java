@@ -44,8 +44,8 @@ public class FetchMissingMessagesMessageProcessor extends MessageProcessor<Fetch
     public void doProcess(Message message, FetchMissingMessagesRequest data, MessageContext context) throws IOException {
         Integer count = Math.min(MAX_COUNT, data.getCount());
         String toUser = message.getFrom();
-        Page<Message> page = messageRepository.findMessages(toUser, ImmutableSet.of(MessageType.MESSAGE, MessageType.USER_CONNECTED, MessageType.USER_DISCONNECTED),
-                ImmutableSet.of(MessageState.TARGET_NOT_FOUND), count);
+        Page<Message> page = messageRepository.findMessages(toUser, null,
+                ImmutableSet.of(MessageState.TARGET_NOT_FOUND, MessageState.NETWORK_ERROR), count);
         log.info("found {} missing messages for user [{}]", page.getTotalElements(), toUser);
         for (Message msg : page.getContent()) {
             try {

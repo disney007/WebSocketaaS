@@ -75,7 +75,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
         Message receivedMessage = messageArrived();
         channelFuture.setFailure(new RuntimeException());
         // check confirmation message
-        checkConfirmedMessage(receivedMessage, MessageState.ERROR);
+        checkConfirmedMessage(receivedMessage, MessageState.NETWORK_ERROR);
     }
 
     Message messageArrived() throws JsonProcessingException {

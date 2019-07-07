@@ -39,11 +39,15 @@ public class MessageRepository {
 
     public Page<Message> findMessages(String toUser, Set<MessageType> types, Set<MessageState> states, Integer pageSize) {
         PageRequest pageable = PageRequest.of(0, pageSize, new Sort(Sort.Direction.ASC, "createdAt"));
-        Query query = Query.query(
-                Criteria.where("to").is(toUser)
-                        .and("content.type").in(types)
-                        .and("state").in(states)
-        ).with(pageable);
+
+        Criteria criteria = Criteria.where("to").is(toUser)
+                .and("state").in(states);
+
+        if (types != null) {
+            criteria = criteria.and("content.type").in(types);
+        }
+
+        Query query = Query.query(criteria).with(pageable);
 
         long total = mongoTemplate.count(query, Message.class);
         List<Message> messages;

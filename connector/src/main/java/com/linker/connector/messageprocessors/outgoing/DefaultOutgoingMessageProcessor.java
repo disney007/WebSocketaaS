@@ -45,7 +45,7 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
         if (handler != null) {
             ChannelFuture channelFuture = handler.sendMessage(message);
             channelFuture.addListener(future -> {
-                MessageState state = future.isSuccess() ? MessageState.PROCESSED : MessageState.ERROR;
+                MessageState state = future.isSuccess() ? MessageState.PROCESSED : MessageState.NETWORK_ERROR;
                 confirmMessage(message, state);
             });
 

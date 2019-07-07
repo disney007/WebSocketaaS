@@ -7,6 +7,7 @@ import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.messages.MessageStateChanged;
+import com.linker.processor.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,9 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
     @Autowired
     UserChannelService userChannelService;
 
+    @Autowired
+    PostOffice postOffice;
+
     @Override
     public MessageType getMessageType() {
         return MessageType.MESSAGE_STATE_CHANGED;
@@ -40,7 +44,9 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
         } else {
             MessageSnapshot msg = data.getMessage();
             log.info("change message [{}] state to [{}]", msg.getId(), data.getState());
-            messageProcessorService.updateMessageState(msg.getFeature(), msg.getType(), msg.getId(), data.getState());
+            if (messageProcessorService.isMessagePersistable(msg.toMessage())) {
+                messageRepository.updateState(msg.getId(), data.getState());
+            }
         }
     }
 
@@ -51,6 +57,10 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
          * */
         userChannelService.removeAddress(data.getMessage().getTo(), message.getMeta().getOriginalAddress());
         Message originalMessage = messageRepository.findById(data.getMessage().getId());
-        messageProcessorService.process(originalMessage);
+        try {
+            postOffice.deliveryMessage(originalMessage);
+        } catch (IOException e) {
+            messageRepository.updateState(originalMessage.getId(), MessageState.TARGET_NOT_FOUND);
+        }
     }
 }

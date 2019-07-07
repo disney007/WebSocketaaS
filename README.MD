@@ -131,7 +131,7 @@ it can trigger another fetch
 {
     "type": "FETCH_MISSING_MESSAGES_COMPLETE",
     "data": {
-        "count": 25
+        "leftMissingCount": 25
     }
 }
 ```

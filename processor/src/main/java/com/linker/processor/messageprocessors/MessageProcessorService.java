@@ -1,10 +1,8 @@
 package com.linker.processor.messageprocessors;
 
-import com.google.common.collect.ImmutableSet;
 import com.linker.common.Message;
-import com.linker.common.MessageFeature;
 import com.linker.common.MessageProcessor;
-import com.linker.common.MessageState;
+import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.processor.PostOffice;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -32,8 +29,6 @@ public class MessageProcessorService {
     MessageRepository messageRepository;
 
     Map<MessageType, MessageProcessor<?>> processors = new HashMap<>();
-
-    Set<MessageType> persistentMessageTypes = ImmutableSet.of(MessageType.MESSAGE, MessageType.USER_CONNECTED, MessageType.USER_DISCONNECTED);
 
     @PostConstruct
     public void setup() {
@@ -50,34 +45,25 @@ public class MessageProcessorService {
             return;
         }
 
-        MessageType messageType = message.getContent().getType();
-        MessageProcessor<?> processor = processors.getOrDefault(messageType, null);
+        MessageProcessor<?> processor = getMessageProcessor(message);
         if (processor != null) {
             processor.preprocess(message, null);
-            saveMessage(message);
             processor.process(message, null);
         } else {
-            log.warn("no processor found for message type {}", messageType);
+            log.warn("no processor found for message {}", message);
         }
     }
 
-    boolean shouldPersistMessage(MessageFeature feature, MessageType type) {
-        return feature == MessageFeature.RELIABLE && persistentMessageTypes.contains(type);
+    public MessageProcessor<?> getMessageProcessor(Message message) {
+        MessageType messageType = message.getContent().getType();
+        return processors.getOrDefault(messageType, null);
     }
 
-    void saveMessage(Message message) {
-        if (shouldPersistMessage(message.getContent().getFeature(), message.getContent().getType())) {
-            messageRepository.save(message);
+    boolean isMessagePersistable(Message message) {
+        MessageProcessor<?> processor = getMessageProcessor(message);
+        if (processor instanceof PersistableMessageProcessor) {
+            return ((PersistableMessageProcessor) processor).isMessagePersistable(message);
         }
-    }
-
-    void updateMessageState(Message message, MessageState newState) {
-        updateMessageState(message.getContent().getFeature(), message.getContent().getType(), message.getId(), newState);
-    }
-
-    void updateMessageState(MessageFeature feature, MessageType type, String messageId, MessageState newState) {
-        if (shouldPersistMessage(feature, type)) {
-            messageRepository.updateState(messageId, newState);
-        }
+        return false;
     }
 }

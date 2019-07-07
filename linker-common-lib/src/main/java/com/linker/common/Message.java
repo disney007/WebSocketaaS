@@ -55,6 +55,11 @@ public class Message {
             return this;
         }
 
+        public MessageBuilder version(String version) {
+            message.setVersion(version);
+            return this;
+        }
+
         public MessageBuilder content(MessageContent content) {
             message.setContent(content);
             return this;

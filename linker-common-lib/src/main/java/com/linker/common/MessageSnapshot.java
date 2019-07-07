@@ -20,4 +20,16 @@ public class MessageSnapshot {
     MessageType type;
     MessageFeature feature;
     long createdAt;
+
+    public Message toMessage() {
+        return Message.builder()
+                .id(id)
+                .version(version)
+                .from(from)
+                .to(to)
+                .state(state)
+                .content(MessageUtils.createMessageContent(type, null, feature))
+                .createdAt(createdAt)
+                .build();
+    }
 }

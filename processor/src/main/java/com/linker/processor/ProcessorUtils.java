@@ -1,13 +1,7 @@
 package com.linker.processor;
 
-import com.linker.common.Address;
-import com.linker.common.Keywords;
 import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
 import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.models.ClientApp;
@@ -33,18 +27,13 @@ public class ProcessorUtils {
     @Autowired
     MessageRepository messageRepository;
 
-    public <T> void sendMessageToMasterUser(MessageType messageType, T data, String refUserId) throws IOException {
+    public <T> boolean sendMessageToMasterUser(Message message, String refUserId) throws IOException {
         ClientApp clientApp = clientAppService.getClientAppByUserId(refUserId);
         if (clientApp != null) {
             String masterUserId = clientApp.getMasterUserId();
 
             if (!refUserId.equals(masterUserId) && StringUtils.isNotEmpty(masterUserId)) {
-                Message message = Message.builder()
-                        .from(Keywords.SYSTEM)
-                        .to(masterUserId)
-                        .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getProcessorName())))
-                        .content(MessageUtils.createMessageContent(messageType, data, MessageFeature.RELIABLE))
-                        .build();
+                message.setTo(masterUserId);
                 try {
                     postOffice.deliveryMessage(message);
                 } catch (AddressNotFoundException e) {
@@ -52,7 +41,9 @@ public class ProcessorUtils {
                     message.setState(MessageState.TARGET_NOT_FOUND);
                     messageRepository.save(message);
                 }
+                return true;
             }
         }
+        return false;
     }
 }

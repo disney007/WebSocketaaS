@@ -40,7 +40,7 @@ public class NatsExpressDelivery implements ExpressDelivery {
                 String msg = new String(message.getData(), StandardCharsets.UTF_8);
                 this.onMessageArrived(msg);
             });
-            consumerDispatcher.subscribe(consumerTopic);
+            consumerDispatcher.subscribe(consumerTopic, consumerTopic);
             log.info("Nats:connected");
         } catch (IOException | InterruptedException e) {
             log.error("Nats:failed to start", e);

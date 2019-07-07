@@ -105,7 +105,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
                 .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 1L)))
                 .content(
                         MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
-                                new MessageStateChanged(receivedMessage.toSnapshot(), state), MessageFeature.RELIABLE)
+                                new MessageStateChanged(receivedMessage.toContentlessMessage(), state), MessageFeature.RELIABLE)
                 )
                 .build();
         TestUtils.messageEquals(expectedStateChangedMessage, stateChangedMessage);

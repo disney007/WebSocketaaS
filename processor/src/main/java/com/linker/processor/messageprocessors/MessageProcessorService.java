@@ -2,7 +2,6 @@ package com.linker.processor.messageprocessors;
 
 import com.linker.common.Message;
 import com.linker.common.MessageProcessor;
-import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.processor.PostOffice;

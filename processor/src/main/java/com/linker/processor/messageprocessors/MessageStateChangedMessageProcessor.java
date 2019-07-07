@@ -7,7 +7,6 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageMeta;
 import com.linker.common.MessageProcessor;
-import com.linker.common.MessageSnapshot;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
@@ -54,14 +53,14 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
         if (data.getState() == MessageState.TARGET_NOT_FOUND) {
             processTargetNotFound(message, data);
         } else {
-            MessageSnapshot msg = data.getMessage();
+            Message msg = data.getMessage();
             MessageState newState = data.getState();
             log.info("change message [{}] state to [{}]", msg.getId(), newState);
-            if (messageProcessorService.isMessagePersistable(msg.toMessage())) {
+            if (messageProcessorService.isMessagePersistable(msg)) {
                 messageRepository.updateState(msg.getId(), newState);
             }
 
-            if (newState == MessageState.PROCESSED && msg.getType() == MessageType.MESSAGE) {
+            if (newState == MessageState.PROCESSED && msg.getContent().getType() == MessageType.MESSAGE) {
                 sendConfirmationMessageToSender(msg);
             }
         }
@@ -81,17 +80,17 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
         }
     }
 
-    void sendConfirmationMessageToSender(MessageSnapshot messageSnapshot) {
-        String reference = messageSnapshot.getReference();
+    void sendConfirmationMessageToSender(Message message) {
+        String reference = message.getContent().getReference();
         if (StringUtils.isNotBlank(reference)) {
-            log.info("send confirmation back to to message {}", messageSnapshot);
-            Message message = Message.builder()
+            log.info("send confirmation back for message {}", message);
+            Message confirmMessage = Message.builder()
                     .from(Keywords.SYSTEM)
-                    .to(messageSnapshot.getFrom())
+                    .to(message.getFrom())
                     .content(MessageUtils.createMessageContent(MessageType.MESSAGE_CONFIRMATION, new MessageConfirmation(reference), MessageFeature.RELIABLE))
                     .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getProcessorName())))
                     .build();
-            messageProcessorService.process(message);
+            messageProcessorService.process(confirmMessage);
         }
     }
 }

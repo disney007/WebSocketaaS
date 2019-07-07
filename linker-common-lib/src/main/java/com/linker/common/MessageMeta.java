@@ -27,4 +27,11 @@ public class MessageMeta {
         this.originalAddress = originalAddress;
         this.note = note;
     }
+
+    public MessageMeta(Address originalAddress, Address targetAddress, String note, Integer ttl) {
+        this.originalAddress = originalAddress;
+        this.targetAddress = targetAddress;
+        this.note = note;
+        this.ttl = ttl;
+    }
 }

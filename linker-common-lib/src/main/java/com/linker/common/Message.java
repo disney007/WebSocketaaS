@@ -1,6 +1,7 @@
 package com.linker.common;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Document(collection = "message")
 public class Message {
     @Id
@@ -35,8 +37,22 @@ public class Message {
                 version, id, (content != null ? content.getType() : "unknown"), from, to, createdAt, state);
     }
 
-    public MessageSnapshot toSnapshot() {
-        return new MessageSnapshot(id, version, from, to, state, content.getType(), content.getFeature(), content.getReference(), createdAt);
+    public Message clone() {
+        return builder().id(id)
+                .version(version)
+                .content(new MessageContent(content.getType(), content.getData(), content.getReference(), content.getFeature()))
+                .from(from)
+                .to(to)
+                .meta(new MessageMeta(meta.getOriginalAddress(), meta.getTargetAddress(), meta.getNote(), meta.getTtl()))
+                .createdAt(createdAt)
+                .state(state)
+                .build();
+    }
+
+    public Message toContentlessMessage() {
+        Message message = this.clone();
+        message.getContent().setData("");
+        return message;
     }
 
     public static MessageBuilder builder() {

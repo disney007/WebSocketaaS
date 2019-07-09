@@ -49,7 +49,7 @@ ws.onopen = function () {
 `app short name` + `-` + `numbers`, e.g `ANZ-123223`
 - `token` is the reversed keyword which will be used in authentication together with client application in the future
 
-server does not actually valid the user and replies successfully authenticated
+server simply verifies the appId and user prefix and replies successfully authenticated
 ```javascript 
 { 
     "type": "AUTH_CLIENT_REPLY", 
@@ -57,24 +57,44 @@ server does not actually valid the user and replies successfully authenticated
         "appId": "app-id-343", 
         "userId": "ANZ-123223", 
         "token": "token-12345", 
-        "result": { 
-            "status": "OK" 
-           } 
-        }, 
+        "isAuthenticated": true, 
     "feature": "RELIABLE" 
+}
+```
+the appId `app-id-343` and userId prefix `ANZ` must match the client app settings defined in application.properties
+##### authentication with client application
+the authentication with client is disabled by default, which can be enabled in application.properties
+```
+clientApps[0].authUrl=http://localhost:8081/auth
+clientApps[0].authEnabled=false
+``` 
+if `authEnabled` set to `true`, then when a user login it will send a http post request to `authUrl` with request body as follow
+```json
+{
+  "appId": "app-id-343", 
+  "userId": "ANZ-123223", 
+  "token": "token-12345" 
+}
+```
+And client endpoint must reply with following json structure
+```json
+{
+  "appId": "app-id-343", 
+  "userId": "ANZ-123223", 
+  "isAuthenticated": true
 }
 ```
 #### send message to another connected user
 ```javascript
     var message = {
-              "type": "MESSAGE",
-              "data": {
-                  "to": "ANZ-1232121",
-                  "content": "some thing here to send"
-              },
-             "feature":"RELIABLE",
-             "reference":"abc123"
-          };
+          "type": "MESSAGE",
+          "data": {
+              "to": "ANZ-1232121",
+              "content": "some thing here to send"
+          },
+         "feature":"RELIABLE",
+         "reference":"abc123"
+      };
     ws.send(JSON.stringify(message));
 ```
 * `data.to` is the target user to send, `data.content` is the actual information to send
@@ -152,7 +172,7 @@ it can trigger another fetch
 }
 ```
 #### client application configurations
-client application settings are in application properties
+client application settings are in application properties, it also can config multiple client applications
 ```javascript
 clientApps[0].appName=ANZ
 clientApps[0].appId=app-id-343

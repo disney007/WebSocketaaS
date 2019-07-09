@@ -6,10 +6,8 @@ import com.linker.common.Message;
 import com.linker.common.MessageContent;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageMeta;
-import com.linker.common.MessageResult;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.ResultStatus;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
@@ -43,12 +41,12 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
         assertEquals(0, networkUserService.getUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);
         kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"token\":\"token-12345\",\"result\":{\"status\":\"OK\"}},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
         Message userConnectedMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         checkUserConnectedMessage(userConnectedMessage);
         MessageContent receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         AuthClientReply data = receivedMessage.getData(AuthClientReply.class);
-        checkAuthClientReply(data, MessageResult.ok());
+        checkAuthClientReply(data, true);
         assertEquals(1, networkUserService.getUser(userId).size());
         assertEquals(AuthStatus.AUTHENTICATED, networkUserService.getUser(userId).get(0).getAuthStatus());
     }
@@ -61,21 +59,20 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
         kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
         assertEquals(1, networkUserService.getPendingUser(userId).size());
         assertEquals(AuthStatus.AUTHENTICATING, networkUserService.getPendingUser(userId).get(0).getAuthStatus());
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"token\":\"token-12345\",\"result\":{\"status\":\"FAILED\",\"message\":\"user not found\"}},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":false},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
         MessageContent receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         AuthClientReply data = receivedMessage.getData(AuthClientReply.class);
-        checkAuthClientReply(data, new MessageResult(ResultStatus.FAILED, "user not found"));
+        checkAuthClientReply(data, false);
         assertEquals(0, networkUserService.getPendingUser(userId).size());
         assertEquals(0, networkUserService.getUser(userId).size());
         testUser = null;
     }
 
-    void checkAuthClientReply(AuthClientReply data, MessageResult authResult) {
+    void checkAuthClientReply(AuthClientReply data, Boolean authResult) {
         AuthClientReply reply = new AuthClientReply();
-        reply.setResult(authResult);
+        reply.setIsAuthenticated(authResult);
         reply.setAppId("app-id-343");
         reply.setUserId(userId);
-        reply.setToken("token-12345");
         assertEquals(reply, data);
 
     }

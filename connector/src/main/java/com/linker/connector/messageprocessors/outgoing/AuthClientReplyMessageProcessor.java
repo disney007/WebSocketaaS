@@ -7,7 +7,6 @@ import com.linker.common.MessageContext;
 import com.linker.common.MessageMeta;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.ResultStatus;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
@@ -46,7 +45,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
         SocketHandler socketHandler = networkUserService.getPendingUser(userId, socketId);
         networkUserService.removePendingUser(userId, socketId);
 
-        if (data.getResult().getStatus() == ResultStatus.OK) {
+        if (data.getIsAuthenticated()) {
             log.info("user [{}] is authenticated", userId);
             networkUserService.addUser(userId, socketHandler);
             socketHandler.setAuthStatus(AuthStatus.AUTHENTICATED);

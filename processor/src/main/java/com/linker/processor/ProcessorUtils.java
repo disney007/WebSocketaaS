@@ -1,6 +1,8 @@
 package com.linker.processor;
 
+import com.linker.common.Address;
 import com.linker.common.Message;
+import com.linker.common.MessageMeta;
 import com.linker.common.MessageState;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.processor.configurations.ApplicationConfig;
@@ -45,5 +47,9 @@ public class ProcessorUtils {
             }
         }
         return false;
+    }
+
+    public MessageMeta getOriginalAddressMeta() {
+        return new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getProcessorName()));
     }
 }

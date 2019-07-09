@@ -34,13 +34,13 @@ var ws = new WebSocket("ws://localhost:8088/ws");
 ```javascript
 ws.onopen = function () {
     var message = {
-              "type": "AUTH_CLIENT",
-              "data": {
-                  "appId": "app-id-343",
-                  "userId": "ANZ-123223",
-                  "token": "token-12345"
-              }
-          };
+          "type": "AUTH_CLIENT",
+          "data": {
+              "appId": "app-id-343",
+              "userId": "ANZ-123223",
+              "token": "token-12345"
+          }
+      };
     ws.send(JSON.stringify(message));
 };
 ```
@@ -55,8 +55,7 @@ server simply verifies the appId and user prefix and replies successfully authen
     "type": "AUTH_CLIENT_REPLY", 
     "data": { 
         "appId": "app-id-343", 
-        "userId": "ANZ-123223", 
-        "token": "token-12345", 
+        "userId": "ANZ-123223",        
         "isAuthenticated": true, 
     "feature": "RELIABLE" 
 }

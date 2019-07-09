@@ -11,11 +11,15 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Configuration
 public class BeanConfig {
 
     @Value("${spring.redis.host}")
     private String REDIS_HOSTNAME;
+
     @Value("${spring.redis.port}")
     private int REDIS_PORT;
 
@@ -37,5 +41,10 @@ public class BeanConfig {
         redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         return redisTemplate;
+    }
+
+    @Bean
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(10);
     }
 }

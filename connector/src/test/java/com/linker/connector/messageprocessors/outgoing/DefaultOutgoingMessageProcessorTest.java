@@ -5,6 +5,7 @@ import com.linker.common.Address;
 import com.linker.common.Keywords;
 import com.linker.common.Message;
 import com.linker.common.MessageContent;
+import com.linker.common.MessageContentOutput;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageMeta;
 import com.linker.common.MessageState;
@@ -49,9 +50,9 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
         Message receivedMessage = messageArrived();
 
         // check user received message
-        MessageContent userReceivedMessage = testUser.getReceivedMessage(MessageType.MESSAGE);
+        MessageContentOutput userReceivedMessage = testUser.getReceivedMessage(MessageType.MESSAGE);
         userReceivedMessage.setData(userReceivedMessage.getData(MessageForward.class));
-        assertEquals(receivedMessage.getContent(), userReceivedMessage);
+        assertEquals(receivedMessage.getContent().toContentOutput(), userReceivedMessage);
 
         // check confirmation message
         checkConfirmedMessage(receivedMessage, MessageState.PROCESSED);

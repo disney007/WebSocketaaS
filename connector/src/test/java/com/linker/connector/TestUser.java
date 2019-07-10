@@ -2,6 +2,7 @@ package com.linker.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.MessageContent;
+import com.linker.common.MessageContentOutput;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +55,7 @@ public class TestUser {
     Consumer<Exception> onErrorCallback;
     Consumer<String> onCloseCallback;
     Consumer<String> onMessageCallback;
-    LinkedBlockingQueue<MessageContent> receivedMessageQueue = new LinkedBlockingQueue<>();
+    LinkedBlockingQueue<MessageContentOutput> receivedMessageQueue = new LinkedBlockingQueue<>();
 
     public TestUser(String username) {
         this.username = username;
@@ -73,7 +74,7 @@ public class TestUser {
     void onMessage(String message) {
         log.info("user [{}] received message {}", username, message);
         try {
-            MessageContent testMessage = Utils.fromJson(message, MessageContent.class);
+            MessageContentOutput testMessage = Utils.fromJson(message, MessageContentOutput.class);
             this.receivedMessageQueue.add(testMessage);
             if (onMessageCallback != null) {
                 this.onMessageCallback.accept(message);
@@ -135,13 +136,13 @@ public class TestUser {
         this.webSocketClient.close();
     }
 
-    public MessageContent getReceivedMessage() throws InterruptedException {
+    public MessageContentOutput getReceivedMessage() throws InterruptedException {
         return this.receivedMessageQueue.poll(3L, TimeUnit.SECONDS);
     }
 
-    public MessageContent getReceivedMessage(MessageType type) throws TimeoutException {
+    public MessageContentOutput getReceivedMessage(MessageType type) throws TimeoutException {
         log.info("test user [{}]:waiting for message {}", username, type);
-        MessageContent testMessage;
+        MessageContentOutput testMessage;
         do {
             try {
                 testMessage = getReceivedMessage();

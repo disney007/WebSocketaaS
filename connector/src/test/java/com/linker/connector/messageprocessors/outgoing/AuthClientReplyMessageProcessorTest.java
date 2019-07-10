@@ -3,7 +3,7 @@ package com.linker.connector.messageprocessors.outgoing;
 import com.linker.common.Address;
 import com.linker.common.Keywords;
 import com.linker.common.Message;
-import com.linker.common.MessageContent;
+import com.linker.common.MessageContentOutput;
 import com.linker.common.MessageFeature;
 import com.linker.common.MessageMeta;
 import com.linker.common.MessageType;
@@ -44,7 +44,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
         kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
         Message userConnectedMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         checkUserConnectedMessage(userConnectedMessage);
-        MessageContent receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
+        MessageContentOutput receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         AuthClientReply data = receivedMessage.getData(AuthClientReply.class);
         checkAuthClientReply(data, true);
         assertEquals(1, networkUserService.getUser(userId).size());
@@ -60,7 +60,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
         assertEquals(1, networkUserService.getPendingUser(userId).size());
         assertEquals(AuthStatus.AUTHENTICATING, networkUserService.getPendingUser(userId).get(0).getAuthStatus());
         kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":false},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
-        MessageContent receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
+        MessageContentOutput receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         AuthClientReply data = receivedMessage.getData(AuthClientReply.class);
         checkAuthClientReply(data, false);
         assertEquals(0, networkUserService.getPendingUser(userId).size());

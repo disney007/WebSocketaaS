@@ -11,13 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class MessageContent {
+public class MessageContentOutput {
     MessageType type;
     Object data;
     String reference;
-    MessageFeature feature = MessageFeature.RELIABLE;
 
-    public MessageContentOutput toContentOutput() {
-        return new MessageContentOutput(type, data, reference);
+    public <T> T getData(Class<T> clazz) {
+        return Utils.convert(data, clazz);
     }
 }

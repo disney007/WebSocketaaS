@@ -35,7 +35,7 @@ public class ApplicationTest extends IntegrationTest {
                 kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED),
                 kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED))
                 .stream()
-                .map(msg -> msg.getContent().getData(UserDisconnected.class))
+                .map(msg -> msg.getContent().toContentOutput().getData(UserDisconnected.class))
                 .map(UserDisconnected::getUserId)
                 .collect(Collectors.toSet());
         assertEquals(userIdList, disconnectedUserIdList);

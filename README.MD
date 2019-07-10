@@ -56,8 +56,8 @@ server simply verifies the appId and user prefix and replies successfully authen
     "data": { 
         "appId": "app-id-343", 
         "userId": "ANZ-123223",        
-        "isAuthenticated": true, 
-    "feature": "RELIABLE" 
+        "isAuthenticated": true
+     }
 }
 ```
 the appId `app-id-343` and userId prefix `ANZ` must match the client app settings defined in application.properties
@@ -108,8 +108,7 @@ Default value is `null`, which means no confirmation message will send back.
     "type": "MESSAGE_CONFIRMATION", 
     "data": {
         "reference": "abc123"
-    }, 
-    "feature": "RELIABLE"
+    }
 }
 ```
 The confirmation message is always sent with feature `RELIABLE`, which guarantees the confirmation message will not get
@@ -126,9 +125,9 @@ if message received from server, `onmessage` will be fired.
         *       "type":"MESSAGE",
         *       "data": {
         *           "from":"ANZ-123223",
-        *           "content":"some thing here to send"},
-        *           "feature":"RELIABLE"
-        *       }
+        *           "content":"some thing here to send"       
+        *       },
+        *       "reference":"abc123"
         * }       
         * */
         console.log(message);           
@@ -157,8 +156,7 @@ it can trigger another fetch
     "data": {
         "from": "ANZ-123223",
         "content": "some thing here to send"
-    },
-    "feature": "FAST"
+    }
 }
 // ...
 // other missing messages

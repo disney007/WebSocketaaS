@@ -95,7 +95,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
     public ChannelFuture sendMessage(Message message) {
         try {
-            return sendMessage(Utils.toJson(message.getContent()));
+            return sendMessage(Utils.toJson(message.getContent().toContentOutput()));
         } catch (JsonProcessingException e) {
             String msg = String.format("failed to convert message content to json %s", message);
             throw new ProcessMessageException(msg, e);

@@ -133,6 +133,19 @@ if message received from server, `onmessage` will be fired.
         console.log(message);           
     };
 ```
+#### send message to multiple users
+```json
+{
+    "type": "GROUP_MESSAGE",
+    "data": {
+        "to": ["ANZ-1232121", "ANZ-1232122"],
+        "content": "some thing here to send"
+    },     
+    "reference":"abc123"
+}
+```
+* the above message will be sent to user `ANZ-1232121` and `ANZ-1232122`
+* the message confirmation is not available for `GROUP_MESSAGE`
 #### fetch missing messages
 if target user is not found (connected and authenticated), the message will be persisted in database. The target user can 
 fetch the missing messages when login next time.\

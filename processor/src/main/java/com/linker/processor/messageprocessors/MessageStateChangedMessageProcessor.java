@@ -82,7 +82,7 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
 
     void sendConfirmationMessageToSender(Message message) {
         String reference = message.getContent().getReference();
-        if (StringUtils.isNotBlank(reference)) {
+        if (StringUtils.isNotBlank(reference) && message.getContent().getConfirmationEnabled()) {
             log.info("send confirmation back for message {}", message);
             Message confirmMessage = Message.builder()
                     .from(Keywords.SYSTEM)

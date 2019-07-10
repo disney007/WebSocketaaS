@@ -30,7 +30,7 @@ public class DefaultIncomingMessageProcessorTest extends IntegrationTest {
     @Test
     public void testProcessor_reliable() throws TimeoutException {
         testUser = TestUtils.loginClientUser(userId);
-        MessageContent testMessage = new MessageContent(MessageType.MESSAGE, new MessageRequest("target-user", "hello world"), "abc", MessageFeature.RELIABLE);
+        MessageContent testMessage = new MessageContent(MessageType.MESSAGE, new MessageRequest("target-user", "hello world"), "abc", MessageFeature.RELIABLE, true);
         testUser.send(testMessage);
         Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
 
@@ -46,7 +46,7 @@ public class DefaultIncomingMessageProcessorTest extends IntegrationTest {
     @Test
     public void testProcessor_fast() throws TimeoutException {
         testUser = TestUtils.loginClientUser(userId);
-        MessageContent testMessage = new MessageContent(MessageType.MESSAGE, new MessageRequest("target-user", "hello world"), "abc", MessageFeature.FAST);
+        MessageContent testMessage = new MessageContent(MessageType.MESSAGE, new MessageRequest("target-user", "hello world"), "abc", MessageFeature.FAST, true);
         testUser.send(testMessage);
         Message deliveredMessage = natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
 

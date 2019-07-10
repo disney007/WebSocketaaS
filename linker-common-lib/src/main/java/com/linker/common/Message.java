@@ -40,7 +40,7 @@ public class Message {
     public Message clone() {
         return builder().id(id)
                 .version(version)
-                .content(new MessageContent(content.getType(), content.getData(), content.getReference(), content.getFeature()))
+                .content(new MessageContent(content.getType(), content.getData(), content.getReference(), content.getFeature(), content.getConfirmationEnabled()))
                 .from(from)
                 .to(to)
                 .meta(new MessageMeta(meta.getOriginalAddress(), meta.getTargetAddress(), meta.getNote(), meta.getTtl()))

@@ -100,7 +100,7 @@ And client endpoint must reply with following json structure
 * `feature` can be `RELIABLE` and `FAST`, the default value is `RELIABLE`.  
 `RELIABLE` guarantees message will not get lost and safely routed to target user, but relatively slow. 
 `FAST` messages are only in memory, which might get lost if computer suddenly shutdown, but fast.
-* `reference` is optional, if it's given, `MESSAGE_CONFIRMATION` message will be received when current message successfully delivered to target user.
+* `reference` is optional, if it's given and `confirmationEnabled` is set to `true` (default is `true`), `MESSAGE_CONFIRMATION` message will be received when current message successfully delivered to target user.
 Default value is `null`, which means no confirmation message will send back.
 
 ```javascript 

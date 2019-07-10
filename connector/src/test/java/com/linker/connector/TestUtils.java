@@ -44,7 +44,7 @@ public class TestUtils {
                             "appId", "app-id-343",
                             "userId", userId,
                             "token", "token-12345"
-                    ), null, MessageFeature.RELIABLE));
+                    ), null, MessageFeature.RELIABLE, true));
 
         });
 

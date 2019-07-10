@@ -16,6 +16,7 @@ public class MessageContent {
     Object data;
     String reference;
     MessageFeature feature = MessageFeature.RELIABLE;
+    Boolean confirmationEnabled = true;
 
     public MessageContentOutput toContentOutput() {
         return new MessageContentOutput(type, data, reference);

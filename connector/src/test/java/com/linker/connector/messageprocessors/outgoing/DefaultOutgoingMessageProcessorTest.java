@@ -82,7 +82,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     Message messageArrived() throws JsonProcessingException {
         MessageContent content = new MessageContent(MessageType.MESSAGE,
                 new MessageForward(userId2, "hi, this is the message form some one"),
-                null, MessageFeature.FAST
+                null, MessageFeature.FAST, true
         );
         Message receivedMessage = Message.builder()
                 .content(content)

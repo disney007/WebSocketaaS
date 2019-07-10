@@ -35,8 +35,10 @@ public class UserDisconnectedMessageProcessor extends PersistableMessageProcesso
 
     @Override
     public void doProcess(Message message, UserDisconnected data, MessageContext context) throws IOException {
-        log.info("user [{}] disconnected", data.getUserId());
-        userChannelService.removeAddress(data.getUserId(), message.getMeta().getOriginalAddress());
+        if (message.getState() == MessageState.CREATED) {
+            log.info("user [{}] disconnected", data.getUserId());
+            userChannelService.removeAddress(data.getUserId(), message.getMeta().getOriginalAddress());
+        }
 
         log.info("send user [{}] disconnected message to master user", data.getUserId());
         boolean result = processorUtils.sendMessageToMasterUser(message, data.getUserId());

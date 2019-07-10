@@ -9,7 +9,6 @@ import com.linker.common.MessageProcessor;
 import com.linker.common.MessageState;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messages.FetchMissingMessagesComplete;
 import com.linker.common.messages.FetchMissingMessagesRequest;
 import com.linker.processor.PostOffice;
@@ -48,11 +47,7 @@ public class FetchMissingMessagesMessageProcessor extends MessageProcessor<Fetch
                 ImmutableSet.of(MessageState.TARGET_NOT_FOUND, MessageState.NETWORK_ERROR), count);
         log.info("found {} missing messages for user [{}]", page.getTotalElements(), toUser);
         for (Message msg : page.getContent()) {
-            try {
-                postOffice.deliveryMessage(msg);
-            } catch (AddressNotFoundException e) {
-                log.warn("address not found for msg [{}], ignore", message);
-            }
+            messageProcessorService.process(msg);
         }
 
         sendCompleteMessage(message, page.getTotalElements() - page.getNumberOfElements());

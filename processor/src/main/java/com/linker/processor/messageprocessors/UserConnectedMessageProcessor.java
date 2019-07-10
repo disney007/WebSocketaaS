@@ -35,8 +35,10 @@ public class UserConnectedMessageProcessor extends PersistableMessageProcessor<U
 
     @Override
     public void doProcess(Message message, UserConnected data, MessageContext context) throws IOException {
-        log.info("user [{}] connected", data.getUserId());
-        userChannelService.addAddress(data.getUserId(), message.getMeta().getOriginalAddress());
+        if (message.getState() == MessageState.CREATED) {
+            log.info("user [{}] connected", data.getUserId());
+            userChannelService.addAddress(data.getUserId(), message.getMeta().getOriginalAddress());
+        }
 
         log.info("send user [{}] connected message to master user", data.getUserId());
         boolean result = processorUtils.sendMessageToMasterUser(message, data.getUserId());

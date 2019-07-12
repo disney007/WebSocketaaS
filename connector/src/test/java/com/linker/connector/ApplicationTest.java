@@ -2,8 +2,8 @@ package com.linker.connector;
 
 import com.google.common.collect.ImmutableSet;
 import com.linker.common.MessageType;
+import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messages.UserDisconnected;
-import com.linker.connector.express.MockKafkaExpressDelivery;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,6 +6,7 @@ import com.linker.common.MessageMeta;
 import com.linker.common.MessageState;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.processor.configurations.ApplicationConfig;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.models.ClientApp;
 import com.linker.processor.repositories.MessageRepository;
 import com.linker.processor.services.ClientAppService;

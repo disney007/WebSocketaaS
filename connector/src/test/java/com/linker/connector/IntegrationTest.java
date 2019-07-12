@@ -1,9 +1,9 @@
 package com.linker.connector;
 
 import com.linker.common.Utils;
+import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
+import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.linker.connector.configurations.ApplicationConfig;
-import com.linker.connector.express.MockKafkaExpressDelivery;
-import com.linker.connector.express.MockNatsExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.runner.RunWith;

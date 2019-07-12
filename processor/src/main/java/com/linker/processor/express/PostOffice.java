@@ -1,4 +1,4 @@
-package com.linker.processor;
+package com.linker.processor.express;
 
 
 import com.google.common.collect.ImmutableList;
@@ -10,8 +10,6 @@ import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
-import com.linker.common.messagedelivery.KafkaExpressDelivery;
-import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import com.linker.processor.models.UserChannel;
@@ -40,14 +38,16 @@ public class PostOffice implements ExpressDeliveryListener {
     @Autowired
     UserChannelService userChannelService;
 
+    @Autowired
+    ExpressDeliveryFactory expressDeliveryFactory;
+
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
-        String consumerTopics = applicationConfig.getConsumerTopics();
         expressDeliveryMap = ImmutableList.of(
-                new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming"),
-                new NatsExpressDelivery(applicationConfig.getNatsHosts(), consumerTopics)
+                expressDeliveryFactory.createKafkaExpressDelivery(),
+                expressDeliveryFactory.createNatsExpressDelivery()
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
             expressDelivery.start();
@@ -79,7 +79,7 @@ public class PostOffice implements ExpressDeliveryListener {
     public void onMessageArrived(ExpressDelivery expressDelivery, String message) {
         try {
             Message msg = Utils.fromJson(message, Message.class);
-            log.info("message arrived from {}:{}", expressDelivery.getType(), message);
+            log.info("message arrived from {}:{}", expressDelivery.getType(), msg);
             messageProcessor.process(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);

@@ -1,5 +1,6 @@
 package com.linker.processor;
 
+import com.linker.processor.express.PostOffice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,7 @@ import static com.linker.common.Utils.sleep;
 @SpringBootApplication
 @Slf4j
 public class Application {
+
     @Autowired
     PostOffice postOffice;
 

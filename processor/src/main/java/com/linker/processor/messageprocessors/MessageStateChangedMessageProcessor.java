@@ -13,7 +13,7 @@ import com.linker.common.MessageUtils;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messages.MessageConfirmation;
 import com.linker.common.messages.MessageStateChanged;
-import com.linker.processor.PostOffice;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.repositories.MessageRepository;
 import com.linker.processor.services.UserChannelService;

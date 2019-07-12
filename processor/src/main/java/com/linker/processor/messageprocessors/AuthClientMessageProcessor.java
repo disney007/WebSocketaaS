@@ -11,7 +11,7 @@ import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
 import com.linker.common.messages.AuthClient;
 import com.linker.common.messages.AuthClientReply;
-import com.linker.processor.PostOffice;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.ProcessorUtils;
 import com.linker.processor.models.ClientApp;
 import com.linker.processor.services.ClientAppService;

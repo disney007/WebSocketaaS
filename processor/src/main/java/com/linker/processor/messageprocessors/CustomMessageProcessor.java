@@ -7,7 +7,7 @@ import com.linker.common.MessageType;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messages.MessageForward;
 import com.linker.common.messages.MessageRequest;
-import com.linker.processor.PostOffice;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

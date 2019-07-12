@@ -1,9 +1,8 @@
-package com.linker.connector.express;
+package com.linker.common.messagedelivery;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
-import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

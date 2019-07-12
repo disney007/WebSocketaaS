@@ -54,7 +54,7 @@ public class PostOffice implements ExpressDeliveryListener {
     public void onMessageArrived(ExpressDelivery expressDelivery, String message) {
         try {
             Message msg = Utils.fromJson(message, Message.class);
-            log.info("message received from {}:{}", expressDelivery.getType(), message);
+            log.info("message received from {}:{}", expressDelivery.getType(), msg);
             messageProcessorService.processOutgoingMessage(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);

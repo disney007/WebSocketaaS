@@ -1,4 +1,4 @@
-package com.linker.connector.express;
+package com.linker.common.messagedelivery;
 
 import com.linker.common.Message;
 import com.linker.common.MessageType;

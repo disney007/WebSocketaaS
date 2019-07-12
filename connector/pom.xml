@@ -147,6 +147,13 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.linker</groupId>
+            <artifactId>linker-common-lib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${vesrion.junit}</version>

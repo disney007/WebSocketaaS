@@ -59,4 +59,8 @@ public class MessageRepository {
 
         return new PageImpl<>(messages, pageable, total);
     }
+
+    public void removeAll() {
+        mongoTemplate.remove(Message.class);
+    }
 }

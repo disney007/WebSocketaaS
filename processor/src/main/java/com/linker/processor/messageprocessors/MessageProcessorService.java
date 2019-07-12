@@ -4,7 +4,7 @@ import com.linker.common.Message;
 import com.linker.common.MessageProcessor;
 import com.linker.common.MessageType;
 import com.linker.common.MessageUtils;
-import com.linker.processor.PostOffice;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

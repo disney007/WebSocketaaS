@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+
 public class CustomGroupMessageProcessorTest extends IntegrationTest {
 
     @Test
@@ -82,6 +84,40 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
         List<Message> savedMessages = messageRepository.findMessagesByTypes(ImmutableSet.of(MessageType.MESSAGE), 100)
                 .get().collect(Collectors.toList());
         TestUtils.messagesEqual(expectedSavedMessages, savedMessages);
+    }
+
+    @Test
+    public void test_fast_processing() throws JsonProcessingException, TimeoutException {
+        List<TestUser> users = ImmutableList.of(
+                TestUtils.loginUser("ANZ-1232122", new Address("domain-01", "connector-01", 10L)),
+                TestUtils.loginUser("ANZ-1232123", new Address("domain-01", "connector-01", 11L)),
+                TestUtils.loginUser("ANZ-1232124", new Address("domain-01", "connector-01", 12L))
+        );
+
+        Message incomingMessage = createMessage(MessageFeature.FAST);
+        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+
+        // check delivered messages
+        List<Message> deliveredMessages = Arrays.asList(
+                natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE),
+                natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE),
+                natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE)
+        );
+        List<Message> expectedDeliveredMessages = users.stream().map(user -> {
+            Message msg = incomingMessage.clone();
+            msg.setTo(user.getUserId());
+            msg.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE,
+                    new MessageForward(incomingMessage.getFrom(), "some thing here to send"), MessageFeature.FAST));
+            msg.getContent().setConfirmationEnabled(false);
+            msg.getMeta().setTargetAddress(user.getAddress());
+            MessageUtils.touchMessage(msg, 2);
+            return msg;
+        }).collect(Collectors.toList());
+
+        TestUtils.messagesEqual(expectedDeliveredMessages, deliveredMessages);
+
+        // check saved messages
+        assertEquals(0L, messageRepository.findMessagesByTypes(ImmutableSet.of(MessageType.MESSAGE), 100).getTotalElements());
     }
 
     Message createMessage(MessageFeature feature) {

@@ -19,12 +19,14 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.Assert.assertNull;
+
 @Slf4j
 public class CustomMessageProcessorTest extends IntegrationTest {
 
     @Test
     public void test_reliable_receiverNotFound() throws JsonProcessingException {
-        Message incomingMessage = createReliableMessage();
+        Message incomingMessage = createMessage(MessageFeature.RELIABLE);
 
         kafkaExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
         Message savedMessage = messageRepository.findById(incomingMessage.getId());
@@ -40,24 +42,56 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     @Test
     public void test_reliable_receiverFound() throws JsonProcessingException, TimeoutException {
         TestUser testUser = TestUtils.loginUser("ANZ-1232122");
-        Message incomingMessage = createReliableMessage();
+        Message incomingMessage = createMessage(MessageFeature.RELIABLE);
         kafkaExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
         Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
 
-        Message expectedMessage = incomingMessage.clone();
-        expectedMessage.setTo(testUser.getUserId());
-        expectedMessage.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward("ANZ-123223", "some thing here to send"), MessageFeature.RELIABLE));
-        expectedMessage.getMeta().setTargetAddress(testUser.getAddress());
-        MessageUtils.touchMessage(expectedMessage);
+        Message expectedDeliveredMessage = incomingMessage.clone();
+        expectedDeliveredMessage.setTo(testUser.getUserId());
+        expectedDeliveredMessage.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward("ANZ-123223", "some thing here to send"), MessageFeature.RELIABLE));
+        expectedDeliveredMessage.getMeta().setTargetAddress(testUser.getAddress());
+        MessageUtils.touchMessage(expectedDeliveredMessage);
+        TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
 
-        TestUtils.messageEquals(expectedMessage, deliveredMessage);
+        Message savedMessage = messageRepository.findById(incomingMessage.getId());
+        Message expectedSavedMessage = incomingMessage.clone();
+        expectedSavedMessage.setTo("ANZ-1232122");
+        expectedSavedMessage.setState(MessageState.CREATED);
+        MessageUtils.touchMessage(expectedSavedMessage);
+        TestUtils.messageEquals(expectedSavedMessage, savedMessage);
     }
 
-    Message createReliableMessage() {
+    @Test
+    public void test_fast_receiverNotFound() throws JsonProcessingException {
+        Message incomingMessage = createMessage(MessageFeature.FAST);
+        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        Message savedMessage = messageRepository.findById(incomingMessage.getId());
+        assertNull(savedMessage);
+    }
+
+    @Test
+    public void test_fast_receiverFound() throws JsonProcessingException, TimeoutException {
+        TestUser testUser = TestUtils.loginUser("ANZ-1232122");
+        Message incomingMessage = createMessage(MessageFeature.FAST);
+        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+
+        Message deliveredMessage = natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
+        Message expectedDeliveredMessage = incomingMessage.clone();
+        expectedDeliveredMessage.setTo(testUser.getUserId());
+        expectedDeliveredMessage.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward("ANZ-123223", "some thing here to send"), MessageFeature.FAST));
+        expectedDeliveredMessage.getMeta().setTargetAddress(testUser.getAddress());
+        MessageUtils.touchMessage(expectedDeliveredMessage);
+        TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
+
+        Message savedMessage = messageRepository.findById(incomingMessage.getId());
+        assertNull(savedMessage);
+    }
+
+    Message createMessage(MessageFeature feature) {
         return Message.builder()
                 .from("ANZ-123223")
                 .meta(new MessageMeta(new Address("domain-01", "connector-01", 1L)))
-                .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageRequest("ANZ-1232122", "some thing here to send"), MessageFeature.RELIABLE))
+                .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageRequest("ANZ-1232122", "some thing here to send"), feature))
                 .build();
     }
 }

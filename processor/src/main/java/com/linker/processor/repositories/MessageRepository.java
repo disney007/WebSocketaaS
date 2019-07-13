@@ -60,7 +60,11 @@ public class MessageRepository {
         return new PageImpl<>(messages, pageable, total);
     }
 
+    public long count() {
+        return mongoTemplate.count(new Query(), Message.class);
+    }
+
     public void removeAll() {
-        mongoTemplate.remove(Message.class);
+        mongoTemplate.remove(new Query(), Message.class);
     }
 }

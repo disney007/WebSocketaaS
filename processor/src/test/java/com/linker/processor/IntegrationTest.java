@@ -6,7 +6,6 @@ import com.linker.processor.express.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import com.linker.processor.repositories.UserChannelRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,28 +32,12 @@ public abstract class IntegrationTest {
     protected MessageRepository messageRepository;
 
     @Autowired
-    TestConfig testConfig;
-
-    @Autowired
     UserChannelRepository userChannelRepository;
-
-    static IntegrationTest instance;
-
-    public IntegrationTest() {
-        instance = this;
-    }
 
     @Before
     public void cleanDb() {
         messageRepository.removeAll();
         userChannelRepository.deleteAll();
-    }
-
-    @AfterClass
-    public static void clean() throws InterruptedException {
-        log.info("start cleaning");
-        instance.testConfig.clean();
-        Thread.sleep(3000L);
     }
 }
 

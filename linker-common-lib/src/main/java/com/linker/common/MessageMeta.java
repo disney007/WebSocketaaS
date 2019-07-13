@@ -10,6 +10,7 @@ public class MessageMeta {
     Address targetAddress;
     String note;
     Integer ttl = 10;
+
     public MessageMeta() {
 
     }
@@ -33,5 +34,9 @@ public class MessageMeta {
         this.targetAddress = targetAddress;
         this.note = note;
         this.ttl = ttl;
+    }
+
+    public MessageMeta clone() {
+        return new MessageMeta(originalAddress, targetAddress, note, ttl);
     }
 }

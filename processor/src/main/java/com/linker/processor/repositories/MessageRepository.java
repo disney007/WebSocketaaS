@@ -23,6 +23,7 @@ public class MessageRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+
     public Message findById(String messageId) {
         return mongoTemplate.findById(messageId, Message.class);
     }
@@ -47,17 +48,14 @@ public class MessageRepository {
             criteria = criteria.and("content.type").in(types);
         }
 
-        Query query = Query.query(criteria).with(pageable);
+        return buildPage(criteria, pageable, Message.class);
+    }
 
-        long total = mongoTemplate.count(query, Message.class);
-        List<Message> messages;
-        if (total > 0) {
-            messages = mongoTemplate.find(query, Message.class);
-        } else {
-            messages = ImmutableList.of();
-        }
+    public Page<Message> findMessagesByTypes(Set<MessageType> types, Integer pageSize) {
+        PageRequest pageable = PageRequest.of(0, pageSize, new Sort(Sort.Direction.ASC, "createdAt"));
 
-        return new PageImpl<>(messages, pageable, total);
+        Criteria criteria = Criteria.where("content.type").in(types);
+        return buildPage(criteria, pageable, Message.class);
     }
 
     public long count() {
@@ -66,5 +64,19 @@ public class MessageRepository {
 
     public void removeAll() {
         mongoTemplate.remove(new Query(), Message.class);
+    }
+
+    public <T> Page<T> buildPage(Criteria criteria, PageRequest pageable, Class<T> clazz) {
+        Query query = Query.query(criteria).with(pageable);
+
+        long total = mongoTemplate.count(query, clazz);
+        List<T> objects;
+        if (total > 0) {
+            objects = mongoTemplate.find(query, clazz);
+        } else {
+            objects = ImmutableList.of();
+        }
+
+        return new PageImpl<T>(objects, pageable, total);
     }
 }

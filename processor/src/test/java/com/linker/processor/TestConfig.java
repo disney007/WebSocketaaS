@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.embedded.RedisServer;
 
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import static org.mockito.Mockito.spy;
@@ -63,6 +64,7 @@ public class TestConfig {
         return mongodExecutable;
     }
 
+    @PreDestroy
     public void clean() {
         log.info("shut down redis server");
         redisServer.stop();

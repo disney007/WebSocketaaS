@@ -40,7 +40,7 @@ public class CustomGroupMessageProcessor extends PersistableMessageProcessor<Gro
             Message subMessage = Message.builder()
                     .from(message.getFrom())
                     .to(toUser)
-                    .meta(message.getMeta())
+                    .meta(message.getMeta().clone())
                     .state(MessageState.CREATED)
                     .createdAt(message.getCreatedAt())
                     .content(messageContent)

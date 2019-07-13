@@ -13,6 +13,10 @@ import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messages.UserConnected;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static org.junit.Assert.assertEquals;
 
 @Component
@@ -21,6 +25,19 @@ public class TestUtils {
 
     public TestUtils(KafkaExpressDelivery kafkaExpressDelivery) {
         TestUtils.kafkaExpressDelivery = kafkaExpressDelivery;
+    }
+
+    public static List<Message> sortMessages(List<Message> messages) {
+        messages.sort(Comparator.comparing(Message::getTo).thenComparing(Message::getFrom));
+        return messages;
+    }
+
+    public static void messagesEqual(List<Message> expectedMsgs, List<Message> actualMsgs) {
+        sortMessages(expectedMsgs);
+        sortMessages(actualMsgs);
+        assertEquals(expectedMsgs.size(), actualMsgs.size());
+        IntStream.range(0, expectedMsgs.size())
+                .forEach(index -> TestUtils.messageEquals(expectedMsgs.get(index), actualMsgs.get(index)));
     }
 
     public static void messageEquals(Message expectedMsg, Message actualMsg) {

@@ -19,15 +19,16 @@ public class MessageUtils {
         return ttl > 0;
     }
 
-    public static void touchMessage(Message message, int count) {
+    public static Message touchMessage(Message message, int count) {
         Integer ttl = message.getMeta().getTtl();
         if (ttl == null) {
             ttl = 10;
         }
         message.getMeta().setTtl(ttl - count);
+        return message;
     }
 
-    public static void touchMessage(Message message) {
-        touchMessage(message, 1);
+    public static Message touchMessage(Message message) {
+        return touchMessage(message, 1);
     }
 }

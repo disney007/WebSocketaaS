@@ -21,7 +21,7 @@ public class ClientAppService {
     ClientAppRepository clientAppRepository;
 
     @PostConstruct
-    void init() {
+    public void init() {
         log.info("load client apps from application config");
         applicationConfig.getClientApps().forEach(app -> clientAppRepository.save(app));
     }
@@ -37,5 +37,9 @@ public class ClientAppService {
     public ClientApp getClientAppByUserId(String userId) {
         String appName = userId.split("-")[0];
         return getClientAppByName(appName);
+    }
+
+    public void saveClientApp(ClientApp clientApp) {
+        clientAppRepository.save(clientApp);
     }
 }

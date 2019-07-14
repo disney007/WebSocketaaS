@@ -1,5 +1,9 @@
 package com.linker.processor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.linker.common.Message;
+import com.linker.common.MessageFeature;
+import com.linker.common.Utils;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.linker.processor.express.PostOffice;
@@ -38,6 +42,15 @@ public abstract class IntegrationTest {
     public void cleanDb() {
         messageRepository.removeAll();
         userChannelRepository.deleteAll();
+    }
+
+    protected void givenMessage(Message message) throws JsonProcessingException {
+        String msg = Utils.toJson(message);
+        if (message.getContent().getFeature() == MessageFeature.RELIABLE) {
+            kafkaExpressDelivery.onMessageArrived(msg);
+        } else {
+            natsExpressDelivery.onMessageArrived(msg);
+        }
     }
 }
 

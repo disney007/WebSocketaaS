@@ -14,6 +14,7 @@ which highly focus on performance, scalability and reliability.
 * `docker-compose -f docker-required-services.yml up` starts required services
 * `docker-compose up` starts application services
 
+`mvn clean install -DskipBuildingDocker` only builds the project without building docker images.
 ### how to test on ui
 serve folder `test-script` as webservice, here `npm serve` is used
 * install serve `npm install serve -g`

@@ -39,18 +39,21 @@ public abstract class IntegrationTest {
     UserChannelRepository userChannelRepository;
 
     @Before
-    public void cleanDb() {
+    public void clean() {
         messageRepository.removeAll();
         userChannelRepository.deleteAll();
+        kafkaExpressDelivery.reset();
+        natsExpressDelivery.reset();
     }
 
-    protected void givenMessage(Message message) throws JsonProcessingException {
+    protected Message givenMessage(Message message) throws JsonProcessingException {
         String msg = Utils.toJson(message);
         if (message.getContent().getFeature() == MessageFeature.RELIABLE) {
             kafkaExpressDelivery.onMessageArrived(msg);
         } else {
             natsExpressDelivery.onMessageArrived(msg);
         }
+        return message;
     }
 }
 

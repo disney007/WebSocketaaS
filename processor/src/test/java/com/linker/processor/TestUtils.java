@@ -62,10 +62,14 @@ public class TestUtils {
                 .meta(new MessageMeta(address))
                 .build();
         kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
-        return new TestUser(userId, address);
+        return new TestUser(userId, address, message.getId());
     }
 
     public static TestUser loginUser(String userId) throws JsonProcessingException {
         return loginUser(userId, new Address("domain-01", "connector-01", 10L));
+    }
+
+    public static TestUser loginUser(String userId, Long socketId) throws JsonProcessingException {
+        return loginUser(userId, new Address("domain-01", "connector-01", socketId));
     }
 }

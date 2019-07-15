@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class TestUser {
     String userId;
     Address address;
+    String connectedMessageId;
 }

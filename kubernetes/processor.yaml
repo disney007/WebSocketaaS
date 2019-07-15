@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: processor
+    group: linker
+  name: processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: processor
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: processor
+        group: linker
+    spec:
+      containers:
+        - name: processor
+          image: linker.spendzer.com/processor:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          env:
+            - name: JAVA_OPTS
+              value: -Xms128m -Xmx1024m
+            - name: spring.profiles.active
+              value: dev-docker
+            - name: server.port
+              value: "8088"
+            - name: domainName
+              value: "domain-01"
+            - name: processorName
+              value: "processor-02"
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 30
+            failureThreshold: 5
+            successThreshold: 1
+      restartPolicy: Always

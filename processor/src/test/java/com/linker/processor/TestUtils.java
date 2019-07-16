@@ -11,6 +11,7 @@ import com.linker.common.MessageUtils;
 import com.linker.common.Utils;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messages.UserConnected;
+import com.linker.common.messages.UserDisconnected;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -62,7 +63,7 @@ public class TestUtils {
                 .meta(new MessageMeta(address))
                 .build();
         kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
-        return new TestUser(userId, address, message.getId());
+        return new TestUser(userId, address, message.getId(), null);
     }
 
     public static TestUser loginUser(String userId) throws JsonProcessingException {
@@ -71,5 +72,18 @@ public class TestUtils {
 
     public static TestUser loginUser(String userId, Long socketId) throws JsonProcessingException {
         return loginUser(userId, new Address("domain-01", "connector-01", socketId));
+    }
+
+    public static void logoutUser(TestUser user) throws JsonProcessingException {
+        Message message = Message.builder()
+                .from(Keywords.SYSTEM)
+                .content(
+                        MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnected(user.getUserId()),
+                                MessageFeature.RELIABLE)
+                )
+                .meta(new MessageMeta(user.getAddress()))
+                .build();
+        user.setDisconnectedMessageId(message.getId());
+        kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
     }
 }

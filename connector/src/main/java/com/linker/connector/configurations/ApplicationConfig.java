@@ -20,9 +20,12 @@ public class ApplicationConfig {
     @Value("${connectorName}")
     String connectorName;
 
+    @Value("${wsPort}")
     Integer wsPort;
     String rabbitmqHosts;
+    @Value("${kafkaHosts}")
     String kafkaHosts;
+    @Value("${natsHosts}")
     String natsHosts;
     String deliveryTopics;
 

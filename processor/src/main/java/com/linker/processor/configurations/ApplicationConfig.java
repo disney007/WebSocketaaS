@@ -24,7 +24,9 @@ public class ApplicationConfig {
     String processorName;
 
     String rabbitmqHosts;
+    @Value("${kafkaHosts}")
     String kafkaHosts;
+    @Value("${natsHosts}")
     String natsHosts;
     String consumerTopics;
 

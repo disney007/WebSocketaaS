@@ -3,6 +3,8 @@ ARG JAR_FILE
 ENV SPRING_PROFILES_ACTIVE ''
 ENV domainName ''
 ENV processorName ''
+ENV kafkaHosts ''
+ENV natsHosts ''
 RUN mkdir -p "/opt/data/"
 COPY "$JAR_FILE" "/opt/data/connector.jar"
 WORKDIR "/opt/data"

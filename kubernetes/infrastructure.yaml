@@ -155,10 +155,10 @@ spec:
           image: nats:latest
           imagePullPolicy: Always
           ports:
-            - name: "p8222"
+            - name: "port8222"
               containerPort: 8222
               protocol: TCP
-            - name: "p4222"
+            - name: "port4222"
               containerPort: 4222
               protocol: TCP
       restartPolicy: Always

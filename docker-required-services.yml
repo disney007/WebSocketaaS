@@ -7,7 +7,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
-  infra-kafka:
+  kafka:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-host
     ports:

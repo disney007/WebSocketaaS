@@ -110,6 +110,7 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
                     new MessageForward(incomingMessage.getFrom(), "some thing here to send"), MessageFeature.FAST));
             msg.getContent().setConfirmationEnabled(false);
             msg.getMeta().setTargetAddress(user.getAddress());
+            msg.getMeta().setConfirmEnabled(false);
             MessageUtils.touchMessage(msg, 2);
             return msg;
         }).collect(Collectors.toList());

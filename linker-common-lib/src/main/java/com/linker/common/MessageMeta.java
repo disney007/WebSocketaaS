@@ -10,6 +10,7 @@ public class MessageMeta {
     Address targetAddress;
     String note;
     Integer ttl = 10;
+    boolean confirmEnabled = true;
 
     public MessageMeta() {
 
@@ -36,7 +37,15 @@ public class MessageMeta {
         this.ttl = ttl;
     }
 
+    public MessageMeta(Address originalAddress, Address targetAddress, String note, Integer ttl, boolean confirmEnabled) {
+        this.originalAddress = originalAddress;
+        this.targetAddress = targetAddress;
+        this.note = note;
+        this.ttl = ttl;
+        this.confirmEnabled = confirmEnabled;
+    }
+
     public MessageMeta clone() {
-        return new MessageMeta(originalAddress, targetAddress, note, ttl);
+        return new MessageMeta(originalAddress, targetAddress, note, ttl, confirmEnabled);
     }
 }

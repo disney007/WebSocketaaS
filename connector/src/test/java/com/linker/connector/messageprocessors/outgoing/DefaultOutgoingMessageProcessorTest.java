@@ -1,17 +1,8 @@
 package com.linker.connector.messageprocessors.outgoing;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageContent;
-import com.linker.common.MessageContentOutput;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
+import com.linker.common.exceptions.UnwantedMessageException;
 import com.linker.common.messages.MessageForward;
 import com.linker.common.messages.MessageStateChanged;
 import com.linker.connector.IntegrationTest;
@@ -59,6 +50,20 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
+    public void test_successfully_confirmDisabled_SentOut() throws TimeoutException, JsonProcessingException, UnwantedMessageException {
+        testUser = TestUtils.loginClientUser(userId1);
+        Message receivedMessage = messageArrived(false);
+
+        // check user received message
+        MessageContentOutput userReceivedMessage = testUser.getReceivedMessage(MessageType.MESSAGE);
+        userReceivedMessage.setData(userReceivedMessage.getData(MessageForward.class));
+        assertEquals(receivedMessage.getContent().toContentOutput(), userReceivedMessage);
+
+        // check confirmation message
+        kafkaExpressDelivery.noDeliveredMessage(MessageType.MESSAGE_STATE_CHANGED);
+    }
+
+    @Test
     public void test_targetNotFound() throws JsonProcessingException, TimeoutException {
         Message receivedMessage = messageArrived();
         // check confirmation message
@@ -79,19 +84,27 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
         checkConfirmedMessage(receivedMessage, MessageState.NETWORK_ERROR);
     }
 
+
     Message messageArrived() throws JsonProcessingException {
+        return messageArrived(true);
+    }
+
+    Message messageArrived(boolean confirmEnabled) throws JsonProcessingException {
         MessageContent content = new MessageContent(MessageType.MESSAGE,
                 new MessageForward(userId2, "hi, this is the message form some one"),
                 null, MessageFeature.FAST, true
         );
+
+        MessageMeta messageMeta = new MessageMeta(
+                new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 2L),
+                new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 1L)
+        );
+        messageMeta.setConfirmEnabled(confirmEnabled);
         Message receivedMessage = Message.builder()
                 .content(content)
                 .from(userId2)
                 .to(userId1)
-                .meta(new MessageMeta(
-                        new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 2L),
-                        new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 1L)
-                ))
+                .meta(messageMeta)
                 .build();
 
         natsExpressDelivery.onMessageArrived(Utils.toJson(receivedMessage));

@@ -3,6 +3,7 @@ package com.linker.common.messagedelivery;
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
+import com.linker.common.exceptions.UnwantedMessageException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -69,5 +70,15 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
         } while (message.getContent().getType() != type);
 
         return message;
+    }
+
+    public void noDeliveredMessage(MessageType type) throws UnwantedMessageException {
+        log.info("kafka:expect no message {}", type);
+        try {
+            getDeliveredMessage(type);
+            throw new UnwantedMessageException("unwanted message:" + type);
+        } catch (TimeoutException e) {
+            return;
+        }
     }
 }

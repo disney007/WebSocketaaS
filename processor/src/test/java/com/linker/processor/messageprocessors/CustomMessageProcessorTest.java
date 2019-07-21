@@ -16,13 +16,18 @@ import com.linker.processor.TestUser;
 import com.linker.processor.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @Slf4j
 public class CustomMessageProcessorTest extends IntegrationTest {
+
+    @Autowired
+    CustomMessageProcessor customMessageProcessor;
 
     @Test
     public void test_reliable_receiverNotFound() throws JsonProcessingException {
@@ -80,11 +85,33 @@ public class CustomMessageProcessorTest extends IntegrationTest {
         expectedDeliveredMessage.setTo(testUser.getUserId());
         expectedDeliveredMessage.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward("ANZ-123223", "some thing here to send"), MessageFeature.FAST));
         expectedDeliveredMessage.getMeta().setTargetAddress(testUser.getAddress());
+        expectedDeliveredMessage.getMeta().setConfirmEnabled(false);
         MessageUtils.touchMessage(expectedDeliveredMessage);
         TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
 
         Message savedMessage = messageRepository.findById(incomingMessage.getId());
         assertNull(savedMessage);
+    }
+
+    @Test
+    public void testUpdateMessageConfirmationFlag() {
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "abc", true, true);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", true, true);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "abc", false, true);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", false, true);
+
+        doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "abc", true, true);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "", true, false);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "abc", false, false);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "", false, false);
+    }
+
+    public void doTestUpdateMessageConfirmationFlag(MessageFeature feature, String reference, boolean contentConfirmEnabled, boolean confirmEnabled) {
+        Message message = createMessage(feature);
+        message.getContent().setReference(reference);
+        message.getContent().setConfirmationEnabled(confirmEnabled);
+        customMessageProcessor.updateMessageConfirmationFlag(message);
+        assertEquals(confirmEnabled, message.getMeta().isConfirmEnabled());
     }
 
     Message createMessage(MessageFeature feature) {

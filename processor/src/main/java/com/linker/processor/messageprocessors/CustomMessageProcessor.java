@@ -1,15 +1,13 @@
 package com.linker.processor.messageprocessors;
 
-import com.linker.common.Message;
-import com.linker.common.MessageContext;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
+import com.linker.common.*;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messages.MessageForward;
 import com.linker.common.messages.MessageRequest;
 import com.linker.processor.express.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,11 +42,20 @@ public class CustomMessageProcessor extends PersistableMessageProcessor<MessageR
         MessageForward messageData = new MessageForward(from, data.getContent());
         message.getContent().setData(messageData);
 
+        updateMessageConfirmationFlag(message);
+
         try {
             postOffice.deliveryMessage(message);
         } catch (AddressNotFoundException e) {
             log.info("address not found for user [{}]", message.getTo());
             updateMessageState(message, MessageState.TARGET_NOT_FOUND);
         }
+    }
+
+    void updateMessageConfirmationFlag(Message message) {
+        MessageContent messageContent = message.getContent();
+        boolean shouldConfirm = isMessagePersistable(message)
+                || (messageContent.getConfirmationEnabled() && StringUtils.isNotBlank(messageContent.getReference()));
+        message.getMeta().setConfirmEnabled(shouldConfirm);
     }
 }

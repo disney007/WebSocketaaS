@@ -20,26 +20,33 @@ spec:
     spec:
       containers:
         - name: connector
-          image: linker/connector:latest
+          image: eu.gcr.io/linker-246119/connector:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088
+            - containerPort: 8080
           env:
             - name: JAVA_OPTS
               value: -Xms128m -Xmx1024m
             - name: spring.profiles.active
-              value: dev-docker
+              value: "sandbox"
             - name: server.port
+              value: "8080"
+            - name: wsPort
               value: "8088"
             - name: domainName
               value: "domain-01"
             - name: connectorName
               value: "connector-02"
+            - name: kafkaHosts
+              value: "infra-kafka:29092"
+            - name: natsHosts
+              value: "nats://nats:4222"
           readinessProbe:
             httpGet:
               scheme: HTTP
               path: /actuator/health
-              port: 8088
+              port: 8080
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 30
@@ -49,7 +56,7 @@ spec:
             httpGet:
               scheme: HTTP
               path: /actuator/health
-              port: 8088
+              port: 8080
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 30

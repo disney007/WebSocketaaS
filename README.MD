@@ -10,16 +10,13 @@ which highly focus on performance, scalability and reliability.
 * checkout project and goto project root folder
 
 ### how to start application
-* `mvn clean install` builds the project and docker containers
+* `mvn clean install` builds the project and docker containers for connector, processor and test-script
 * `docker-compose -f docker-required-services.yml up` starts required services
 * `docker-compose up` starts application services
 
 `mvn clean install -DskipBuildingDocker` only builds the project without building docker images.
 ### how to test on ui
-serve folder `test-script` as webservice, here `npm serve` is used
-* install serve `npm install serve -g`
-* run `serve test-script`
-* open http://localhost:5000/ in browser
+the docker container `test-script` will be up and running automatically. Open `http://localhost:4400` in browser.
 
 if application services are running inside docker container, the default websocket port is `8088`; 
 if application services are running outside of docker container, the port is `8089` and resolve hostname `kafka` 

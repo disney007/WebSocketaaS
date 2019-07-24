@@ -20,27 +20,36 @@ spec:
     spec:
       containers:
         - name: processor
-          image: linker/processor:latest
+          image: eu.gcr.io/linker-246119/processor:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088
+            - containerPort: 8080
           env:
             - name: JAVA_OPTS
               value: -Xms128m -Xmx1024m
             - name: spring.profiles.active
-              value: dev-docker
+              value: "sandbox"
             - name: server.port
-              value: "8088"
+              value: "8080"
             - name: domainName
               value: "domain-01"
             - name: processorName
               value: "processor-02"
+            - name: kafkaHosts
+              value: "infra-kafka:29092"
+            - name: natsHosts
+              value: "nats://nats:4222"
+            - name: spring.redis.host
+              value: "redis"
+            - name: spring.data.mongodb.host
+              value: "mongo"
           readinessProbe:
             httpGet:
               scheme: HTTP
               path: /actuator/health
-              port: 8088
-            initialDelaySeconds: 60
+              port: 8080
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 30
             failureThreshold: 3
@@ -49,8 +58,8 @@ spec:
             httpGet:
               scheme: HTTP
               path: /actuator/health
-              port: 8088
-            initialDelaySeconds: 60
+              port: 8080
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 30
             failureThreshold: 5

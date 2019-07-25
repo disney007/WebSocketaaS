@@ -35,4 +35,42 @@
         <version.embedded.mongo>2.2.0</version.embedded.mongo>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>build-test-script-docker</id>
+            <activation>
+                <property>
+                    <name>!skipBuildingDocker</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>build-docker</id>
+                                <inherited>false</inherited>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <arguments>
+                                        <argument>build</argument>
+                                        <argument>test-script</argument>
+                                        <argument>-t</argument>
+                                        <argument>linker/test-script:latest</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

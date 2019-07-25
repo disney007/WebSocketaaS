@@ -34,3 +34,7 @@ services:
     image: mongo
     ports:
       - "27017:27017"
+  test-script:
+    image: linker/test-script:latest
+    ports:
+      - "4400:80"

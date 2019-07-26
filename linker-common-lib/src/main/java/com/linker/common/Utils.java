@@ -8,6 +8,8 @@ import com.linker.common.messagedelivery.ExpressDeliveryType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Random;
 
 @Slf4j
 public class Utils {
@@ -40,11 +42,22 @@ public class Utils {
         }
     }
 
-    public static void sleep(long ms){
+    public static void sleep(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             log.info("thread interrupted during sleep, ignore");
         }
+    }
+
+    public static <T> T getRandomItemInCollection(Collection<T> collection) {
+        if (collection == null || collection.size() == 0) {
+            return null;
+        }
+
+        return collection.stream()
+                .skip(new Random().nextInt(collection.size()))
+                .findAny()
+                .get();
     }
 }

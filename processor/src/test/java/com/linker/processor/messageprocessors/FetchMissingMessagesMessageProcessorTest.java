@@ -1,15 +1,7 @@
 package com.linker.processor.messageprocessors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.messages.FetchMissingMessagesComplete;
 import com.linker.common.messages.FetchMissingMessagesRequest;
 import com.linker.common.messages.MessageForward;
@@ -102,6 +94,7 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
                                 .build()
                 )
         );
+        expectedDeliveredMessages.stream().forEach(msg -> msg.getMeta().setDeliveryType(DeliveryType.ANY));
         TestUtils.messagesEqual(expectedDeliveredMessages, deliveredMessages);
     }
 

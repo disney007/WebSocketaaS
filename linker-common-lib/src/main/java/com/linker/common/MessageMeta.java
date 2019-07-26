@@ -11,6 +11,7 @@ public class MessageMeta {
     String note;
     Integer ttl = 10;
     boolean confirmEnabled = true;
+    DeliveryType deliveryType = DeliveryType.ALL;
 
     public MessageMeta() {
 
@@ -43,6 +44,15 @@ public class MessageMeta {
         this.note = note;
         this.ttl = ttl;
         this.confirmEnabled = confirmEnabled;
+    }
+
+    public MessageMeta(Address originalAddress, Address targetAddress, String note, Integer ttl, boolean confirmEnabled, DeliveryType deliveryType) {
+        this.originalAddress = originalAddress;
+        this.targetAddress = targetAddress;
+        this.note = note;
+        this.ttl = ttl;
+        this.confirmEnabled = confirmEnabled;
+        this.deliveryType = deliveryType;
     }
 
     public MessageMeta clone() {

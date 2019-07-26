@@ -1,13 +1,7 @@
 package com.linker.processor.messageprocessors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
 import com.linker.common.messages.UserDisconnected;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUser;
@@ -57,6 +51,7 @@ public class UserDisconnectedMessageProcessorTest extends IntegrationTest {
                                 .meta(new MessageMeta(testUser.getAddress(), masterUser.getAddress()))
                                 .build()
                 );
+        expectedDeliveredMessage.getMeta().setDeliveryType(DeliveryType.ANY);
         TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
 
         // check saved message

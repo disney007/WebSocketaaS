@@ -1,13 +1,6 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
 import com.linker.common.messages.MessageConfirmation;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUser;
@@ -27,7 +20,7 @@ public class CustomMessageConfirmationProcessorTest extends IntegrationTest {
     ApplicationConfig applicationConfig;
 
     @Test
-    public void test_processing() throws JsonProcessingException, TimeoutException {
+    public void test_processing() throws TimeoutException {
         TestUser testUser = TestUtils.loginUser("ANZ-12345");
         Message confirmMessage = Message.builder()
                 .from(Keywords.SYSTEM)

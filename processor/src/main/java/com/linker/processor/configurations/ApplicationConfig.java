@@ -30,6 +30,8 @@ public class ApplicationConfig {
     String natsHosts;
     String consumerTopics;
 
+    @Value("codec")
+    String codec;
 
     List<ClientApp> clientApps = new ArrayList<>();
 

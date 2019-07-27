@@ -7,13 +7,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-public class AuthClient {
+public class AuthClient implements Serializable {
     String appId;
     String userId;
     String token;

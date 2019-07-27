@@ -1,5 +1,6 @@
 package com.linker.processor;
 
+import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.mongodb.Mongo;
@@ -36,6 +37,9 @@ public class TestConfig {
 
     @Autowired
     Mongo mongo;
+
+    @Autowired
+    Codec codec;
 
     static TestConfig instance;
 
@@ -74,11 +78,11 @@ public class TestConfig {
 
     @Bean
     public MockKafkaExpressDelivery kafkaExpressDelivery() {
-        return spy(new MockKafkaExpressDelivery());
+        return spy(new MockKafkaExpressDelivery(codec));
     }
 
     @Bean
     public MockNatsExpressDelivery natsExpressDelivery() {
-        return spy(new MockNatsExpressDelivery());
+        return spy(new MockNatsExpressDelivery(codec));
     }
 }

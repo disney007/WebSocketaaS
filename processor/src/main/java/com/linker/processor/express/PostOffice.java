@@ -7,6 +7,7 @@ import com.linker.common.Address;
 import com.linker.common.DeliveryType;
 import com.linker.common.Message;
 import com.linker.common.Utils;
+import com.linker.common.codec.Codec;
 import com.linker.common.exceptions.AddressNotFoundException;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
@@ -25,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -48,6 +51,9 @@ public class PostOffice implements ExpressDeliveryListener {
 
     @Autowired
     ClientAppService clientAppService;
+
+    @Autowired
+    Codec codec;
 
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
@@ -82,8 +88,7 @@ public class PostOffice implements ExpressDeliveryListener {
         }
         for (Address address : targetAddresses) {
             message.getMeta().setTargetAddress(address);
-            String json = Utils.toJson(message);
-            expressDelivery.deliveryMessage(address.getConnectorName(), json);
+            expressDelivery.deliveryMessage(address.getConnectorName(), codec.serialize(message));
         }
     }
 
@@ -93,9 +98,9 @@ public class PostOffice implements ExpressDeliveryListener {
     }
 
     @Override
-    public void onMessageArrived(ExpressDelivery expressDelivery, String message) {
+    public void onMessageArrived(ExpressDelivery expressDelivery, byte[] message) {
         try {
-            Message msg = Utils.fromJson(message, Message.class);
+            Message msg = codec.deserialize(message, Message.class);
             log.info("message arrived from {}:{}", expressDelivery.getType(), msg);
             messageProcessor.process(msg);
         } catch (Exception e) {

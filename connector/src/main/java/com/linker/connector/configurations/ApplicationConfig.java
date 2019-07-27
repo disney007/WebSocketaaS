@@ -29,6 +29,8 @@ public class ApplicationConfig {
     String natsHosts;
     String deliveryTopics;
 
+    @Value("codec")
+    String codec;
 
     @PostConstruct
     public void init() {

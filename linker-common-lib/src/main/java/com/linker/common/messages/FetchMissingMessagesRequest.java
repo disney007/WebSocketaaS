@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-public class FetchMissingMessagesRequest {
+public class FetchMissingMessagesRequest implements Serializable {
     Integer count;
 }

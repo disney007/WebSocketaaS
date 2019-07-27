@@ -3,9 +3,11 @@ package com.linker.common;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @Data
 @EqualsAndHashCode
-public class MessageMeta {
+public class MessageMeta implements Serializable {
     Address originalAddress;
     Address targetAddress;
     String note;

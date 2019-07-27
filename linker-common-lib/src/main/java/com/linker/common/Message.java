@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Document(collection = "message")
-public class Message {
+public class Message implements Serializable {
     @Id
     String id = UUID.randomUUID().toString();
     String version = "0.1.0";

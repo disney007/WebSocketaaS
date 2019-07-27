@@ -33,6 +33,7 @@
         <version.okhttp>4.0.0</version.okhttp>
         <version.embedded-redis>0.7.2</version.embedded-redis>
         <version.embedded.mongo>2.2.0</version.embedded.mongo>
+        <vesrion.fst>2.56</vesrion.fst>
     </properties>
 
     <profiles>

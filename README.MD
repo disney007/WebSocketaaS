@@ -1,34 +1,34 @@
-## introduction
+## Introduction
 The project is the backend solution for client to client and server to client communication via websocket, 
 which highly focus on performance, scalability and reliability.
  
-## how to run application in local
-### pre-requirement
+## Running on your local machine
+### Prerequisites
 * install docker
 * install jdk8
 * add `127.0.0.1 kafka` to `/etc/hosts`
 * checkout project and goto project root folder
 
-### how to start application
+### Building and Running
 * `mvn clean install` builds the project and docker containers for connector, processor and test-script
 * `docker-compose -f docker-required-services.yml up` starts required services
 * `docker-compose up` starts application services
 
 `mvn clean install -DskipBuildingDocker` only builds the project without building docker images.
-### how to test on ui
+### Testing with a sample UI
 the docker container `test-script` will be up and running automatically. Open `http://localhost:4400` in browser.
 
 if application services are running inside docker container, the default websocket port is `8088`; 
 if application services are running outside of docker container, the port is `8089` and resolve hostname `kafka` 
 to `127.0.0.1` is required
 
-### example
+### Examples
 suppose application servers are running in docker and connect with javascript
-##### connect to server with websocket
+##### Connect to the server using a WebSocket
 ```javascript
 var ws = new WebSocket("ws://localhost:8088/ws");
 ```
-##### authentication
+##### Authentication
 ```javascript
 ws.onopen = function () {
     var message = {
@@ -59,7 +59,7 @@ server simply verifies the appId and user prefix and replies successfully authen
 }
 ```
 the appId `app-id-343` and userId prefix `ANZ` must match the client app settings defined in application.properties
-##### authentication with client application
+##### Authentication with client application
 the authentication with client is disabled by default, which can be enabled in application.properties
 ```
 clientApps[0].authUrl=http://localhost:8081/auth
@@ -81,7 +81,7 @@ And client endpoint must reply with following json structure
   "isAuthenticated": true
 }
 ```
-#### send message to another connected user
+#### Send message to another connected user
 ```javascript
     var message = {
           "type": "MESSAGE",
@@ -112,7 +112,7 @@ Default value is `null`, which means no confirmation message will send back.
 The confirmation message is always sent with feature `RELIABLE`, which guarantees the confirmation message will not get
 lost even if the sender is not connected at the moment. 
 
-#### receive message from server
+#### Receive message from the server
 if message received from server, `onmessage` will be fired.
 ```javascript
     ws.onmessage = function (event){
@@ -131,7 +131,7 @@ if message received from server, `onmessage` will be fired.
         console.log(message);           
     };
 ```
-#### send message to multiple users
+#### Send message to multiple users
 ```json
 {
     "type": "GROUP_MESSAGE",
@@ -144,7 +144,7 @@ if message received from server, `onmessage` will be fired.
 ```
 * the above message will be sent to user `ANZ-1232121` and `ANZ-1232122`
 * the message confirmation is not available for `GROUP_MESSAGE`
-#### fetch missing messages
+#### Fetch missing/missed messages
 if target user is not found (connected and authenticated), the message will be persisted in database. The target user can 
 fetch the missing messages when login next time.\
 \
@@ -179,7 +179,7 @@ it can trigger another fetch
     }
 }
 ```
-#### client application configurations
+### Client application configuration
 client application settings are in application properties, it also can config multiple client applications
 ```javascript
 clientApps[0].appName=ANZ

@@ -7,6 +7,8 @@ import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.linker.connector.configurations.ApplicationConfig;
+import com.linker.connector.network.SocketChannelInitializer;
+import com.linker.connector.network.SocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -33,7 +35,7 @@ public abstract class IntegrationTest {
     protected NetworkUserService networkUserService;
 
     @Autowired
-    protected WebSocketChannelInitializer webSocketChannelInitializer;
+    protected SocketChannelInitializer socketChannelInitializer;
 
     @Autowired
     protected MockKafkaExpressDelivery kafkaExpressDelivery;
@@ -53,7 +55,7 @@ public abstract class IntegrationTest {
         integrationTestEnv.waitForReady();
         closeAllUsers(networkUserService.pendingUsers);
         closeAllUsers(networkUserService.users);
-        webSocketChannelInitializer.resetCounter();
+        socketChannelInitializer.resetCounter();
         kafkaExpressDelivery.reset();
         natsExpressDelivery.reset();
         Utils.sleep(30L);

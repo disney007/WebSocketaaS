@@ -13,6 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class GroupMessage implements Serializable {
+
+    private static final long serialVersionUID = -7777757135064012832L;
     Set<String> to;
     String content;
 }

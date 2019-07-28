@@ -14,6 +14,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @ToString
 public class AuthClientReply implements Serializable {
+
+    private static final long serialVersionUID = -6696238110393994234L;
     String appId;
     String userId;
     Boolean isAuthenticated;

@@ -1,8 +1,8 @@
-package com.linker.connector;
+package com.linker.connector.network;
 
 import com.linker.connector.configurations.ApplicationConfig;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -15,6 +15,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class NettyService {
         ApplicationConfig applicationConfig;
 
         @Autowired
-        WebSocketChannelInitializer channelInitializer;
+        SocketChannelInitializer channelInitializer;
 
         volatile EventLoopGroup bossGroup;
         volatile EventLoopGroup workerGroup;
@@ -74,11 +76,27 @@ public class NettyService {
                         .childHandler(channelInitializer)
                         .option(ChannelOption.SO_BACKLOG, 128)
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
-                ChannelFuture f = b.bind(applicationConfig.getWsPort()).sync();
-                log.info("netty server started");
-                nettyService.fireNettyServerStartedEvent();
-                f.channel().closeFuture().sync();
 
+                List<Channel> channels = new ArrayList<>();
+                if (applicationConfig.getWsPort() != null) {
+                    log.info("starting web socket channel");
+                    channels.add(b.bind(applicationConfig.getWsPort()).sync().channel());
+                }
+
+                if (applicationConfig.getTcpPort() != null) {
+                    log.info("starting tcp channel");
+                    channels.add(b.bind(applicationConfig.getTcpPort()).sync().channel());
+                }
+
+                if (channels.size() == 0) {
+                    log.warn("no channel open");
+                } else {
+                    log.info("netty server started");
+                    nettyService.fireNettyServerStartedEvent();
+                    for (Channel channel : channels) {
+                        channel.closeFuture().sync();
+                    }
+                }
             } catch (InterruptedException e) {
                 log.error("error occurred in netty server", e);
             } finally {
@@ -107,7 +125,7 @@ public class NettyService {
         executorService.schedule(nettyServer, 1, TimeUnit.SECONDS);
     }
 
-    void shutdown() {
+    public void shutdown() {
         nettyServer.shutdown();
     }
 }

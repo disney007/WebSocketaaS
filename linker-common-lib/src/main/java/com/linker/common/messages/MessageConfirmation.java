@@ -12,5 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class MessageConfirmation implements Serializable {
+
+    private static final long serialVersionUID = -8613052694414103645L;
     String reference;
 }

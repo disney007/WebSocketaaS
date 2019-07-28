@@ -12,6 +12,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class MessageForward implements Serializable {
+
+    private static final long serialVersionUID = 3570487356373293268L;
     String from;
     String content;
 }

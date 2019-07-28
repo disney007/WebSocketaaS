@@ -22,6 +22,10 @@ public class ApplicationConfig {
 
     @Value("${wsPort}")
     Integer wsPort;
+
+    @Value("${tcpPort}")
+    Integer tcpPort;
+
     String rabbitmqHosts;
     @Value("${kafkaHosts}")
     String kafkaHosts;

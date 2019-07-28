@@ -8,6 +8,7 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode
 public class MessageMeta implements Serializable {
+    private static final long serialVersionUID = -3515282102198514156L;
     Address originalAddress;
     Address targetAddress;
     String note;

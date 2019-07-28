@@ -12,6 +12,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class MessageRequest implements Serializable {
+
+    private static final long serialVersionUID = -1313419467213264199L;
     String to;
     String content;
 }

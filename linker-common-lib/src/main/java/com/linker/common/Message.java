@@ -20,6 +20,9 @@ import java.util.UUID;
 @EqualsAndHashCode
 @Document(collection = "message")
 public class Message implements Serializable {
+
+    private static final long serialVersionUID = -5109122406309247512L;
+
     @Id
     String id = UUID.randomUUID().toString();
     String version = "0.1.0";

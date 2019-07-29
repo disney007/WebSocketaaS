@@ -1,5 +1,10 @@
 package com.linker.processor.configurations;
 
+import com.linker.common.codec.Codec;
+import com.linker.common.codec.FstCodec;
+import com.linker.common.codec.JsonCodec;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +27,9 @@ public class BeanConfig {
 
     @Value("${spring.redis.port}")
     private int REDIS_PORT;
+
+    @Autowired
+    ApplicationConfig applicationConfig;
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
@@ -46,5 +54,14 @@ public class BeanConfig {
     @Bean
     public ExecutorService executorService() {
         return Executors.newFixedThreadPool(10);
+    }
+
+    @Bean
+    public Codec codec() {
+        if (StringUtils.equalsIgnoreCase("json", applicationConfig.getCodec())) {
+            return new JsonCodec();
+        }
+
+        return new FstCodec();
     }
 }

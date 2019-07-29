@@ -1,14 +1,6 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.messages.MessageForward;
 import com.linker.common.messages.MessageRequest;
 import com.linker.processor.IntegrationTest;
@@ -30,10 +22,10 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     CustomMessageProcessor customMessageProcessor;
 
     @Test
-    public void test_reliable_receiverNotFound() throws JsonProcessingException {
+    public void test_reliable_receiverNotFound() {
         Message incomingMessage = createMessage(MessageFeature.RELIABLE);
 
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
         Message savedMessage = messageRepository.findById(incomingMessage.getId());
 
         Message expectedMessage = incomingMessage.clone();
@@ -45,10 +37,10 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_reliable_receiverFound() throws JsonProcessingException, TimeoutException {
+    public void test_reliable_receiverFound() throws TimeoutException {
         TestUser testUser = TestUtils.loginUser("ANZ-1232122");
         Message incomingMessage = createMessage(MessageFeature.RELIABLE);
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
         Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
 
         Message expectedDeliveredMessage = incomingMessage.clone();
@@ -67,18 +59,18 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_fast_receiverNotFound() throws JsonProcessingException {
+    public void test_fast_receiverNotFound() {
         Message incomingMessage = createMessage(MessageFeature.FAST);
-        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
         Message savedMessage = messageRepository.findById(incomingMessage.getId());
         assertNull(savedMessage);
     }
 
     @Test
-    public void test_fast_receiverFound() throws JsonProcessingException, TimeoutException {
+    public void test_fast_receiverFound() throws TimeoutException {
         TestUser testUser = TestUtils.loginUser("ANZ-1232122");
         Message incomingMessage = createMessage(MessageFeature.FAST);
-        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
 
         Message deliveredMessage = natsExpressDelivery.getDeliveredMessage(MessageType.MESSAGE);
         Message expectedDeliveredMessage = incomingMessage.clone();

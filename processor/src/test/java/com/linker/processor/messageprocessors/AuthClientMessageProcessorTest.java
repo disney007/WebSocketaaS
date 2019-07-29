@@ -1,15 +1,7 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.messages.AuthClient;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.processor.IntegrationTest;
@@ -44,14 +36,14 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_basic_auth() throws TimeoutException, JsonProcessingException {
+    public void test_basic_auth() throws TimeoutException {
         testAuth("app-id-343", "ANZ-123223", true);
         testAuth("app-id-344", "ANZ-123223", false);
         testAuth("app-id-343", "ANZXX-123223", false);
     }
 
     @Test
-    public void test_external_auth_wrong_url() throws TimeoutException, JsonProcessingException {
+    public void test_external_auth_wrong_url() throws TimeoutException {
         ClientApp clientApp = clientAppService.getClientAppByName("ANZ");
         clientApp.setAuthEnabled(true);
         clientApp.setAuthUrl("");
@@ -83,7 +75,7 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
         }
     }
 
-    public void testAuth(String appId, String userId, boolean isAuthenticated) throws JsonProcessingException, TimeoutException {
+    public void testAuth(String appId, String userId, boolean isAuthenticated) throws TimeoutException {
         Message message = Message.builder()
                 .from(userId)
                 .content(MessageUtils.createMessageContent(MessageType.AUTH_CLIENT, new AuthClient(appId, userId, "abc"), MessageFeature.RELIABLE))

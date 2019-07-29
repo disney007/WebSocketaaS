@@ -4,18 +4,15 @@ import com.linker.common.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -43,27 +40,27 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     @Getter
     ExpressDeliveryListener listener;
 
-    Consumer<String, String> consumer;
+    Consumer<String, byte[]> consumer;
 
-    Producer<String, String> producer;
+    Producer<String, byte[]> producer;
 
-    private Producer<String, String> createProducer() {
+    private Producer<String, byte[]> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, hosts);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         return new KafkaProducer<>(props);
     }
 
-    Consumer<String, String> createConsumer() {
+    Consumer<String, byte[]> createConsumer() {
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, hosts);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
 
         // Create the consumer using props.
-        final Consumer<String, String> consumer = new KafkaConsumer<>(props);
+        final Consumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
         // Subscribe to the topic.
         consumer.subscribe(Collections.singletonList(consumerTopic));
@@ -73,10 +70,10 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     void runConsumer() {
         try {
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
+                ConsumerRecords<String, byte[]> records = consumer.poll(POLL_TIMEOUT);
                 for (TopicPartition partition : records.partitions()) {
-                    List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
-                    for (ConsumerRecord<String, String> record : partitionRecords) {
+                    List<ConsumerRecord<String, byte[]>> partitionRecords = records.records(partition);
+                    for (ConsumerRecord<String, byte[]> record : partitionRecords) {
                         this.onMessageArrived(record.value());
                     }
                     long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
@@ -109,8 +106,8 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliveryMessage(String target, String message) throws IOException {
-        ProducerRecord<String, String> record = new ProducerRecord<>(target, message);
+    public void deliveryMessage(String target, byte[] message) throws IOException {
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(target, message);
         producer.send(record, (recordMetadata, e) -> {
             log.info("kafka:send message complete");
         });
@@ -120,7 +117,7 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void onMessageArrived(String message) {
+    public void onMessageArrived(byte[] message) {
         if (this.listener != null) {
             this.listener.onMessageArrived(this, message);
         }

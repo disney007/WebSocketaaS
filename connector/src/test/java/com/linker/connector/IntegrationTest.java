@@ -1,6 +1,9 @@
 package com.linker.connector;
 
+import com.linker.common.Message;
+import com.linker.common.MessageFeature;
 import com.linker.common.Utils;
+import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.linker.connector.configurations.ApplicationConfig;
@@ -14,12 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -46,6 +44,9 @@ public abstract class IntegrationTest {
     @Autowired
     protected ApplicationConfig applicationConfig;
 
+    @Autowired
+    protected Codec codec;
+
     @Before
     public void integrationSetup() {
         log.info("init integration env");
@@ -62,27 +63,13 @@ public abstract class IntegrationTest {
         map.forEach((key, value) -> value.forEach(SocketHandler::close));
     }
 
-    protected static class AsyncStep {
-        CompletableFuture<AsyncStep> future;
-
-        public AsyncStep(CompletableFuture<AsyncStep> future) {
-            this.future = future;
+    protected Message givenMessage(Message message) {
+        byte[] msg = codec.serialize(message);
+        if (message.getContent().getFeature() == MessageFeature.RELIABLE) {
+            kafkaExpressDelivery.onMessageArrived(msg);
+        } else {
+            natsExpressDelivery.onMessageArrived(msg);
         }
-
-        public void done() {
-            this.future.complete(null);
-        }
-    }
-
-    protected void async(Consumer<AsyncStep> consumer) {
-        CompletableFuture<AsyncStep> future = new CompletableFuture<>();
-        AsyncStep asyncTest = new AsyncStep(future);
-        consumer.accept(asyncTest);
-
-        try {
-            future.get(30L, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
+        return message;
     }
 }

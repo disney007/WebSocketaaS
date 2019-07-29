@@ -3,10 +3,12 @@ package com.linker.common.messagedelivery;
 import com.linker.common.Message;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
+import com.linker.common.codec.Codec;
 import com.linker.common.exceptions.UnwantedMessageException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -16,20 +18,23 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
 
     LinkedBlockingQueue<Message> deliveredMessageQueue = new LinkedBlockingQueue<>();
 
-    public MockKafkaExpressDelivery() {
+    Codec codec;
+
+    public MockKafkaExpressDelivery(Codec codec) {
         super(null, null, null);
+        this.codec = codec;
     }
 
     @Override
-    public void deliveryMessage(String target, String message) throws IOException {
+    public void deliveryMessage(String target, byte[] message) throws IOException {
         if (getListener() != null) {
             getListener().onMessageDelivered(this, target, message);
         }
-        deliveredMessageQueue.add(Utils.fromJson(message, Message.class));
+        deliveredMessageQueue.add(codec.deserialize(message, Message.class));
     }
 
     @Override
-    public void onMessageArrived(String message) {
+    public void onMessageArrived(byte[] message) {
         if (getListener() != null) {
             getListener().onMessageArrived(this, message);
         }

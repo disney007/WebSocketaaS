@@ -1,14 +1,7 @@
 package com.linker.processor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
+import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messages.UserConnected;
 import com.linker.common.messages.UserDisconnected;
@@ -23,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 @Component
 public class TestUtils {
     static KafkaExpressDelivery kafkaExpressDelivery;
+    static Codec codec;
 
-    public TestUtils(KafkaExpressDelivery kafkaExpressDelivery) {
+    public TestUtils(KafkaExpressDelivery kafkaExpressDelivery, Codec codec) {
         TestUtils.kafkaExpressDelivery = kafkaExpressDelivery;
+        TestUtils.codec = codec;
     }
 
     public static List<Message> sortMessages(List<Message> messages) {
@@ -53,7 +48,7 @@ public class TestUtils {
         assertEquals(expectedMsg.getState(), actualMsg.getState());
     }
 
-    public static TestUser loginUser(String userId, Address address) throws JsonProcessingException {
+    public static TestUser loginUser(String userId, Address address) {
         Message message = Message.builder()
                 .from(Keywords.SYSTEM)
                 .content(
@@ -62,19 +57,19 @@ public class TestUtils {
                 )
                 .meta(new MessageMeta(address))
                 .build();
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
+        kafkaExpressDelivery.onMessageArrived(codec.serialize(message));
         return new TestUser(userId, address, message.getId(), null);
     }
 
-    public static TestUser loginUser(String userId) throws JsonProcessingException {
+    public static TestUser loginUser(String userId) {
         return loginUser(userId, new Address("domain-01", "connector-01", 10L));
     }
 
-    public static TestUser loginUser(String userId, Long socketId) throws JsonProcessingException {
+    public static TestUser loginUser(String userId, Long socketId) {
         return loginUser(userId, new Address("domain-01", "connector-01", socketId));
     }
 
-    public static void logoutUser(TestUser user) throws JsonProcessingException {
+    public static void logoutUser(TestUser user) {
         Message message = Message.builder()
                 .from(Keywords.SYSTEM)
                 .content(
@@ -84,6 +79,6 @@ public class TestUtils {
                 .meta(new MessageMeta(user.getAddress()))
                 .build();
         user.setDisconnectedMessageId(message.getId());
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
+        kafkaExpressDelivery.onMessageArrived(codec.serialize(message));
     }
 }

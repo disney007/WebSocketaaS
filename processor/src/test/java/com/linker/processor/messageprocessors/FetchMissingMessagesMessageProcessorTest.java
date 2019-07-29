@@ -1,12 +1,7 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.*;
-import com.linker.common.messages.FetchMissingMessagesComplete;
-import com.linker.common.messages.FetchMissingMessagesRequest;
-import com.linker.common.messages.MessageForward;
-import com.linker.common.messages.MessageRequest;
-import com.linker.common.messages.UserConnected;
+import com.linker.common.messages.*;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUtils;
 import com.linker.processor.configurations.ApplicationConfig;
@@ -35,7 +30,7 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_processing() throws JsonProcessingException, TimeoutException {
+    public void test_processing() throws TimeoutException {
         prepareMissingMessages();
         Address masterAddress = new Address("domain-01", "connector-01", 12L);
         TestUtils.loginUser(masterUserId, masterAddress);
@@ -46,7 +41,7 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
                 .meta(new MessageMeta(masterAddress))
                 .build();
 
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(message));
+        givenMessage(message);
 
         List<Message> deliveredMessages = Arrays.asList(
                 kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED),
@@ -98,21 +93,21 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
         TestUtils.messagesEqual(expectedDeliveredMessages, deliveredMessages);
     }
 
-    void prepareMissingMessages() throws JsonProcessingException {
+    void prepareMissingMessages() {
         TestUtils.loginUser("ANZ-1232122");
         createMissingMessage("message 1");
         createMissingMessage("message 2");
         createMissingMessage("message 3");
     }
 
-    void createMissingMessage(String text) throws JsonProcessingException {
+    void createMissingMessage(String text) {
         Message msg = Message.builder()
                 .from(messageFrom)
                 .meta(new MessageMeta(new Address("domain-01", "connector-01", 1L)))
                 .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageRequest(masterUserId, text), MessageFeature.RELIABLE))
                 .build();
 
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(msg));
+        givenMessage(msg);
     }
 
 }

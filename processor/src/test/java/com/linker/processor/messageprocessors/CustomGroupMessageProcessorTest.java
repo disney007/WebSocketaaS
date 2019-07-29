@@ -1,16 +1,8 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.linker.common.Address;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.messages.GroupMessage;
 import com.linker.common.messages.MessageForward;
 import com.linker.common.messages.MessageRequest;
@@ -30,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class CustomGroupMessageProcessorTest extends IntegrationTest {
 
     @Test
-    public void test_reliable_processing() throws JsonProcessingException, TimeoutException {
+    public void test_reliable_processing() throws TimeoutException {
         List<TestUser> users = ImmutableList.of(
                 TestUtils.loginUser("ANZ-1232122", new Address("domain-01", "connector-01", 10L)),
                 TestUtils.loginUser("ANZ-1232123", new Address("domain-01", "connector-01", 11L)),
@@ -38,7 +30,7 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
         );
 
         Message incomingMessage = createMessage(MessageFeature.RELIABLE);
-        kafkaExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
 
         // check delivered messages
         List<Message> deliveredMessages = Arrays.asList(
@@ -87,7 +79,7 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_fast_processing() throws JsonProcessingException, TimeoutException {
+    public void test_fast_processing() throws TimeoutException {
         List<TestUser> users = ImmutableList.of(
                 TestUtils.loginUser("ANZ-1232122", new Address("domain-01", "connector-01", 10L)),
                 TestUtils.loginUser("ANZ-1232123", new Address("domain-01", "connector-01", 11L)),
@@ -95,7 +87,7 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
         );
 
         Message incomingMessage = createMessage(MessageFeature.FAST);
-        natsExpressDelivery.onMessageArrived(Utils.toJson(incomingMessage));
+        givenMessage(incomingMessage);
 
         // check delivered messages
         List<Message> deliveredMessages = Arrays.asList(

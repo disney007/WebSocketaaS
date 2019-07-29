@@ -1,6 +1,5 @@
 package com.linker.processor.messageprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.*;
 import com.linker.common.messages.UserDisconnected;
 import com.linker.processor.IntegrationTest;
@@ -28,7 +27,7 @@ public class UserDisconnectedMessageProcessorTest extends IntegrationTest {
     UserChannelService userChannelService;
 
     @Test
-    public void test_normal_user_disconnected_processing() throws JsonProcessingException, TimeoutException {
+    public void test_normal_user_disconnected_processing() throws TimeoutException {
         ClientApp clientApp = clientAppService.getClientAppByName("ANZ");
         String masterUserId = clientApp.getMasterUserId();
         TestUser masterUser = TestUtils.loginUser(masterUserId, 11L);
@@ -63,7 +62,7 @@ public class UserDisconnectedMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_master_user_disconnected_processing() throws JsonProcessingException {
+    public void test_master_user_disconnected_processing() {
         ClientApp clientApp = clientAppService.getClientAppByName("ANZ");
         String masterUserId = clientApp.getMasterUserId();
         TestUser masterUser = TestUtils.loginUser(masterUserId, 10L);

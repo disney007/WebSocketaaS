@@ -1,13 +1,6 @@
 package com.linker.connector.messageprocessors.outgoing;
 
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageContentOutput;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
@@ -18,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
@@ -37,11 +31,12 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_authenticated() throws TimeoutException {
+    public void test_authenticated() throws TimeoutException, IOException {
         assertEquals(0, networkUserService.getUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);
         kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        String json = "{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}";
+        givenMessage(Utils.fromJson(json, Message.class));
         Message userConnectedMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         checkUserConnectedMessage(userConnectedMessage);
         MessageContentOutput receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
@@ -52,14 +47,15 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_not_authenticated() throws TimeoutException {
+    public void test_not_authenticated() throws TimeoutException, IOException {
         assertEquals(0, networkUserService.getUser(userId).size());
         assertEquals(0, networkUserService.getPendingUser(userId).size());
         testUser = TestUtils.connectClientUser(userId);
         kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
         assertEquals(1, networkUserService.getPendingUser(userId).size());
         assertEquals(AuthStatus.AUTHENTICATING, networkUserService.getPendingUser(userId).get(0).getAuthStatus());
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":false},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        String json = "{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"ANZ-123223\",\"isAuthenticated\":false},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"1\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}";
+        givenMessage(Utils.fromJson(json, Message.class));
         MessageContentOutput receivedMessage = testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         AuthClientReply data = receivedMessage.getData(AuthClientReply.class);
         checkAuthClientReply(data, false);

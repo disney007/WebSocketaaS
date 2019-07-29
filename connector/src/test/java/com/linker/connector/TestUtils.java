@@ -10,6 +10,7 @@ import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
@@ -56,7 +57,8 @@ public class TestUtils {
         TestUser testUser = connectClientUser(userId);
         Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.AUTH_CLIENT);
         String note = deliveredMessage.getMeta().getNote();
-        kafkaExpressDelivery.onMessageArrived("{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"" + userId + "\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"" + note + "\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}");
+        String json = "{\"id\":\"db04b50b-9036-4e08-8ba8-1c4978f40833\",\"version\":\"0.1.0\",\"content\":{\"type\":\"AUTH_CLIENT_REPLY\",\"data\":{\"appId\":\"app-id-343\",\"userId\":\"" + userId + "\",\"isAuthenticated\":true},\"feature\":\"RELIABLE\"},\"from\":\"SYSTEM\",\"to\":\"connector-01\",\"meta\":{\"originalAddress\":{\"domainName\":\"domain-01\"},\"targetAddress\":{\"domainName\":\"domain-01\",\"connectorName\":\"connector-01\"},\"note\":\"" + note + "\",\"ttl\":9},\"createdAt\":1562209615308,\"state\":\"CREATED\"}";
+        kafkaExpressDelivery.onMessageArrived(json.getBytes(StandardCharsets.UTF_8));
         kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
         return testUser;

@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 
 @Slf4j
@@ -37,8 +36,7 @@ public class NatsExpressDelivery implements ExpressDelivery {
             Options o = new Options.Builder().server(hosts).build();
             connection = Nats.connect(o);
             consumerDispatcher = connection.createDispatcher(message -> {
-                String msg = new String(message.getData(), StandardCharsets.UTF_8);
-                this.onMessageArrived(msg);
+                this.onMessageArrived(message.getData());
             });
             consumerDispatcher.subscribe(consumerTopic, consumerTopic);
             log.info("Nats:connected");
@@ -70,15 +68,15 @@ public class NatsExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliveryMessage(String target, String message) throws IOException {
-        connection.publish(target, message.getBytes(StandardCharsets.UTF_8));
+    public void deliveryMessage(String target, byte[] message) throws IOException {
+        connection.publish(target, message);
         if (listener != null) {
             listener.onMessageDelivered(this, target, message);
         }
     }
 
     @Override
-    public void onMessageArrived(String message) {
+    public void onMessageArrived(byte[] message) {
         if (listener != null) {
             listener.onMessageArrived(this, message);
         }

@@ -3,6 +3,7 @@ package com.linker.connector.express;
 import com.google.common.collect.ImmutableList;
 import com.linker.common.Message;
 import com.linker.common.Utils;
+import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,9 @@ public class PostOffice implements ExpressDeliveryListener {
 
     @Autowired
     ExpressDeliveryFactory expressDeliveryFactory;
+
+    @Autowired
+    Codec codec;
 
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
@@ -46,14 +51,13 @@ public class PostOffice implements ExpressDeliveryListener {
     public void deliveryMessage(Message message) throws IOException {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
-        String json = Utils.toJson(message);
-        expressDelivery.deliveryMessage(applicationConfig.getDeliveryTopics(), json);
+        expressDelivery.deliveryMessage(applicationConfig.getDeliveryTopics(), codec.serialize(message));
     }
 
     @Override
-    public void onMessageArrived(ExpressDelivery expressDelivery, String message) {
+    public void onMessageArrived(ExpressDelivery expressDelivery, byte[] message) {
         try {
-            Message msg = Utils.fromJson(message, Message.class);
+            Message msg = codec.deserialize(message, Message.class);
             log.info("message received from {}:{}", expressDelivery.getType(), msg);
             messageProcessorService.processOutgoingMessage(msg);
         } catch (Exception e) {

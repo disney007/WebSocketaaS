@@ -8,13 +8,15 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class MessageContent {
+public class MessageContent implements Serializable {
     @Indexed
     MessageType type;
     Object data;

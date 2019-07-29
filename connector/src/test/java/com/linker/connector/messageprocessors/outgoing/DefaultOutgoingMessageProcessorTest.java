@@ -1,6 +1,5 @@
 package com.linker.connector.messageprocessors.outgoing;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.linker.common.*;
 import com.linker.common.exceptions.UnwantedMessageException;
 import com.linker.common.messages.MessageForward;
@@ -36,7 +35,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_successfullySentOut() throws TimeoutException, JsonProcessingException {
+    public void test_successfullySentOut() throws TimeoutException {
         testUser = TestUtils.loginClientUser(userId1);
         Message receivedMessage = messageArrived();
 
@@ -50,7 +49,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_successfully_confirmDisabled_SentOut() throws TimeoutException, JsonProcessingException, UnwantedMessageException {
+    public void test_successfully_confirmDisabled_SentOut() throws TimeoutException, UnwantedMessageException {
         testUser = TestUtils.loginClientUser(userId1);
         Message receivedMessage = messageArrived(false);
 
@@ -64,14 +63,14 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     }
 
     @Test
-    public void test_targetNotFound() throws JsonProcessingException, TimeoutException {
+    public void test_targetNotFound() throws TimeoutException {
         Message receivedMessage = messageArrived();
         // check confirmation message
         checkConfirmedMessage(receivedMessage, MessageState.TARGET_NOT_FOUND);
     }
 
     @Test
-    public void test_errorInSendingMessage() throws TimeoutException, JsonProcessingException {
+    public void test_errorInSendingMessage() throws TimeoutException {
         testUser = TestUtils.loginClientUser(userId1);
         List<SocketHandler> user = networkUserService.getUser(userId1);
         SocketHandler spySocketHandler = spy(user.get(0));
@@ -85,11 +84,11 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
     }
 
 
-    Message messageArrived() throws JsonProcessingException {
+    Message messageArrived() {
         return messageArrived(true);
     }
 
-    Message messageArrived(boolean confirmEnabled) throws JsonProcessingException {
+    Message messageArrived(boolean confirmEnabled) {
         MessageContent content = new MessageContent(MessageType.MESSAGE,
                 new MessageForward(userId2, "hi, this is the message form some one"),
                 null, MessageFeature.FAST, true
@@ -107,9 +106,7 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
                 .meta(messageMeta)
                 .build();
 
-        natsExpressDelivery.onMessageArrived(Utils.toJson(receivedMessage));
-
-        return receivedMessage;
+        return givenMessage(receivedMessage);
     }
 
     void checkConfirmedMessage(Message receivedMessage, MessageState state) throws TimeoutException {

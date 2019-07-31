@@ -16,5 +16,7 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode
 public class FetchMissingMessagesRequest implements Serializable {
+
+    private static final long serialVersionUID = 1455312155127460936L;
     Integer count;
 }

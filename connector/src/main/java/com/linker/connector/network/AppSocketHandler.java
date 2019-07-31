@@ -1,31 +1,21 @@
-package com.linker.connector;
+package com.linker.connector.network;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageContent;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.common.Utils;
-import com.linker.common.exceptions.ProcessMessageException;
+import com.linker.common.*;
 import com.linker.common.messages.UserDisconnected;
+import com.linker.connector.AuthStatus;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> implements SocketHandler {
+public class AppSocketHandler extends SimpleChannelInboundHandler<MessageContent> implements SocketHandler {
 
     @Autowired
     MessageProcessorService messageProcessorService;
@@ -44,17 +34,14 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
     @Getter
     Long socketId;
-    public static WebSocketHandler instance;
+    public static AppSocketHandler instance;
 
-    public WebSocketHandler(Long socketId) {
+    public AppSocketHandler(Long socketId) {
         instance = this;
         this.socketId = socketId;
     }
 
-    protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-        String msgContentJson = msg.text();
-        MessageContent msgContent = Utils.fromJson(msgContentJson, MessageContent.class);
-
+    protected void channelRead0(ChannelHandlerContext ctx, MessageContent msgContent) throws Exception {
         MessageMeta meta = new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), this.socketId));
         Message message = Message.builder()
                 .content(msgContent)
@@ -89,17 +76,12 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         this.messageProcessorService.processIncomingMessage(message, this);
     }
 
-    public ChannelFuture sendMessage(String message) {
-        return context.writeAndFlush(new TextWebSocketFrame(message));
+    public ChannelFuture sendMessage(MessageContent message) {
+        return context.writeAndFlush(message.toContentOutput());
     }
 
     public ChannelFuture sendMessage(Message message) {
-        try {
-            return sendMessage(Utils.toJson(message.getContent().toContentOutput()));
-        } catch (JsonProcessingException e) {
-            String msg = String.format("failed to convert message content to json %s", message);
-            throw new ProcessMessageException(msg, e);
-        }
+        return sendMessage(message.getContent());
     }
 
     public ChannelFuture close() {

@@ -14,6 +14,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class MessageStateChanged implements Serializable {
+
+    private static final long serialVersionUID = -4478806539708167459L;
     Message message;
     MessageState state;
 }

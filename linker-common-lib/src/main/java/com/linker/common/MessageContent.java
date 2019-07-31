@@ -17,6 +17,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @ToString
 public class MessageContent implements Serializable {
+    private static final long serialVersionUID = -4589317958936125545L;
     @Indexed
     MessageType type;
     Object data;

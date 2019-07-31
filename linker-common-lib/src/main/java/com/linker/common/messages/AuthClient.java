@@ -16,6 +16,8 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode
 public class AuthClient implements Serializable {
+
+    private static final long serialVersionUID = -2476945184181905355L;
     String appId;
     String userId;
     String token;

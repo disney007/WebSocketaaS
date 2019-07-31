@@ -12,5 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserConnected implements Serializable {
+
+    private static final long serialVersionUID = 3111339628950150417L;
     String userId;
 }

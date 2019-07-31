@@ -1,12 +1,6 @@
 package com.linker.connector.messageprocessors.incomming;
 
-import com.linker.common.Address;
-import com.linker.common.Message;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageState;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
 import com.linker.common.messages.AuthClient;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.IntegrationTest;

@@ -1,11 +1,7 @@
 package com.linker.connector;
 
 import com.google.common.collect.ImmutableMap;
-import com.linker.common.Message;
-import com.linker.common.MessageContent;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageType;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

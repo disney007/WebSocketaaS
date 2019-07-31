@@ -12,5 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserDisconnected implements Serializable {
+
+    private static final long serialVersionUID = -2186223462320963413L;
     String userId;
 }

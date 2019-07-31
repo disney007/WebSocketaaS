@@ -1,19 +1,13 @@
 package com.linker.connector.messageprocessors.outgoing;
 
-import com.linker.common.Address;
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageContext;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.common.messages.UserConnected;
 import com.linker.connector.AuthStatus;
 import com.linker.connector.NetworkUserService;
-import com.linker.connector.SocketHandler;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.express.PostOffice;
+import com.linker.connector.network.SocketHandler;
 import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package com.linker.common.messagedelivery;
 
+import com.google.common.collect.ImmutableSet;
 import com.linker.common.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -18,9 +20,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class KafkaExpressDelivery implements ExpressDelivery {
@@ -29,6 +30,9 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     String hosts;
     String consumerTopic;
     String consumerGroupId;
+
+    @Setter
+    KafkaCache kafkaCache;
 
     public KafkaExpressDelivery(String hosts, String consumerTopic, String consumerGroupId) {
         this.hosts = hosts;
@@ -57,6 +61,7 @@ public class KafkaExpressDelivery implements ExpressDelivery {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, hosts);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
 
         // Create the consumer using props.
@@ -67,17 +72,39 @@ public class KafkaExpressDelivery implements ExpressDelivery {
         return consumer;
     }
 
+    List<String> processRecords(List<ConsumerRecord<String, byte[]>> records) {
+        Set<String> duplicateKeys = ImmutableSet.of();
+        List<String> originalKeys = null;
+        if (kafkaCache != null) {
+            originalKeys = records.stream().map(ConsumerRecord::key).collect(Collectors.toList());
+            duplicateKeys = kafkaCache.getDuplicateItems(originalKeys);
+        }
+
+        for (ConsumerRecord<String, byte[]> record : records) {
+            String key = record.key();
+            if (!duplicateKeys.contains(key)) {
+                this.onMessageArrived(record.value());
+                if (kafkaCache != null) {
+                    kafkaCache.addItem(key);
+                }
+            }
+        }
+
+        return originalKeys;
+    }
+
     void runConsumer() {
         try {
             while (true) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(POLL_TIMEOUT);
                 for (TopicPartition partition : records.partitions()) {
                     List<ConsumerRecord<String, byte[]>> partitionRecords = records.records(partition);
-                    for (ConsumerRecord<String, byte[]> record : partitionRecords) {
-                        this.onMessageArrived(record.value());
-                    }
+                    List<String> keys = processRecords(partitionRecords);
                     long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
                     consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
+                    if (kafkaCache != null) {
+                        kafkaCache.deleteItems(keys);
+                    }
                 }
             }
         } catch (WakeupException e) {
@@ -106,13 +133,15 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliveryMessage(String target, byte[] message) throws IOException {
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(target, message);
-        producer.send(record, (recordMetadata, e) -> {
-            log.info("kafka:send message complete");
-        });
-        if (listener != null) {
-            listener.onMessageDelivered(this, target, message);
+    public void deliverMessage(String target, byte[] message) throws IOException {
+        try {
+            ProducerRecord<String, byte[]> record = new ProducerRecord<>(target, UUID.randomUUID().toString(), message);
+            producer.send(record);
+            if (listener != null) {
+                listener.onMessageDelivered(this, target, message);
+            }
+        } catch (KafkaException e) {
+            throw new IOException("kafka: failed to send message", e);
         }
     }
 

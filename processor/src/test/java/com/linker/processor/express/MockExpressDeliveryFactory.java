@@ -1,6 +1,7 @@
 package com.linker.processor.express;
 
 import com.linker.common.messagedelivery.ExpressDelivery;
+import com.linker.common.messagedelivery.KafkaCache;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.processor.express.ExpressDeliveryFactory;
@@ -19,7 +20,7 @@ public class MockExpressDeliveryFactory implements ExpressDeliveryFactory {
     @Autowired
     NatsExpressDelivery natsExpressDelivery;
 
-    public ExpressDelivery createKafkaExpressDelivery() {
+    public ExpressDelivery createKafkaExpressDelivery(KafkaCache kafkaCache) {
         return kafkaExpressDelivery;
     }
 

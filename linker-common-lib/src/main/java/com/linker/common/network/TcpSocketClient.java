@@ -25,6 +25,7 @@ public class TcpSocketClient implements SocketClient {
     private final static Integer NEXT_RETRY_DELAY = 5;
 
     Runnable connectedCallback;
+    Runnable disconnectedCallback;
     Consumer<MessageContentOutput> msgCallback;
 
     EventLoopGroup workerGroup;
@@ -74,24 +75,45 @@ public class TcpSocketClient implements SocketClient {
         return doConnect();
     }
 
-    public void close() {
+    public Future<Void> reconnect() {
+        log.info("reconnect");
+        return connect(this.host, this.port);
+    }
+
+    public Future<?> close() {
         log.info("close tcp socket client");
-        workerGroup.shutdownGracefully();
+        return workerGroup.shutdownGracefully();
     }
 
     Future<Void> doConnect() {
-        log.info("starting tcp socket client");
+        log.info("starting tcp socket client host = {}, port ={}", this.host, this.port);
         return bootstrap.connect(host, port).addListener((ChannelFuture future) -> {
             if (future.isSuccess()) {
                 log.info("tcp socket connected");
                 if (connectedCallback != null) {
                     connectedCallback.run();
                 }
-            } else {
-                log.info("connection failed, retry in {} seconds", NEXT_RETRY_DELAY);
-                future.channel().eventLoop().schedule(this::doConnect, NEXT_RETRY_DELAY, TimeUnit.SECONDS);
             }
         });
+
+    }
+
+    @Override
+    public ChannelFuture disconnect() {
+        log.info("disconnect tcp socket client");
+        return this.socketClientHandler.getContext().close();
+    }
+
+    @Override
+    public void onDisconnected(Runnable callback) {
+        this.disconnectedCallback = callback;
+    }
+
+    @Override
+    public void onDisconnected() {
+        if (this.disconnectedCallback != null) {
+            this.disconnectedCallback.run();
+        }
     }
 
     public void onConnected(Runnable connectedCallback) {

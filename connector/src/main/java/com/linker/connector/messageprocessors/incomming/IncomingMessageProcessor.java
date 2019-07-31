@@ -7,8 +7,6 @@ import com.linker.common.MessageType;
 import com.linker.connector.network.SocketHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
 @Slf4j
 public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
 
@@ -28,10 +26,10 @@ public abstract class IncomingMessageProcessor<T> extends MessageProcessor<T> {
     }
 
     @Override
-    public void doProcess(Message message, T data, MessageContext context) throws IOException {
+    public void doProcess(Message message, T data, MessageContext context) {
         SocketHandler socketHandler = context.getValue("SOCKET_HANDLER");
         doProcess(message, data, socketHandler);
     }
 
-    public abstract void doProcess(Message message, T data, SocketHandler SocketHandler) throws IOException;
+    public abstract void doProcess(Message message, T data, SocketHandler SocketHandler);
 }

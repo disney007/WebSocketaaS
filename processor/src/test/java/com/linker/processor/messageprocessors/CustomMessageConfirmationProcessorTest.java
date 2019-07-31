@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeoutException;
 
-
 public class CustomMessageConfirmationProcessorTest extends IntegrationTest {
 
     @Autowired
     MessageProcessorService messageProcessorService;
+
     @Autowired
     ApplicationConfig applicationConfig;
 
@@ -31,16 +31,9 @@ public class CustomMessageConfirmationProcessorTest extends IntegrationTest {
 
         messageProcessorService.process(confirmMessage);
 
-        // check delivered message;
         Message deliveredMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE_CONFIRMATION);
         Message expectedDeliveredMessage = confirmMessage.clone();
         expectedDeliveredMessage.getMeta().setTargetAddress(testUser.getAddress());
         TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
-
-        // check saved message;
-        Message savedMessage = messageRepository.findById(confirmMessage.getId());
-        Message expectedSavedMessage = confirmMessage.clone();
-        expectedSavedMessage.getMeta().setTargetAddress(null);
-        TestUtils.messageEquals(expectedSavedMessage, savedMessage);
     }
 }

@@ -53,12 +53,6 @@ public class Message implements Serializable {
                 .build();
     }
 
-    public Message toContentlessMessage() {
-        Message message = this.clone();
-        message.getContent().setData("");
-        return message;
-    }
-
     public static MessageBuilder builder() {
         return new MessageBuilder();
     }

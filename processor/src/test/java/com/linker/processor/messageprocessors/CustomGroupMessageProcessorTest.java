@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.linker.common.*;
 import com.linker.common.messages.GroupMessage;
 import com.linker.common.messages.MessageForward;
-import com.linker.common.messages.MessageRequest;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUser;
 import com.linker.processor.TestUtils;
@@ -52,30 +51,21 @@ public class CustomGroupMessageProcessorTest extends IntegrationTest {
         TestUtils.messagesEqual(expectedDeliveredMessages, deliveredMessages);
 
         // check saved messages
-        List<Message> expectedSavedMessages = users.stream().map(user -> {
-            Message msg = incomingMessage.clone();
-            msg.setTo(user.getUserId());
-            msg.setContent(MessageUtils.createMessageContent(MessageType.MESSAGE,
-                    new MessageRequest(user.getUserId(), "some thing here to send"), MessageFeature.RELIABLE));
-            msg.getContent().setConfirmationEnabled(false);
-            MessageUtils.touchMessage(msg, 2);
-            return msg;
-        }).collect(Collectors.toList());
         Message targetNotFoundMessage = Message.builder()
                 .from(incomingMessage.getFrom())
                 .to("ANZ-1232125")
                 .content(MessageUtils.createMessageContent(MessageType.MESSAGE,
-                        new MessageRequest("ANZ-1232125", "some thing here to send"), MessageFeature.RELIABLE))
-                .meta(new MessageMeta(incomingMessage.getMeta().getOriginalAddress()))
-                .state(MessageState.TARGET_NOT_FOUND)
+                        new MessageForward(incomingMessage.getFrom(), "some thing here to send"), MessageFeature.RELIABLE))
+                .meta(new MessageMeta(incomingMessage.getMeta().getOriginalAddress(), new Address("domain-01", null, -1L)))
+                .state(MessageState.ADDRESS_NOT_FOUND)
                 .build();
         targetNotFoundMessage.getContent().setConfirmationEnabled(false);
         MessageUtils.touchMessage(targetNotFoundMessage, 2);
-        expectedSavedMessages.add(targetNotFoundMessage);
 
         List<Message> savedMessages = messageRepository.findMessagesByTypes(ImmutableSet.of(MessageType.MESSAGE), 100)
                 .get().collect(Collectors.toList());
-        TestUtils.messagesEqual(expectedSavedMessages, savedMessages);
+        assertEquals(1, savedMessages.size());
+        TestUtils.messageEquals(targetNotFoundMessage, savedMessages.get(0));
     }
 
     @Test

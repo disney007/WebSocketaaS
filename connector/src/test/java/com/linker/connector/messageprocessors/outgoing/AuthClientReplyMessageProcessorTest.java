@@ -81,6 +81,7 @@ public class AuthClientReplyMessageProcessorTest extends IntegrationTest {
                                 MessageFeature.RELIABLE)
                 )
                 .from(Keywords.SYSTEM)
+                .to(Keywords.PROCESSOR)
                 .meta(meta)
                 .build();
 

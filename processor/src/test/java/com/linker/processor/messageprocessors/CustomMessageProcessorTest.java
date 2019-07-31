@@ -28,11 +28,15 @@ public class CustomMessageProcessorTest extends IntegrationTest {
         givenMessage(incomingMessage);
         Message savedMessage = messageRepository.findById(incomingMessage.getId());
 
-        Message expectedMessage = incomingMessage.clone();
-        expectedMessage.setTo("ANZ-1232122");
-        expectedMessage.setState(MessageState.TARGET_NOT_FOUND);
-        MessageUtils.touchMessage(expectedMessage);
+        Message expectedMessage = Message.builder()
+                .from("ANZ-123223")
+                .to("ANZ-1232122")
+                .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward("ANZ-123223", "some thing here to send"), MessageFeature.RELIABLE))
+                .state(MessageState.ADDRESS_NOT_FOUND)
+                .meta(new MessageMeta(incomingMessage.getMeta().getOriginalAddress(), new Address("domain-01", null, -1L)))
+                .build();
 
+        MessageUtils.touchMessage(expectedMessage);
         TestUtils.messageEquals(expectedMessage, savedMessage);
     }
 
@@ -49,13 +53,6 @@ public class CustomMessageProcessorTest extends IntegrationTest {
         expectedDeliveredMessage.getMeta().setTargetAddress(testUser.getAddress());
         MessageUtils.touchMessage(expectedDeliveredMessage);
         TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
-
-        Message savedMessage = messageRepository.findById(incomingMessage.getId());
-        Message expectedSavedMessage = incomingMessage.clone();
-        expectedSavedMessage.setTo("ANZ-1232122");
-        expectedSavedMessage.setState(MessageState.CREATED);
-        MessageUtils.touchMessage(expectedSavedMessage);
-        TestUtils.messageEquals(expectedSavedMessage, savedMessage);
     }
 
     @Test
@@ -88,9 +85,9 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     @Test
     public void testUpdateMessageConfirmationFlag() {
         doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "abc", true, true);
-        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", true, true);
-        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "abc", false, true);
-        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", false, true);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", true, false);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "abc", false, false);
+        doTestUpdateMessageConfirmationFlag(MessageFeature.RELIABLE, "", false, false);
 
         doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "abc", true, true);
         doTestUpdateMessageConfirmationFlag(MessageFeature.FAST, "", true, false);
@@ -101,7 +98,7 @@ public class CustomMessageProcessorTest extends IntegrationTest {
     public void doTestUpdateMessageConfirmationFlag(MessageFeature feature, String reference, boolean contentConfirmEnabled, boolean confirmEnabled) {
         Message message = createMessage(feature);
         message.getContent().setReference(reference);
-        message.getContent().setConfirmationEnabled(confirmEnabled);
+        message.getContent().setConfirmationEnabled(contentConfirmEnabled);
         customMessageProcessor.updateMessageConfirmationFlag(message);
         assertEquals(confirmEnabled, message.getMeta().isConfirmEnabled());
     }

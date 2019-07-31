@@ -6,6 +6,6 @@ ENV processorName ''
 ENV kafkaHosts ''
 ENV natsHosts ''
 RUN mkdir -p "/opt/data/"
-COPY "$JAR_FILE" "/opt/data/connector.jar"
+COPY "$JAR_FILE" "/opt/data/processor.jar"
 WORKDIR "/opt/data"
-ENTRYPOINT ["java", "-jar", "connector.jar"]
+ENTRYPOINT ["java", "-jar", "processor.jar"]

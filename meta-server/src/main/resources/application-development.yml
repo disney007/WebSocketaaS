@@ -1,0 +1,82 @@
+spring:
+  profiles: development
+  redis:
+    host: localhost
+    port: 6379
+server:
+  port: 9000
+
+domains:
+  - name: domain-01
+    urls:
+      - tcp://192.168.56.1:9089
+      - ws://192.168.56.1:8088
+  - name: domain-02
+    urls:
+      - tcp://192.168.56.2:9089
+      - ws://192.168.56.2:8088
+  - name: domain-03
+    urls:
+      - tcp://192.168.56.3:9089
+      - ws://192.168.56.3:8088
+  - name: domain-04
+    urls:
+      - tcp://192.168.56.4:9089
+      - ws://192.168.56.4:8088
+
+domainLinks:
+  - n1: domain-01
+    n2: domain-02
+  - n1: domain-02
+    n2: domain-03
+  - n1: domain-03
+    n2: domain-04
+  - n1: domain-01
+    n2: domain-04
+
+clientApps:
+  - appName: router1
+    appId: router1
+    masterUserId: router1-1
+    authEnabled: false
+  - appName: router2
+    appId: router2
+    masterUserId: router2-1
+    authEnabled: false
+  - appName: domain1
+    appId: domain1
+    masterUserId: domain1-1
+    authEnabled: false
+  - appName: domain2
+    appId: domain2
+    masterUserId: domain2-1
+    authEnabled: false
+  - appName: domain3
+    appId: domain3
+    masterUserId: domain3-1
+    authEnabled: false
+  - appName: domain4
+    appId: domain4
+    masterUserId: domain4-1
+    authEnabled: false
+  - appName: domain6
+    appId: domain6
+    masterUserId: domain6-1
+    authEnabled: false
+  - appName: ANZ
+    appId: app-id-343
+    masterUserId: ANZ-123223
+    authUrl: http://localhost:4200/auth
+    authEnabled: false
+    userDistributions:
+      - domainName: domain-01
+        from: 0
+        to: 999999
+      - domainName: domain-02
+        from: 1000000
+        to: 2999999
+      - domainName: domain-03
+        from: 3000000
+        to: 5999999
+      - domainName: domain-06
+        from: 6000000

@@ -1,6 +1,7 @@
 package com.linker.processor.express;
 
 import com.linker.common.messagedelivery.ExpressDelivery;
+import com.linker.common.messagedelivery.KafkaCache;
 import com.linker.common.messagedelivery.KafkaExpressDelivery;
 import com.linker.common.messagedelivery.NatsExpressDelivery;
 import com.linker.processor.configurations.ApplicationConfig;
@@ -14,9 +15,11 @@ public class ExpressDeliveryFactoryImpl implements ExpressDeliveryFactory {
     ApplicationConfig applicationConfig;
 
 
-    public ExpressDelivery createKafkaExpressDelivery() {
+    public ExpressDelivery createKafkaExpressDelivery(KafkaCache kafkaCache) {
         final String consumerTopics = applicationConfig.getConsumerTopics();
-        return new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming");
+        KafkaExpressDelivery kafka = new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming");
+        kafka.setKafkaCache(kafkaCache);
+        return kafka;
     }
 
     public ExpressDelivery createNatsExpressDelivery() {

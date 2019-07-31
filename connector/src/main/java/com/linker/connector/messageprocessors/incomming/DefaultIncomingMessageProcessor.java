@@ -8,8 +8,6 @@ import com.linker.connector.network.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
 public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Object> {
 
@@ -21,9 +19,9 @@ public class DefaultIncomingMessageProcessor extends IncomingMessageProcessor<Ob
     }
 
     @Override
-    public void doProcess(Message message, Object data, SocketHandler socketHandler) throws IOException {
+    public void doProcess(Message message, Object data, SocketHandler socketHandler) {
         if (socketHandler.getAuthStatus() == AuthStatus.AUTHENTICATED) {
-            this.postOffice.deliveryMessage(message);
+            this.postOffice.deliverMessage(message);
         } else {
             message = new Message.MessageBuilder()
                     .from(Keywords.SYSTEM)

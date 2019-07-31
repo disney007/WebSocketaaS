@@ -1,6 +1,6 @@
 package com.linker.processor.repositories;
 
-import com.linker.processor.models.ClientApp;
+import com.linker.common.client.ClientApp;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

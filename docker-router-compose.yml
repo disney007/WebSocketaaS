@@ -1,0 +1,21 @@
+version: '3'
+services:
+  connector-02:
+    image: linker/connector:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: dev-docker
+      domainName: domain-01
+      connectorName: connector-02
+      tcpPort: 9088
+      kafkaHosts: kafka:29092
+      natsHosts: nats://nats:4222
+    ports:
+      - "8088:8088"
+  processor-02:
+    image: linker/processor:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: dev-docker
+      domainName: domain-01
+      processorName: processor-02
+      kafkaHosts: kafka:29092
+      natsHosts: nats://nats:4222

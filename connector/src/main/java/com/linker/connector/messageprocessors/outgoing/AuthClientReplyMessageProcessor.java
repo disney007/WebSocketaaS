@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Slf4j
 @Service
 public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<AuthClientReply> {
@@ -33,7 +31,7 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
     }
 
     @Override
-    public void doProcess(Message message, AuthClientReply data, MessageContext context) throws IOException {
+    public void doProcess(Message message, AuthClientReply data, MessageContext context) {
         String userId = data.getUserId();
         Long socketId = Long.parseLong(message.getMeta().getNote());
         SocketHandler socketHandler = networkUserService.getPendingUser(userId, socketId);
@@ -53,9 +51,10 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
                                     message.getContent().getFeature())
                     )
                     .from(Keywords.SYSTEM)
+                    .to(Keywords.PROCESSOR)
                     .meta(meta)
                     .build();
-            postOffice.deliveryMessage(userConnectedMessage);
+            postOffice.deliverMessage(userConnectedMessage);
         } else {
             socketHandler.setAuthStatus(AuthStatus.NOT_AUTHENTICATED);
             socketHandler.sendMessage(message).addListener((ChannelFutureListener) future -> socketHandler.close());

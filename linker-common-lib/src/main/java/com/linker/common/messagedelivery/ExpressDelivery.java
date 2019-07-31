@@ -7,7 +7,7 @@ public interface ExpressDelivery {
     void setListener(ExpressDeliveryListener listener);
     ExpressDeliveryType getType();
 
-    void deliveryMessage(String target, byte[] message) throws IOException;
+    void deliverMessage(String target, byte[] message) throws IOException;
 
     void onMessageArrived(byte[] message);
 

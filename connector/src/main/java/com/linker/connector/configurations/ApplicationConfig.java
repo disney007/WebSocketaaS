@@ -33,7 +33,7 @@ public class ApplicationConfig {
     String natsHosts;
     String deliveryTopics;
 
-    @Value("codec")
+    @Value("${codec}")
     String codec;
 
     @PostConstruct

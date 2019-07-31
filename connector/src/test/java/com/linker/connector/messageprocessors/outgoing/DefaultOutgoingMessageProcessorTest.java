@@ -64,9 +64,9 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
 
     @Test
     public void test_targetNotFound() throws TimeoutException {
-        Message receivedMessage = messageArrived();
+        Message receivedMessage = messageArrived(true, MessageFeature.RELIABLE);
         // check confirmation message
-        checkConfirmedMessage(receivedMessage, MessageState.TARGET_NOT_FOUND);
+        checkConfirmedMessage(receivedMessage, MessageState.ADDRESS_NOT_FOUND);
     }
 
     @Test
@@ -88,10 +88,35 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
         return messageArrived(true);
     }
 
+    void checkConfirmedMessage(Message receivedMessage, MessageState state) throws TimeoutException {
+        Message actualStateChangedMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE_STATE_CHANGED);
+        Message expectedStateChangedMessage = Message.builder()
+                .from(Keywords.SYSTEM)
+                .to(Keywords.PROCESSOR)
+                .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName())))
+                .content(
+                        MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
+                                new MessageStateChanged(receivedMessage, state), MessageFeature.RELIABLE)
+                )
+                .build();
+
+        Message expectedOriginalMessage = ((MessageStateChanged) expectedStateChangedMessage.getContent().getData()).getMessage();
+        Message actualOriginalMessage = Utils.convert(actualStateChangedMessage.getContent().getData(), MessageStateChanged.class).getMessage();
+        TestUtils.messageEquals(expectedOriginalMessage, actualOriginalMessage);
+
+        expectedStateChangedMessage.setContent(null);
+        actualStateChangedMessage.setContent(null);
+        TestUtils.messageEquals(expectedStateChangedMessage, actualStateChangedMessage);
+    }
+
     Message messageArrived(boolean confirmEnabled) {
+        return messageArrived(confirmEnabled, MessageFeature.FAST);
+    }
+
+    Message messageArrived(boolean confirmEnabled, MessageFeature feature) {
         MessageContent content = new MessageContent(MessageType.MESSAGE,
                 new MessageForward(userId2, "hi, this is the message form some one"),
-                null, MessageFeature.FAST, true
+                null, feature, true
         );
 
         MessageMeta messageMeta = new MessageMeta(
@@ -107,18 +132,5 @@ public class DefaultOutgoingMessageProcessorTest extends IntegrationTest {
                 .build();
 
         return givenMessage(receivedMessage);
-    }
-
-    void checkConfirmedMessage(Message receivedMessage, MessageState state) throws TimeoutException {
-        Message stateChangedMessage = kafkaExpressDelivery.getDeliveredMessage(MessageType.MESSAGE_STATE_CHANGED);
-        Message expectedStateChangedMessage = Message.builder()
-                .from(Keywords.SYSTEM)
-                .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName(), 1L)))
-                .content(
-                        MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
-                                new MessageStateChanged(receivedMessage.toContentlessMessage(), state), MessageFeature.RELIABLE)
-                )
-                .build();
-        TestUtils.messageEquals(expectedStateChangedMessage, stateChangedMessage);
     }
 }

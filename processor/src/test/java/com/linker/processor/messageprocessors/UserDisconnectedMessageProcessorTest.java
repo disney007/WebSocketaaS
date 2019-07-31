@@ -1,11 +1,12 @@
 package com.linker.processor.messageprocessors;
 
 import com.linker.common.*;
+import com.linker.common.client.ClientApp;
+import com.linker.common.exceptions.UnwantedMessageException;
 import com.linker.common.messages.UserDisconnected;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUser;
 import com.linker.processor.TestUtils;
-import com.linker.processor.models.ClientApp;
 import com.linker.processor.models.UserChannel;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.UserChannelService;
@@ -14,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 
 public class UserDisconnectedMessageProcessorTest extends IntegrationTest {
 
@@ -48,26 +47,18 @@ public class UserDisconnectedMessageProcessorTest extends IntegrationTest {
                                 .to(masterUserId)
                                 .content(MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnected(userId), MessageFeature.RELIABLE))
                                 .meta(new MessageMeta(testUser.getAddress(), masterUser.getAddress()))
-                                .build()
-                );
+                                .build(),
+                        2);
         expectedDeliveredMessage.getMeta().setDeliveryType(DeliveryType.ANY);
         TestUtils.messageEquals(expectedDeliveredMessage, deliveredMessage);
-
-        // check saved message
-        Message savedMessage = messageRepository.findById(deliveredMessage.getId());
-        Message expectedSavedMessage = deliveredMessage.clone();
-        expectedSavedMessage.setTo(null);
-        expectedSavedMessage.getMeta().setTargetAddress(null);
-        TestUtils.messageEquals(expectedSavedMessage, savedMessage);
     }
 
     @Test
-    public void test_master_user_disconnected_processing() {
+    public void test_master_user_disconnected_processing() throws UnwantedMessageException {
         ClientApp clientApp = clientAppService.getClientAppByName("ANZ");
         String masterUserId = clientApp.getMasterUserId();
         TestUser masterUser = TestUtils.loginUser(masterUserId, 10L);
         TestUtils.logoutUser(masterUser);
-        Message disconnectedMessage = messageRepository.findById(masterUser.getConnectedMessageId());
-        assertEquals(MessageState.PROCESSED, disconnectedMessage.getState());
+        kafkaExpressDelivery.noDeliveredMessage(MessageType.USER_DISCONNECTED);
     }
 }

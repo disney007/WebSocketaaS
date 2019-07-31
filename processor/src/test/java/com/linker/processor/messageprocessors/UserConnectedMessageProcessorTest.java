@@ -5,7 +5,7 @@ import com.linker.common.messages.UserConnected;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUser;
 import com.linker.processor.TestUtils;
-import com.linker.processor.models.ClientApp;
+import com.linker.common.client.ClientApp;
 import com.linker.processor.models.UserChannel;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.UserChannelService;

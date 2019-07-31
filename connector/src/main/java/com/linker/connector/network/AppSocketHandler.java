@@ -60,7 +60,7 @@ public class AppSocketHandler extends SimpleChannelInboundHandler<MessageContent
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.info("channel removed");
+        log.info("channel removed [{}]", userId != null ? userId : "not authenticated user");
         if (this.authStatus == AuthStatus.NOT_AUTHENTICATED) {
             return;
         }

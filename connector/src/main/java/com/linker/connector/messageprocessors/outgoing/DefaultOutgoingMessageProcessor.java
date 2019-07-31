@@ -44,7 +44,7 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
             }
 
         } else {
-            log.warn("user [{}] not found on {} {}", message.getTo(), targetAddress.getDomainName(), targetAddress.getConnectorName());
+            log.warn("user [{}] not found on [{}]", message.getTo(), targetAddress);
             confirmMessage(message, MessageState.TARGET_NOT_FOUND);
         }
 

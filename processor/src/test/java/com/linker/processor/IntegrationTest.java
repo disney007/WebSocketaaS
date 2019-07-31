@@ -5,6 +5,7 @@ import com.linker.common.MessageFeature;
 import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
+import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.express.PostOffice;
 import com.linker.processor.repositories.MessageRepository;
 import com.linker.processor.repositories.UserChannelRepository;
@@ -40,12 +41,24 @@ public abstract class IntegrationTest {
     @Autowired
     Codec codec;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+
     @Before
     public void clean() {
+        applicationConfig.setDomainName("domain-01");
         messageRepository.removeAll();
         userChannelRepository.deleteAll();
         kafkaExpressDelivery.reset();
         natsExpressDelivery.reset();
+    }
+
+    protected void setDomainAsRouter() {
+        setDomainAsRouter("router-01");
+    }
+
+    protected void setDomainAsRouter(String name) {
+        applicationConfig.setDomainName(name);
     }
 
     protected Message givenMessage(Message message) {

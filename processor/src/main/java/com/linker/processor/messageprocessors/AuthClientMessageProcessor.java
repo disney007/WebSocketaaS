@@ -13,7 +13,7 @@ import com.linker.common.messages.AuthClient;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.processor.express.PostOffice;
 import com.linker.processor.ProcessorUtils;
-import com.linker.processor.models.ClientApp;
+import com.linker.common.client.ClientApp;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.HttpService;
 import lombok.extern.slf4j.Slf4j;

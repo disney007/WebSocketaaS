@@ -29,7 +29,6 @@ public abstract class MessageProcessor<T> {
     }
 
     T getData(Message message) {
-        typeToken.getRawType();
         return (T) Utils.convert(message.getContent().getData(), typeToken.getRawType());
     }
 

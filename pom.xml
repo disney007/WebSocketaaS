@@ -12,6 +12,7 @@
         <module>connector</module>
         <module>processor</module>
         <module>linker-common-lib</module>
+        <module>meta-server</module>
     </modules>
     <properties>
         <version.spring-boot>2.1.2.RELEASE</version.spring-boot>
@@ -33,7 +34,8 @@
         <version.okhttp>4.0.0</version.okhttp>
         <version.embedded-redis>0.7.2</version.embedded-redis>
         <version.embedded.mongo>2.2.0</version.embedded.mongo>
-        <vesrion.fst>2.56</vesrion.fst>
+        <version.fst>2.56</version.fst>
+        <version.jgrapht>1.3.0</version.jgrapht>
     </properties>
 
     <profiles>

@@ -2,7 +2,10 @@
 connector/target
 linker-common-lib/target
 processor/target
-linker-common-lib/linker-common-lib.iml
+meta-server/target
 base.iml
-connector/connector.iml 
+linker-common-lib/linker-common-lib.iml
+connector/connector.iml
 processor/processor.iml
+meta-server/meta-server.iml
+meta-server/metaserver.iml

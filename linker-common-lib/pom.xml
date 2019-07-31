@@ -86,7 +86,7 @@
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
-            <version>${vesrion.fst}</version>
+            <version>${version.fst}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -98,6 +98,12 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${version.netty}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>${version.spring-boot}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

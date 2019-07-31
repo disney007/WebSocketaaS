@@ -37,7 +37,7 @@ public class CustomMessageConfirmationProcessor extends PersistableMessageProces
         try {
             postOffice.deliveryMessage(message);
         } catch (AddressNotFoundException e) {
-            log.info("address not found for user [{}]", message.getTo());
+            log.info("address not found for user [{}]", message.getTo(), e);
             updateMessageState(message, MessageState.TARGET_NOT_FOUND);
         }
 

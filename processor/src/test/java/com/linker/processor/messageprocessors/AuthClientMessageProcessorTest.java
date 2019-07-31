@@ -7,7 +7,7 @@ import com.linker.common.messages.AuthClientReply;
 import com.linker.processor.IntegrationTest;
 import com.linker.processor.TestUtils;
 import com.linker.processor.configurations.ApplicationConfig;
-import com.linker.processor.models.ClientApp;
+import com.linker.common.client.ClientApp;
 import com.linker.processor.services.ClientAppService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.mockwebserver.MockResponse;
@@ -31,7 +31,7 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
 
     @Before
     @After
-    public void reset() {
+    public void reset() throws IOException {
         clientAppService.init();
     }
 

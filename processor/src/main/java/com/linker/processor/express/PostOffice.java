@@ -1,23 +1,20 @@
 package com.linker.processor.express;
 
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.linker.common.Address;
-import com.linker.common.DeliveryType;
-import com.linker.common.Message;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.codec.Codec;
 import com.linker.common.exceptions.AddressNotFoundException;
+import com.linker.common.exceptions.RouterNotConnectedException;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
 import com.linker.processor.ProcessorUtils;
 import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.messageprocessors.MessageProcessorService;
-import com.linker.processor.models.ClientApp;
 import com.linker.processor.models.UserChannel;
 import com.linker.processor.services.ClientAppService;
+import com.linker.processor.services.RouterService;
 import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,10 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,6 +45,12 @@ public class PostOffice implements ExpressDeliveryListener {
 
     @Autowired
     ClientAppService clientAppService;
+
+    @Autowired
+    ProcessorUtils processorUtils;
+
+    @Autowired
+    RouterService routerService;
 
     @Autowired
     Codec codec;
@@ -77,7 +77,90 @@ public class PostOffice implements ExpressDeliveryListener {
         }
     }
 
+    String populateTargetAddress(Message message) {
+        MessageMeta meta = message.getMeta();
+        if (meta.getTargetAddress() == null) {
+            String domainName = clientAppService.resolveDomain(message.getTo());
+            meta.setTargetAddress(new Address(domainName, null, -1L));
+        }
+
+        return meta.getTargetAddress().getDomainName();
+    }
+
     public void deliveryMessage(Message message) throws IOException {
+        String targetDomainName = populateTargetAddress(message);
+
+        if (StringUtils.equalsIgnoreCase(targetDomainName, applicationConfig.getDomainName())) {
+            deliverSameDomainMessage(message);
+        } else {
+            deliverCrossDomainMessage(message);
+        }
+    }
+
+    void deliverSameDomainMessage(Message message) throws IOException {
+        log.info("same domain message");
+        sendToConnector(message);
+    }
+
+    void deliverCrossDomainMessage(Message message) throws IOException {
+        log.info("cross domain message");
+        String targetDomainName = populateTargetAddress(message);
+        if (processorUtils.isDomainRouter()) {
+            if (routerService.isDomainLinkedToCurrentRouter(targetDomainName)) {
+                log.info("target domain name {} is linked to current router {}", targetDomainName, routerService.getRouterName());
+                sendToDomain(message);
+            } else {
+                log.info("target domain name {} is not linked to current router {}", targetDomainName, routerService.getRouterName());
+                sendToNextRouter(message);
+            }
+        } else {
+            // if message is in current domain, send to connector
+            if (StringUtils.equalsIgnoreCase(applicationConfig.getDomainName(), targetDomainName)) {
+                log.info("message [{}] is in current domain", message);
+                sendToConnector(message);
+            } else {
+                log.info("message [{}] is in another domain [{}]", message, targetDomainName);
+                sendToRouter(message);
+            }
+        }
+    }
+
+    // domain -> router
+    public void sendToRouter(Message message) {
+        try {
+            routerService.sendMessage(message);
+        } catch (RouterNotConnectedException e) {
+            log.warn("router not connected exception occurred", e);
+            throw new AddressNotFoundException(message, e);
+        }
+    }
+
+    // router -> router
+    void sendToNextRouter(Message message) throws IOException {
+        processorUtils.assertInternalMessage(message);
+
+        final String targetDomainName = message.getMeta().getTargetAddress().getDomainName();
+        String nextRouterName = routerService.getNextRouterName(targetDomainName);
+        log.info("send message from router [{}] to next router [{}] for target domain name [{}]", applicationConfig.getDomainName(),
+                nextRouterName, targetDomainName);
+
+        message.setTo(processorUtils.resolveRouterUserId(nextRouterName));
+        sendToConnector(message);
+    }
+
+    // router -> domain
+    void sendToDomain(Message message) throws IOException {
+        processorUtils.assertInternalMessage(message);
+
+        String targetDomainName = message.getMeta().getTargetAddress().getDomainName();
+        log.info("send message from router [{}] to domain [{}] - {}", applicationConfig.getDomainName(),
+                targetDomainName, message);
+        message.setTo(processorUtils.resolveRouterUserId(targetDomainName));
+        sendToConnector(message);
+    }
+
+    // domain -> connector
+    void sendToConnector(Message message) throws IOException {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
         log.info("delivery message with {}:{}", expressDelivery.getType(), message);
 
@@ -108,10 +191,15 @@ public class PostOffice implements ExpressDeliveryListener {
         }
     }
 
+    boolean isConnectorMessage(Message message) {
+        String to = message.getTo();
+        return StringUtils.isNotBlank(to) && StringUtils.startsWithIgnoreCase(to, Keywords.CONNECTOR);
+    }
+
     Set<Address> getRouteTargetAddresses(Message message) {
         String to = message.getTo();
         if (StringUtils.isNotBlank(to)) {
-            if (StringUtils.startsWithIgnoreCase(to, "connector")) {
+            if (isConnectorMessage(message)) {
                 return ImmutableSet.of(new Address(applicationConfig.getDomainName(), to));
             }
 

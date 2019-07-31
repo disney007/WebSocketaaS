@@ -71,10 +71,16 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
          * 1. remove invalid address.
          * 2. try to send one time, if still not found, state will be updated by post office
          * */
-        userChannelService.removeAddress(data.getMessage().getTo(), message.getMeta().getOriginalAddress());
+        String to = data.getMessage().getTo();
+        Address originalAddress = message.getMeta().getOriginalAddress();
+        userChannelService.removeAddress(to, originalAddress);
+        log.info("remove address [{}] from user [{}]", message.getMeta().getOriginalAddress(), to);
+
         Message originalMessage = messageRepository.findById(data.getMessage().getId());
         try {
-            postOffice.deliveryMessage(originalMessage);
+            if (originalMessage != null) {
+                postOffice.deliveryMessage(originalMessage);
+            }
         } catch (AddressNotFoundException e) {
             messageRepository.updateState(originalMessage.getId(), MessageState.TARGET_NOT_FOUND);
         }

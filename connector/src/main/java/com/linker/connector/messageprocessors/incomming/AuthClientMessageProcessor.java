@@ -35,6 +35,8 @@ public class AuthClientMessageProcessor extends IncomingMessageProcessor<AuthCli
     public void doProcess(Message message, AuthClient data, SocketHandler socketHandler) {
         if (socketHandler.getAuthStatus() == AuthStatus.NOT_AUTHENTICATED) {
             String userId = data.getUserId();
+            log.info("authenticating user [{}]", userId);
+            
             message.setFrom(userId);
             message.getMeta().setNote(socketHandler.getSocketId().toString());
             message.getContent().setFeature(MessageFeature.RELIABLE);

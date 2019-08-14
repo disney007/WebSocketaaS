@@ -25,7 +25,7 @@ public class MockNatsExpressDelivery extends NatsExpressDelivery {
     }
 
     @Override
-    public void deliverMessage(String target, byte[] message) throws IOException {
+    public void deliverMessage(String target, byte[] message) {
         if (getListener() != null) {
             getListener().onMessageDelivered(this, target, message);
         }

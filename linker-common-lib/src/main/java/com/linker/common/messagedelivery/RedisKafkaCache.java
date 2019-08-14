@@ -1,20 +1,18 @@
-package com.linker.processor.services;
+package com.linker.common.messagedelivery;
 
-import com.linker.common.messagedelivery.KafkaCache;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor
-@Service
-public class KafkaCacheService implements KafkaCache {
-
+public class RedisKafkaCache implements KafkaCache {
     final static String CACHE_NAME = "KAFKA_CACHE";
 
     final RedisTemplate<String, String> redisTemplate;
+
+    public RedisKafkaCache(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
 
     @Override

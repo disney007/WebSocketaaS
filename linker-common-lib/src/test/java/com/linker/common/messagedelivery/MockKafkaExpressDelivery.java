@@ -26,7 +26,7 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
     }
 
     @Override
-    public void deliverMessage(String target, byte[] message) throws IOException {
+    public void deliverMessage(String target, byte[] message) {
         if (getListener() != null) {
             getListener().onMessageDelivered(this, target, message);
         }

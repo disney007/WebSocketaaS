@@ -4,7 +4,7 @@ import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.KafkaCache;
 
 public interface ExpressDeliveryFactory {
-    ExpressDelivery createKafkaExpressDelivery(KafkaCache kafkaCache);
+    ExpressDelivery createKafkaExpressDelivery();
 
     ExpressDelivery createNatsExpressDelivery();
 }

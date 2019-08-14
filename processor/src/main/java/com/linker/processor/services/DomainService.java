@@ -5,6 +5,7 @@ import com.linker.common.MessageContentOutput;
 import com.linker.common.MessageMeta;
 import com.linker.common.MessageUtils;
 import com.linker.common.router.Domain;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.messageprocessors.MessageProcessorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class DomainService {
 
     final MetaServerService metaServerService;
 
-    final MessageProcessorService messageProcessorService;
+    final PostOffice postOffice;
 
     final DomainTunnelService domainTunnelService;
 
@@ -46,8 +47,7 @@ public class DomainService {
                 .meta(new MessageMeta(internalMessage.getMeta().getOriginalAddress()))
                 .content(MessageUtils.createMessageContent(content.getType(), content.getData(), internalMessage.getContent().getFeature()))
                 .build();
-        log.info("message received from domain: [{}]", msgWrapper);
-        this.messageProcessorService.process(msgWrapper);
+        this.postOffice.onMessageArrived(msgWrapper, "Tunnel");
     }
 
     void onMessage(MessageContentOutput content) {

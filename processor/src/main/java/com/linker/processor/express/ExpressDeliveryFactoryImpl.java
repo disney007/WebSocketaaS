@@ -1,24 +1,25 @@
 package com.linker.processor.express;
 
-import com.linker.common.messagedelivery.ExpressDelivery;
-import com.linker.common.messagedelivery.KafkaCache;
-import com.linker.common.messagedelivery.KafkaExpressDelivery;
-import com.linker.common.messagedelivery.NatsExpressDelivery;
+import com.linker.common.messagedelivery.*;
 import com.linker.processor.configurations.ApplicationConfig;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ExpressDeliveryFactoryImpl implements ExpressDeliveryFactory {
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    final ApplicationConfig applicationConfig;
+
+    final RedisTemplate<String, String> redisTemplate;
 
 
-    public ExpressDelivery createKafkaExpressDelivery(KafkaCache kafkaCache) {
+    public ExpressDelivery createKafkaExpressDelivery() {
         final String consumerTopics = applicationConfig.getConsumerTopics();
         KafkaExpressDelivery kafka = new KafkaExpressDelivery(applicationConfig.getKafkaHosts(), consumerTopics, "group-incoming");
-        kafka.setKafkaCache(kafkaCache);
+        kafka.setKafkaCache(new RedisKafkaCache(redisTemplate));
         return kafka;
     }
 

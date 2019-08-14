@@ -37,8 +37,8 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[version=%s, id=%s, type=%s, from=%s, to=%s, createdAt=%d, state=%s]",
-                version, id, (content != null ? content.getType() : "unknown"), from, to, createdAt, state);
+        return String.format("[id=%s, type=%s, from=%s, to=%s], createdAt=%d",
+                id, (content != null ? content.getType() : "unknown"), from, to, createdAt);
     }
 
     public Message clone() {

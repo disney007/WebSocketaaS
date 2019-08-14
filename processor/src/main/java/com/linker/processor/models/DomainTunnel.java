@@ -71,9 +71,12 @@ public class DomainTunnel {
     void authenticate() {
         this.isAuthenticated = false;
         final String domainName = applicationConfig.getDomainName();
+        final String userId = getUserId();
+        log.info("authenticating user [{}] to [{}]", userId, this.domain);
+
         socketClient.sendMessage(MessageUtils.createMessageContent(MessageType.AUTH_CLIENT, new AuthClient(
                 processorUtils.resolveDomainAppName(domainName),
-                getUserId(),
+                userId,
                 ""
         ), MessageFeature.RELIABLE));
     }

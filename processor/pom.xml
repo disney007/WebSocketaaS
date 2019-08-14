@@ -211,5 +211,15 @@
             <artifactId>embedded-redis</artifactId>
             <version>${version.embedded-redis}</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${version.netty}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>${version.jgrapht}</version>
+        </dependency>
     </dependencies>
 </project>

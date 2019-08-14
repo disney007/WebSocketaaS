@@ -4,6 +4,7 @@ import com.linker.common.MessageContent;
 import com.linker.common.MessageContentOutput;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -11,6 +12,7 @@ public class SocketClientHandler extends SimpleChannelInboundHandler<MessageCont
 
     private SocketClient socketClient;
 
+    @Getter
     private ChannelHandlerContext context;
 
     public SocketClientHandler(SocketClient socketClient) {
@@ -25,13 +27,14 @@ public class SocketClientHandler extends SimpleChannelInboundHandler<MessageCont
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         this.context = ctx;
-        log.info("channel added");
+        log.info("socket client channel added");
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        log.info("socket client channel removed");
+        this.socketClient.onDisconnected();
         this.context = null;
-        log.info("channel removed");
     }
 
     public void sendMessage(MessageContent msg) {

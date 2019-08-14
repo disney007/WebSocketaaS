@@ -1,12 +1,12 @@
 package com.linker.connector.express;
 
 import com.google.common.collect.ImmutableList;
-import com.linker.common.Message;
-import com.linker.common.Utils;
+import com.linker.common.*;
 import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
+import com.linker.common.messages.MessageStateChanged;
 import com.linker.connector.configurations.ApplicationConfig;
 import com.linker.connector.messageprocessors.MessageProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +47,28 @@ public class PostOffice implements ExpressDeliveryListener {
         }).collect(Collectors.toMap(ExpressDelivery::getType, r -> r));
     }
 
-    public void deliveryMessage(Message message) throws IOException {
-        ExpressDelivery expressDelivery = getExpressDelivery(message);
-        log.info("delivery message with {}:{}", expressDelivery.getType(), message);
-        expressDelivery.deliveryMessage(applicationConfig.getDeliveryTopics(), codec.serialize(message));
+    public void deliverStateChangedMessage(Message message, MessageState newState) {
+        Message newMsg = Message.builder()
+                .from(Keywords.SYSTEM)
+                .to(Keywords.PROCESSOR)
+                .meta(new MessageMeta(new Address(applicationConfig.getDomainName(), applicationConfig.getConnectorName())))
+                .content(
+                        MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
+                                new MessageStateChanged(message, newState), MessageFeature.RELIABLE)
+                )
+                .build();
+        deliverMessage(newMsg);
+    }
+
+    public void deliverMessage(Message message) {
+        try {
+            ExpressDelivery expressDelivery = getExpressDelivery(message);
+            log.info("delivery message with {}:{}", expressDelivery.getType(), message);
+            expressDelivery.deliverMessage(applicationConfig.getDeliveryTopics(), codec.serialize(message));
+        } catch (IOException e) {
+            log.error("failed to deliver message");
+            //TODO: send failed message to user
+        }
     }
 
     @Override
@@ -61,6 +79,7 @@ public class PostOffice implements ExpressDeliveryListener {
             messageProcessorService.processOutgoingMessage(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);
+            // TODO: send back the failed message to processor
         }
     }
 
@@ -73,4 +92,6 @@ public class PostOffice implements ExpressDeliveryListener {
         log.info("showdown post office");
         expressDeliveryMap.values().forEach(ExpressDelivery::stop);
     }
+
+
 }

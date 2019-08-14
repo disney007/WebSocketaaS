@@ -1,11 +1,10 @@
 package com.linker.processor.messageprocessors;
 
-import com.linker.common.Message;
-import com.linker.common.MessageProcessor;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
-import com.linker.processor.express.PostOffice;
+import com.linker.common.*;
+import com.linker.processor.ProcessorUtils;
+import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.repositories.MessageRepository;
+import com.linker.processor.services.ClientAppService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -18,14 +17,21 @@ import java.util.Map;
 @Service
 @Slf4j
 public class MessageProcessorService {
+
     @Autowired
     ApplicationContext applicationContext;
 
     @Autowired
-    PostOffice postOffice;
+    ApplicationConfig applicationConfig;
 
     @Autowired
     MessageRepository messageRepository;
+
+    @Autowired
+    ProcessorUtils processorUtils;
+
+    @Autowired
+    ClientAppService clientAppService;
 
     Map<MessageType, MessageProcessor<?>> processors = new HashMap<>();
 
@@ -33,6 +39,21 @@ public class MessageProcessorService {
     public void setup() {
         applicationContext.getBeansOfType(MessageProcessor.class)
                 .forEach((key, value) -> processors.put(value.getMessageType(), value));
+    }
+
+    void processCrossDomainMessage(Message message) {
+        if (message.getContent().getType() == MessageType.INTERNAL_MESSAGE) {
+            process(message);
+            return;
+        }
+
+        Message internalMessage = Message.builder()
+                .from(message.getFrom())
+                .to(message.getTo())
+                .content(MessageUtils.createMessageContent(MessageType.INTERNAL_MESSAGE, message, message.getContent().getFeature()))
+                .meta(new MessageMeta(message.getMeta().getOriginalAddress()))
+                .build();
+        process(internalMessage);
     }
 
     public void process(Message message) {
@@ -47,6 +68,12 @@ public class MessageProcessorService {
         MessageProcessor<?> processor = getMessageProcessor(message);
         if (processor != null) {
             processor.preprocess(message, null);
+
+            if (message.getContent().getType() != MessageType.INTERNAL_MESSAGE && !processorUtils.isCurrentDomainMessage(message)) {
+                log.info("message does not belong to current domain and send to domain [{}]", message);
+                processCrossDomainMessage(message);
+                return;
+            }
             processor.process(message, null);
         } else {
             log.warn("no processor found for message {}", message);
@@ -58,11 +85,10 @@ public class MessageProcessorService {
         return processors.getOrDefault(messageType, null);
     }
 
-    boolean isMessagePersistable(Message message) {
-        MessageProcessor<?> processor = getMessageProcessor(message);
-        if (processor instanceof PersistableMessageProcessor) {
-            return ((PersistableMessageProcessor) processor).isMessagePersistable(message);
+    public void persistMessage(Message message, MessageState state) {
+        message.setState(state);
+        if (message.getContent().getFeature() == MessageFeature.RELIABLE && state != MessageState.PROCESSED) {
+            messageRepository.save(message);
         }
-        return false;
     }
 }

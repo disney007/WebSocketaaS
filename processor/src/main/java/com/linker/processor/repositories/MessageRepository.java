@@ -32,6 +32,10 @@ public class MessageRepository {
         mongoTemplate.save(message);
     }
 
+    public void remove(Message message) {
+        mongoTemplate.remove(message);
+    }
+
     public void updateState(String messageId, MessageState state) {
         Query query = Query.query(Criteria.where("_id").is(messageId));
         Update update = Update.update("state", state);

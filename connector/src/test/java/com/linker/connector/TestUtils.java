@@ -22,8 +22,10 @@ public class TestUtils {
     }
 
     public static void messageEquals(Message expectedMsg, Message actualMsg) {
-        Object actualData = Utils.convert(actualMsg.getContent().getData(), expectedMsg.getContent().getData().getClass());
-        actualMsg.getContent().setData(actualData);
+        if (expectedMsg.getContent() != null) {
+            Object actualData = Utils.convert(actualMsg.getContent().getData(), expectedMsg.getContent().getData().getClass());
+            actualMsg.getContent().setData(actualData);
+        }
 
         assertEquals(expectedMsg.getVersion(), actualMsg.getVersion());
         assertEquals(expectedMsg.getContent(), actualMsg.getContent());

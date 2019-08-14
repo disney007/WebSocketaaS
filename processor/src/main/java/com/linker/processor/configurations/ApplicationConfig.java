@@ -1,6 +1,6 @@
 package com.linker.processor.configurations;
 
-import com.linker.processor.models.ClientApp;
+import com.linker.common.client.ClientApp;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +30,11 @@ public class ApplicationConfig {
     String natsHosts;
     String consumerTopics;
 
-    @Value("codec")
+    @Value("${codec}")
     String codec;
+
+    @Value("${metaServerUrl}")
+    String metaServerUrl;
 
     List<ClientApp> clientApps = new ArrayList<>();
 

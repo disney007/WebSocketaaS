@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
 @Slf4j
 public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Object> {
@@ -30,35 +28,31 @@ public class DefaultOutgoingMessageProcessor extends OutgoingMessageProcessor<Ob
     }
 
     @Override
-    public void doProcess(Message message, Object data, MessageContext context) throws IOException {
+    public void doProcess(Message message, Object data, MessageContext context) {
         Address targetAddress = message.getMeta().getTargetAddress();
         SocketHandler handler = networkUserService.getUser(message.getTo(), targetAddress.getSocketId());
 
         if (handler != null) {
             ChannelFuture channelFuture = handler.sendMessage(message);
-            if (message.getMeta().isConfirmEnabled()) {
-                channelFuture.addListener(future -> {
+            channelFuture.addListener(future -> {
+                if (message.getMeta().isConfirmEnabled()
+                        || (!future.isSuccess() && isReliableMessage(message))) {
                     MessageState state = future.isSuccess() ? MessageState.PROCESSED : MessageState.NETWORK_ERROR;
-                    confirmMessage(message, state);
-                });
-            }
+                    postOffice.deliverStateChangedMessage(message, state);
+                }
+            });
+
 
         } else {
-            log.warn("user [{}] not found on {} {}", message.getTo(), targetAddress.getDomainName(), targetAddress.getConnectorName());
-            confirmMessage(message, MessageState.TARGET_NOT_FOUND);
+            log.warn("user [{}] not found on [{}]", message.getTo(), targetAddress);
+            if (isReliableMessage(message)) {
+                postOffice.deliverStateChangedMessage(message, MessageState.ADDRESS_NOT_FOUND);
+            }
         }
 
     }
 
-    void confirmMessage(Message message, MessageState state) throws IOException {
-        Message confirmMessage = Message.builder()
-                .from(Keywords.SYSTEM)
-                .meta(new MessageMeta(message.getMeta().getTargetAddress()))
-                .content(
-                        MessageUtils.createMessageContent(MessageType.MESSAGE_STATE_CHANGED,
-                                new MessageStateChanged(message.toContentlessMessage(), state), MessageFeature.RELIABLE)
-                )
-                .build();
-        postOffice.deliveryMessage(confirmMessage);
+    boolean isReliableMessage(Message message) {
+        return message.getContent().getFeature() == MessageFeature.RELIABLE;
     }
 }

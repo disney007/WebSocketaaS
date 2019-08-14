@@ -1,24 +1,16 @@
 package com.linker.processor.messageprocessors;
 
-import com.linker.common.Keywords;
-import com.linker.common.Message;
-import com.linker.common.MessageContent;
-import com.linker.common.MessageContext;
-import com.linker.common.MessageFeature;
-import com.linker.common.MessageMeta;
-import com.linker.common.MessageProcessor;
-import com.linker.common.MessageType;
-import com.linker.common.MessageUtils;
+import com.linker.common.*;
+import com.linker.common.client.ClientApp;
 import com.linker.common.messages.AuthClient;
 import com.linker.common.messages.AuthClientReply;
-import com.linker.processor.express.PostOffice;
 import com.linker.processor.ProcessorUtils;
-import com.linker.processor.models.ClientApp;
+import com.linker.processor.express.PostOffice;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.HttpService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,18 +18,15 @@ import java.util.Objects;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
-    @Autowired
-    PostOffice postOffice;
+    final PostOffice postOffice;
 
-    @Autowired
-    ProcessorUtils processorUtils;
+    final ProcessorUtils processorUtils;
 
-    @Autowired
-    ClientAppService clientAppService;
+    final ClientAppService clientAppService;
 
-    @Autowired
-    HttpService httpService;
+    final HttpService httpService;
 
     @Override
     public MessageType getMessageType() {
@@ -45,7 +34,7 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
     }
 
     @Override
-    public void doProcess(Message message, AuthClient data, MessageContext context) throws IOException {
+    public void doProcess(Message message, AuthClient data, MessageContext context) {
         ClientApp clientApp = clientAppService.getClientAppByUserId(data.getUserId());
         if (clientApp == null) {
             log.error("client app not found for user {}", data.getUserId());
@@ -71,22 +60,27 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
             return;
         }
 
-        httpService.post(clientApp.getAuthUrl(), data, AuthClientReply.class)
-                .thenAccept(authClientReply -> {
-                    log.info("get response {} for user [{}]", authClientReply, data.getUserId());
-                    if (Objects.equals(data.getAppId(), authClientReply.getAppId())
-                            && Objects.equals(data.getUserId(), authClientReply.getUserId())) {
-                        sendReply(message, authClientReply);
-                    } else {
-                        log.info("client app id or user id miss match");
+        try {
+            httpService.post(clientApp.getAuthUrl(), data, AuthClientReply.class)
+                    .thenAccept(authClientReply -> {
+                        log.info("get response {} for user [{}]", authClientReply, data.getUserId());
+                        if (Objects.equals(data.getAppId(), authClientReply.getAppId())
+                                && Objects.equals(data.getUserId(), authClientReply.getUserId())) {
+                            sendReply(message, authClientReply);
+                        } else {
+                            log.info("client app id or user id miss match");
+                            fail(message, data);
+                        }
+                    })
+                    .exceptionally(e -> {
+                        log.error("error occurred", e);
                         fail(message, data);
-                    }
-                })
-                .exceptionally(e -> {
-                    log.error("error occurred", e);
-                    fail(message, data);
-                    return null;
-                });
+                        return null;
+                    });
+        } catch (IOException e) {
+            log.warn("failed to call client app authentication url [{}]", clientApp.getAuthUrl());
+            fail(message, data);
+        }
     }
 
     void fail(Message message, AuthClient data) {
@@ -112,10 +106,6 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
                 .to(toUser)
                 .meta(meta)
                 .build();
-        try {
-            postOffice.deliveryMessage(replyMessage);
-        } catch (IOException e) {
-            log.error("occurred in send auth client reply", e);
-        }
+        postOffice.deliverMessage(replyMessage);
     }
 }

@@ -57,7 +57,7 @@ public class NatsExpressDelivery implements ExpressDelivery {
             try {
                 connection.close();
             } catch (InterruptedException e) {
-                log.error("Nats:failed to close", e);
+                log.error("Nats: failed to close", e);
             }
         }
     }
@@ -68,11 +68,16 @@ public class NatsExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliveryMessage(String target, byte[] message) throws IOException {
-        connection.publish(target, message);
-        if (listener != null) {
-            listener.onMessageDelivered(this, target, message);
+    public void deliverMessage(String target, byte[] message) throws IOException {
+        try {
+            connection.publish(target, message);
+            if (listener != null) {
+                listener.onMessageDelivered(this, target, message);
+            }
+        } catch (Exception e) {
+            throw new IOException("Nats: failed to send message", e);
         }
+
     }
 
     @Override

@@ -13,7 +13,7 @@ public class MessageMeta implements Serializable {
     Address targetAddress;
     String note;
     Integer ttl = 10;
-    boolean confirmEnabled = true;
+    boolean confirmEnabled = false;
     DeliveryType deliveryType = DeliveryType.ALL;
 
     public MessageMeta() {

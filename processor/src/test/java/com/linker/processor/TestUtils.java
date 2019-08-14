@@ -51,6 +51,7 @@ public class TestUtils {
     public static TestUser loginUser(String userId, Address address) {
         Message message = Message.builder()
                 .from(Keywords.SYSTEM)
+                .to(Keywords.PROCESSOR)
                 .content(
                         MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnected(userId),
                                 MessageFeature.RELIABLE)
@@ -72,6 +73,7 @@ public class TestUtils {
     public static void logoutUser(TestUser user) {
         Message message = Message.builder()
                 .from(Keywords.SYSTEM)
+                .to(Keywords.PROCESSOR)
                 .content(
                         MessageUtils.createMessageContent(MessageType.USER_DISCONNECTED, new UserDisconnected(user.getUserId()),
                                 MessageFeature.RELIABLE)

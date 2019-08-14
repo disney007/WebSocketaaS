@@ -58,7 +58,7 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
                                 .to(masterUserId)
                                 .content(MessageUtils.createMessageContent(MessageType.USER_CONNECTED, new UserConnected("ANZ-1232122"), MessageFeature.RELIABLE))
                                 .meta(new MessageMeta(new Address("domain-01", "connector-01", 10L), masterAddress))
-                                .state(MessageState.TARGET_NOT_FOUND)
+                                .state(MessageState.ADDRESS_NOT_FOUND)
                                 .build(),
                         2),
                 MessageUtils.touchMessage(
@@ -67,18 +67,16 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
                                 .to(masterUserId)
                                 .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward(messageFrom, "message 1"), MessageFeature.RELIABLE))
                                 .meta(new MessageMeta(new Address("domain-01", "connector-01", 1L), masterAddress))
-                                .state(MessageState.TARGET_NOT_FOUND)
-                                .build(),
-                        2),
+                                .state(MessageState.ADDRESS_NOT_FOUND)
+                                .build()),
                 MessageUtils.touchMessage(
                         Message.builder()
                                 .from(messageFrom)
                                 .to(masterUserId)
                                 .content(MessageUtils.createMessageContent(MessageType.MESSAGE, new MessageForward(messageFrom, "message 2"), MessageFeature.RELIABLE))
                                 .meta(new MessageMeta(new Address("domain-01", "connector-01", 1L), masterAddress))
-                                .state(MessageState.TARGET_NOT_FOUND)
-                                .build(),
-                        2),
+                                .state(MessageState.ADDRESS_NOT_FOUND)
+                                .build()),
                 MessageUtils.touchMessage(
                         Message.builder()
                                 .from(Keywords.SYSTEM)
@@ -89,7 +87,7 @@ public class FetchMissingMessagesMessageProcessorTest extends IntegrationTest {
                                 .build()
                 )
         );
-        expectedDeliveredMessages.stream().forEach(msg -> msg.getMeta().setDeliveryType(DeliveryType.ANY));
+        expectedDeliveredMessages.forEach(msg -> msg.getMeta().setDeliveryType(DeliveryType.ANY));
         TestUtils.messagesEqual(expectedDeliveredMessages, deliveredMessages);
     }
 

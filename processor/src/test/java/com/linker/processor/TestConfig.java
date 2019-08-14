@@ -1,8 +1,15 @@
 package com.linker.processor;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.linker.common.Message;
+import com.linker.common.client.ClientApp;
 import com.linker.common.codec.Codec;
 import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
+import com.linker.common.router.Domain;
+import com.linker.common.router.DomainGraph;
+import com.linker.processor.services.MetaServerService;
 import com.mongodb.Mongo;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -14,12 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import redis.embedded.RedisServer;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 @Configuration
 @Slf4j
@@ -84,5 +92,20 @@ public class TestConfig {
     @Bean
     public MockNatsExpressDelivery natsExpressDelivery() {
         return spy(new MockNatsExpressDelivery(codec));
+    }
+
+    @Bean
+    @Primary
+    public MetaServerService metaServerService() throws IOException {
+        MetaServerService serverService = mock(MetaServerService.class);
+        when(serverService.getClientApps()).thenReturn(ImmutableList.of());
+
+        DomainGraph graph = new DomainGraph();
+        Domain domain = new Domain();
+        domain.setName("domain-01");
+        graph.setDomains(ImmutableList.of(domain));
+        graph.setLinks(ImmutableSet.of());
+        when(serverService.getDomainGraph()).thenReturn(graph);
+        return serverService;
     }
 }

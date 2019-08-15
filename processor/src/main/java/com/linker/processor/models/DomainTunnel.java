@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Data
@@ -25,7 +26,8 @@ public class DomainTunnel {
     TcpSocketClient socketClient;
     Domain domain;
     boolean isAuthenticated = false;
-    Consumer<MessageContentOutput> msgCallback;
+    BiConsumer<DomainTunnel, MessageContentOutput> msgCallback;
+    Consumer<DomainTunnel> onAuthenticatedCallback;
 
     @Autowired
     ApplicationConfig applicationConfig;
@@ -89,6 +91,9 @@ public class DomainTunnel {
         if (reply.getIsAuthenticated()) {
             log.info("current user [{}] is authenticated to domain [{}]", getUserId(), this.domain);
             this.isAuthenticated = true;
+            if (this.onAuthenticatedCallback != null) {
+                this.onAuthenticatedCallback.accept(this);
+            }
         } else {
             log.warn("current user [{}] is failed to authenticate to domain {}, disconnect", getUserId(), this.domain);
             this.socketClient.disconnect();
@@ -106,15 +111,19 @@ public class DomainTunnel {
                 return;
             default:
                 if (this.msgCallback != null) {
-                    this.msgCallback.accept(content);
+                    this.msgCallback.accept(this, content);
                 } else {
                     log.info("message [{}] received from domain [{}], ignore", content.getType(), this.getName());
                 }
         }
     }
 
-    public void onMessage(Consumer<MessageContentOutput> msgCallback) {
+    public void onMessage(BiConsumer<DomainTunnel, MessageContentOutput> msgCallback) {
         this.msgCallback = msgCallback;
+    }
+
+    public void onAuthenticated(Consumer<DomainTunnel> authCallback) {
+        this.onAuthenticatedCallback = authCallback;
     }
 
     public String getName() {
@@ -125,10 +134,10 @@ public class DomainTunnel {
         return this.socketClient != null && isAuthenticated;
     }
 
-    public void sendMessage(Message message) throws NotConnectedException {
+    public void sendMessage(MessageContent message) throws NotConnectedException {
         if (!this.isConnected()) {
             throw new NotConnectedException("domain is not connected to domain " + this.domain);
         }
-        socketClient.sendMessage(MessageUtils.createMessageContent(MessageType.INTERNAL_MESSAGE, message, message.getContent().getFeature()));
+        socketClient.sendMessage(message);
     }
 }

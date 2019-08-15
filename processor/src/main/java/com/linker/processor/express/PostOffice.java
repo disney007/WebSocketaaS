@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,11 +96,6 @@ public class PostOffice implements ExpressDeliveryListener {
 
     void deliverMessageInsideDomain(Message message) {
         log.info("same domain message");
-
-        if (message.getContent().getType() == MessageType.INTERNAL_MESSAGE) {
-            throw new IllegalStateException("message should not be INTERNAL_MESSAGE - " + message.toString());
-        }
-
         sendToConnector(message);
     }
 

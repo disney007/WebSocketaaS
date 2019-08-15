@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FetchMissingMessagesMessageProcessor extends MessageProcessor<FetchMissingMessagesRequest> {
 
-    public static final Integer MAX_COUNT = 100;
+    public static final Integer MAX_COUNT = 2000;
 
     final MessageRepository messageRepository;
 

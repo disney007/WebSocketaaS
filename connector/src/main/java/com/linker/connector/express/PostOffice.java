@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -61,25 +60,29 @@ public class PostOffice implements ExpressDeliveryListener {
     }
 
     public void deliverMessage(Message message) {
-        try {
-            ExpressDelivery expressDelivery = getExpressDelivery(message);
-            log.info("delivery message with {}:{}", expressDelivery.getType(), message);
-            expressDelivery.deliverMessage(applicationConfig.getDeliveryTopics(), codec.serialize(message));
-        } catch (IOException e) {
-            log.error("failed to deliver message");
-            //TODO: send failed message to user
-        }
+        ExpressDelivery expressDelivery = getExpressDelivery(message);
+        log.info("deliver message with {}:{}", expressDelivery.getType(), message);
+        expressDelivery.deliverMessage(applicationConfig.getDeliveryTopics(), codec.serialize(message));
+    }
+
+    @Override
+    public void onMessageDeliveryFailed(ExpressDelivery expressDelivery, byte[] message) {
+        // TODO: handle message delivery failed
+        log.error("TODO: handle message delivery failed");
     }
 
     @Override
     public void onMessageArrived(ExpressDelivery expressDelivery, byte[] message) {
+        Message msg = null;
         try {
-            Message msg = codec.deserialize(message, Message.class);
+            msg = codec.deserialize(message, Message.class);
             log.info("message received from {}:{}", expressDelivery.getType(), msg);
             messageProcessorService.processOutgoingMessage(msg);
         } catch (Exception e) {
             log.error("error occurred during message processing", e);
-            // TODO: send back the failed message to processor
+            if (msg != null && msg.getContent().getFeature() == MessageFeature.RELIABLE) {
+                deliverStateChangedMessage(msg, MessageState.CONNECTOR_ERROR);
+            }
         }
     }
 

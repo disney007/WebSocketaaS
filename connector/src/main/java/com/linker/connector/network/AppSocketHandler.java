@@ -14,6 +14,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public class AppSocketHandler extends SimpleChannelInboundHandler<MessageContent> implements SocketHandler {
 
@@ -49,13 +52,24 @@ public class AppSocketHandler extends SimpleChannelInboundHandler<MessageContent
                 .meta(meta)
                 .build();
 
-        this.messageProcessorService.processIncomingMessage(message, this);
+        try {
+            this.messageProcessorService.processIncomingMessage(message, this);
+        } catch (Exception e) {
+            log.error("failed to process in coming message, send message back to user", e);
+            this.sendMessage(MessageUtils.createMessageContent(MessageType.DELIVER_FAILED, msgContent, MessageFeature.RELIABLE));
+        }
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         this.context = ctx;
         log.info("channel added");
+        ctx.channel().eventLoop().schedule(() -> {
+            if (this.authStatus != AuthStatus.AUTHENTICATED) {
+                log.info("timeout authentication for user [{}], close", userId != null ? userId : "no user id");
+                this.close();
+            }
+        }, 15, TimeUnit.SECONDS);
     }
 
     @Override

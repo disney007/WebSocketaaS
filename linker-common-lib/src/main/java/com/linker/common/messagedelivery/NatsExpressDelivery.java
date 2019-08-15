@@ -68,16 +68,18 @@ public class NatsExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliverMessage(String target, byte[] message) throws IOException {
+    public void deliverMessage(String target, byte[] message) {
         try {
             connection.publish(target, message);
             if (listener != null) {
                 listener.onMessageDelivered(this, target, message);
             }
         } catch (Exception e) {
-            throw new IOException("Nats: failed to send message", e);
+            log.error("Nats: failed to deliver message", e);
+            if (listener != null) {
+                listener.onMessageDeliveryFailed(this, message);
+            }
         }
-
     }
 
     @Override

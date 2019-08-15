@@ -20,7 +20,7 @@ public class MockExpressDeliveryFactory implements ExpressDeliveryFactory {
     @Autowired
     NatsExpressDelivery natsExpressDelivery;
 
-    public ExpressDelivery createKafkaExpressDelivery(KafkaCache kafkaCache) {
+    public ExpressDelivery createKafkaExpressDelivery() {
         return kafkaExpressDelivery;
     }
 

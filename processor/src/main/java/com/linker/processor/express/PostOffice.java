@@ -13,7 +13,6 @@ import com.linker.processor.messageprocessors.MessageProcessorService;
 import com.linker.processor.models.UserChannel;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.DomainService;
-import com.linker.processor.services.KafkaCacheService;
 import com.linker.processor.services.UserChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,15 +53,12 @@ public class PostOffice implements ExpressDeliveryListener {
     @Autowired
     Codec codec;
 
-    @Autowired
-    KafkaCacheService kafkaCacheService;
-
     Map<ExpressDeliveryType, ExpressDelivery> expressDeliveryMap;
 
     @PostConstruct
     public void setup() {
         expressDeliveryMap = ImmutableList.of(
-                expressDeliveryFactory.createKafkaExpressDelivery(kafkaCacheService),
+                expressDeliveryFactory.createKafkaExpressDelivery(),
                 expressDeliveryFactory.createNatsExpressDelivery()
         ).stream().peek(expressDelivery -> {
             expressDelivery.setListener(this);
@@ -138,38 +134,40 @@ public class PostOffice implements ExpressDeliveryListener {
 
     void sendToAddresses(Set<Address> addressList, Message message) {
         ExpressDelivery expressDelivery = getExpressDelivery(message);
-        log.info("delivery message with {}:{}", expressDelivery.getType(), message);
-        try {
-            for (Address address : addressList) {
-                message.getMeta().setTargetAddress(address);
-                expressDelivery.deliverMessage(address.getConnectorName(), codec.serialize(message));
-            }
-        } catch (IOException e) {
-            log.error("failed to deliver message {}, persist", message, e);
-            messageProcessor.persistMessage(message, MessageState.NETWORK_ERROR);
+        log.info("deliver message with {}:{}", expressDelivery.getType(), message);
+        for (Address address : addressList) {
+            message.getMeta().setTargetAddress(address);
+            expressDelivery.deliverMessage(address.getConnectorName(), codec.serialize(message));
         }
     }
 
-    ExpressDelivery getExpressDelivery(Message message) {
-        ExpressDeliveryType type = Utils.calcExpressDelivery(message.getContent().getFeature());
-        return this.expressDeliveryMap.get(type);
+    @Override
+    public void onMessageDeliveryFailed(ExpressDelivery expressDelivery, byte[] message) {
+        Message msg = codec.deserialize(message, Message.class);
+        log.error("failed to deliver message {}, persist", message);
+        messageProcessor.persistMessage(msg, MessageState.NETWORK_ERROR);
     }
 
     @Override
     public void onMessageArrived(ExpressDelivery expressDelivery, byte[] message) {
-        Message msg = null;
+        ;
         try {
-            msg = codec.deserialize(message, Message.class);
-            log.info("message arrived from {}:{}", expressDelivery.getType(), msg);
-            messageProcessor.process(msg);
+            Message msg = codec.deserialize(message, Message.class);
+            onMessageArrived(msg, expressDelivery.getType().name());
         } catch (Exception e) {
-            log.error("error occurred during message processing, persist", e);
-            if (msg != null) {
-                messageProcessor.persistMessage(msg, MessageState.ERROR);
-            }
+            log.error("can not deserialize message", e);
         }
     }
 
+    public void onMessageArrived(Message message, String from) {
+        try {
+            log.info("message arrived from {}:{}", from, message);
+            messageProcessor.process(message);
+        } catch (Exception e) {
+            log.error("error occurred during message processing, persist", e);
+            messageProcessor.persistMessage(message, MessageState.PROCESSOR_ERROR);
+        }
+    }
 
     Set<Address> getRouteTargetAddresses(Message message) {
         String to = message.getTo();
@@ -197,5 +195,10 @@ public class PostOffice implements ExpressDeliveryListener {
     public void shutdown() {
         log.info("showdown post office");
         expressDeliveryMap.values().forEach(ExpressDelivery::stop);
+    }
+
+    ExpressDelivery getExpressDelivery(Message message) {
+        ExpressDeliveryType type = Utils.calcExpressDelivery(message.getContent().getFeature());
+        return this.expressDeliveryMap.get(type);
     }
 }

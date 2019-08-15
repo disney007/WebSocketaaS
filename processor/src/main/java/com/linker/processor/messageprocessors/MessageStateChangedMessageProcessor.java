@@ -36,7 +36,7 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
     public void doProcess(Message message, MessageStateChanged data, MessageContext context) {
 
         if (data.getState() == MessageState.ADDRESS_NOT_FOUND) {
-            processTargetNotFound(message, data);
+            processTargetNotFound(data.getMessage());
         } else {
             Message msg = data.getMessage();
             MessageState newState = data.getState();
@@ -51,17 +51,17 @@ public class MessageStateChangedMessageProcessor extends MessageProcessor<Messag
         }
     }
 
-    void processTargetNotFound(Message message, MessageStateChanged data) {
+    void processTargetNotFound(Message message) {
         /*
          * 1. remove invalid address.
          * 2. try to send one time, if still not found, state will be updated by post office
          * */
-        String to = data.getMessage().getTo();
-        Address originalAddress = message.getMeta().getOriginalAddress();
-        userChannelService.removeAddress(to, originalAddress);
-        log.info("remove invalid address [{}] from user [{}]", message.getMeta().getOriginalAddress(), to);
+        String to = message.getTo();
+        Address targetAddress = message.getMeta().getTargetAddress();
+        userChannelService.removeAddress(to, targetAddress);
+        log.info("remove invalid address [{}] from user [{}]", targetAddress, to);
 
-        postOffice.deliverMessage(data.getMessage());
+        postOffice.deliverMessage(message);
     }
 
     void sendConfirmationMessageToSender(Message message) {

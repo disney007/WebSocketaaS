@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
@@ -133,15 +130,24 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void deliverMessage(String target, byte[] message) throws IOException {
+    public void deliverMessage(String target, byte[] message) {
         try {
-            ProducerRecord<String, byte[]> record = new ProducerRecord<>(target, UUID.randomUUID().toString(), message);
-            producer.send(record);
-            if (listener != null) {
-                listener.onMessageDelivered(this, target, message);
+            String key = UUID.randomUUID().toString() + "_" + System.currentTimeMillis();
+            ProducerRecord<String, byte[]> record = new ProducerRecord<>(target, key, message);
+            producer.send(record, (metadata, exception) -> {
+                if (listener != null) {
+                    if (exception != null) {
+                        listener.onMessageDeliveryFailed(this, message);
+                    } else {
+                        listener.onMessageDelivered(this, target, message);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            log.error("kafka: failed to deliver message", e);
+            if (this.listener != null) {
+                listener.onMessageDeliveryFailed(this, message);
             }
-        } catch (KafkaException e) {
-            throw new IOException("kafka: failed to send message", e);
         }
     }
 

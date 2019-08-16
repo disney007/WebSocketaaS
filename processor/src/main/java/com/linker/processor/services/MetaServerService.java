@@ -68,10 +68,7 @@ public class MetaServerService {
         if (isMetaServerEnabled()) {
             return httpService.getSync(buildUrl("/domains/graph"), null, DomainGraph.class);
         } else {
-            DomainGraph graph = new DomainGraph();
-            graph.setLinks(ImmutableSet.of());
-            graph.setDomains(ImmutableList.of());
-            return graph;
+            return null;
         }
     }
 }

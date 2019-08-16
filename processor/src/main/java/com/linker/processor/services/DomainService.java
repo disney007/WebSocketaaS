@@ -5,6 +5,7 @@ import com.linker.common.exceptions.NotConnectedException;
 import com.linker.common.messages.FetchMissingMessagesComplete;
 import com.linker.common.messages.FetchMissingMessagesRequest;
 import com.linker.common.router.Domain;
+import com.linker.common.router.DomainGraph;
 import com.linker.processor.express.PostOffice;
 import com.linker.processor.models.DomainTunnel;
 import lombok.RequiredArgsConstructor;
@@ -28,17 +29,19 @@ public class DomainService {
 
     final DomainGraphService domainGraphService;
 
-
     @PostConstruct
     public void init() throws IOException {
         log.info("set up domain connections");
-        domainGraphService.loadGraph(metaServerService.getDomainGraph());
-        List<Domain> linkedDomains = domainGraphService.getCurrentLinkedDomains();
-        log.info("link domains {}", linkedDomains);
-        domainTunnelService.loadDomains(linkedDomains).getTunnels().forEach(routerTunnel -> {
-            routerTunnel.onMessage(this::onMessage);
-            routerTunnel.onAuthenticated(this::onAuthenticated);
-        });
+        DomainGraph domainGraph = metaServerService.getDomainGraph();
+        if(domainGraph != null){
+            domainGraphService.loadGraph(domainGraph);
+            List<Domain> linkedDomains = domainGraphService.getCurrentLinkedDomains();
+            log.info("link domains {}", linkedDomains);
+            domainTunnelService.loadDomains(linkedDomains).getTunnels().forEach(routerTunnel -> {
+                routerTunnel.onMessage(this::onMessage);
+                routerTunnel.onAuthenticated(this::onAuthenticated);
+            });
+        }
     }
 
     void handleInternalMessage(MessageContentOutput content) {
@@ -58,14 +61,14 @@ public class DomainService {
                 new FetchMissingMessagesRequest(2000), MessageFeature.RELIABLE);
         try {
             tunnel.sendMessage(msg);
-        } catch (NotConnectedException e) {
+        } catch(NotConnectedException e) {
             log.warn("domain is not connected, ignore");
         }
     }
 
     void handleFetchingMessagesComplete(DomainTunnel tunnel, MessageContentOutput content) {
         FetchMissingMessagesComplete data = content.getData(FetchMissingMessagesComplete.class);
-        if (data.getLeftMissingCount() > 0) {
+        if(data.getLeftMissingCount() > 0){
             log.info("{} missing messages left in domain [{}], continue fetching", data.getLeftMissingCount(), tunnel.getDomain().getName());
             fetchMissingMessages(tunnel);
             return;
@@ -97,7 +100,6 @@ public class DomainService {
     public String getDomainName() {
         return getCurrentDomain().getName();
     }
-
 
     public String getNextDomainName(String targetDomainName) {
         return domainGraphService.getNextDomainName(targetDomainName);

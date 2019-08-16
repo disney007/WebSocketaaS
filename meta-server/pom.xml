@@ -11,6 +11,60 @@
 
     <artifactId>meta-server</artifactId>
 
+    <profiles>
+        <profile>
+            <id>build-docker</id>
+            <activation>
+                <property>
+                    <name>!skipBuildingDocker</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>build-docker</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <arguments>
+                                        <argument>build</argument>
+                                        <argument>.</argument>
+                                        <argument>--build-arg</argument>
+                                        <argument>JAR_FILE=target/${project.build.finalName}.jar</argument>
+                                        <argument>-t</argument>
+                                        <argument>linker/${project.artifactId}:latest</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>tag-docker</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <arguments>
+                                        <argument>tag</argument>
+                                        <argument>linker/${project.artifactId}:latest</argument>
+                                        <argument>linker/${project.artifactId}:${project.version}</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>

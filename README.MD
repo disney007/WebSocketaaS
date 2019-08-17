@@ -1,8 +1,35 @@
 ## Introduction
 The project is the backend solution for client to client and server to client communication via websocket, 
 which highly focus on performance, scalability and reliability.
- 
-## Running on your local machine
+## Core concept
+
+ ![Alt text](res/domain.png?raw=true "Domain")
+
+One domain contains group of the connectors, processors, queues and databases. 
+- Connectors are responsible for accepting client messages via web sockets and putting the messages onto the queues.
+- Queues will deliver the messages to any of the processors.
+- Processors process the messages and forward the messages to target client user by putting the message back onto the queue,
+and specific connector will pick the message up and send to the remote user.
+- Databases store the meta information and failed delivery messages
+
+Messages defined as reliable will be persisted in database if failed to deliver to target user, e.g. user not connected.
+User can pull missed messages when they connect next time. 
+
+One connectors can handle 1K users connected at the same time, if one domain has 10 connectors, it roughly can support
+10K users. If more users need to connect, it needs to link multiple domains together to form a domain network, the following diagram
+shows a simple domain network.
+
+![Alt text](res/multi-domains.png?raw=true "Multi-Domain")
+
+If a user on domain 1 wants to send a message to a user in domain 4, then
+* user sends the message to connector of domain 1
+* Processor in domain 1 will get the message and try to figure out in which domain the receiver is and pass it next domain in shortest path.
+* Processor in domain 5 will receive th message and do the same steps as the processor in 1 does, and it will deliver message to domain 4
+* Processor in domain 4 receives the message finally and sends to connector and connector forwards to target user.
+  
+Message will be persisted on the domain during the delivery if error occurred, and it will continue when problem gets resolved.
+
+## Running on your local machine in single domain
 ### Prerequisites
 * install docker
 * install jdk8
@@ -191,3 +218,127 @@ clientApps[0].masterUserId=ANZ-123223
 - `masterUserId` is the user id that can send and receive messages like other users, the only difference is that
 the master user id can receive `USER_DISCONNECTED` and `USER_CONNECTED` messages of other users
 
+## Running on your local machine with multiple domains
+It's good practice to run one domain in one virtual machine, if there are 4 domains, then create 4 virtual machines. 
+### Meta Server
+All domains
+should have access to the share meta server to load the domain network graph. The meta server docker images is generated during `mvn clean install`.
+it can start the meta server instance in the host machine and given the url to domains. The following is the sample configuration of meta server.
+``` yaml
+spring:
+  profiles: development
+server:
+  port: 9000
+
+domains:
+  - name: domain-01
+    urls:
+      - tcp://192.168.56.1:9089
+      - ws://192.168.56.1:8088
+  - name: domain-02
+    urls:
+      - tcp://192.168.56.2:9089
+      - ws://192.168.56.2:8088
+  - name: domain-03
+    urls:
+      - tcp://192.168.56.3:9089
+      - ws://192.168.56.3:8088
+  - name: domain-04
+    urls:
+      - tcp://192.168.56.4:9089
+      - ws://192.168.56.4:8088
+
+domainLinks:
+  - n1: domain-01
+    n2: domain-02
+  - n1: domain-02
+    n2: domain-03
+  - n1: domain-03
+    n2: domain-04
+  - n1: domain-01
+    n2: domain-04
+
+clientApps:
+  - appName: domain1
+    appId: domain1
+    masterUserId: domain1-1
+    authEnabled: false
+  - appName: domain2
+    appId: domain2
+    masterUserId: domain2-1
+    authEnabled: false
+  - appName: domain3
+    appId: domain3
+    masterUserId: domain3-1
+    authEnabled: false
+  - appName: domain4
+    appId: domain4
+    masterUserId: domain4-1
+    authEnabled: false
+  - appName: ANZ
+    appId: app-id-343
+    masterUserId: ANZ-123223
+    authUrl: http://localhost:4200/auth
+    authEnabled: false
+    userDistributions:
+      - domainName: domain-01
+        from: 0
+        to: 999999
+      - domainName: domain-02
+        from: 1000000
+        to: 2999999
+      - domainName: domain-03
+        from: 3000000
+        to: 5999999
+      - domainName: domain-04
+        from: 6000000
+``` 
+- `domains`: defines the name and the urls, the `ws` is websocket for end user, `tcp` is the internal communication between domains.
+The ip addresses must be changed according to your real environment.
+- `domainLinks`: defines the link between the domains, `n1` and `n2` are bidirectional
+- `clientApps`: defines the client information for end user clients and domain clients, if domain A is linked to domain B, then domain A is the client of domain B
+- `userDistributions`: defines which user is localed on which domain, e.g. `ANZ-2000000` is on `domain-02`
+
+### Multi domain docker compose file
+the docker compose file template in provided in `docker-multip-domain-compose`
+```
+version: '3'
+services:
+  connector-02:
+    image: linker/connector:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: development-multi-domain
+      domainName: domain-04
+      connectorName: connector-02
+      wsPort: 8088
+      tcpPort: 9089
+      kafkaHosts: kafka:29092
+      natsHosts: nats://nats:4222
+      SPRING_REDIS_HOST: redis
+    ports:
+      - "8088:8088"
+      - "9089:9089"
+  processor-02:
+    image: linker/processor:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: development-multi-domain
+      domainName: domain-04
+      processorName: processor-02
+      kafkaHosts: kafka:29092
+      natsHosts: nats://nats:4222
+      metaServerUrl: http://192.168.56.1:9000
+      SPRING_REDIS_HOST: redis
+      SPRING_DATA_MONGODB_HOST: mongodb
+```
+the important point in here is the `metaServerUrl`, which must be the meta server url hosted in your local, and change 
+the `domainName` to the real domain name accordingly
+
+### Start docker instances
+Logon to virtual machine and copy the docker compost files there.
+* `docker-compose -f docker-required-services.yml up` starts required services
+* `docker-compose up` starts application services
+### How to test on ui
+`IMPROTANT` the users on the user distribution should login to the CORRECT domain, e.g. `ANZ-123456` should go to `domain-01`,
+`ANZ-3123456` should go to `domain-03`
+Suppose we want to login with `ANZ-3123456`, then open the url in browser `http://192.168.56.3:4400`, and connect to websocket `ws://192.168.56.3:8088`, 
+then do auth and send message to another user

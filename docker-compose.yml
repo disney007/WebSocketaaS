@@ -3,20 +3,24 @@ services:
   connector-02:
     image: linker/connector:latest
     environment:
-      SPRING_PROFILES_ACTIVE: dev-docker
+      SPRING_PROFILES_ACTIVE: development-single-domain
       domainName: domain-01
       connectorName: connector-02
       wsPort: 8088
+      tcpPort: 9089
       kafkaHosts: kafka:29092
       natsHosts: nats://nats:4222
+      SPRING_REDIS_HOST: redis
     ports:
       - "8088:8088"
       - "9088:9088"
   processor-02:
     image: linker/processor:latest
     environment:
-      SPRING_PROFILES_ACTIVE: dev-docker
+      SPRING_PROFILES_ACTIVE: development-single-domain
       domainName: domain-01
       processorName: processor-02
       kafkaHosts: kafka:29092
       natsHosts: nats://nats:4222
+      SPRING_REDIS_HOST: redis
+      SPRING_DATA_MONGODB_HOST: mongodb

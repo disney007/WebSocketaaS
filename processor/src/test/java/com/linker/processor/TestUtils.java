@@ -17,10 +17,12 @@ import static org.junit.Assert.assertEquals;
 public class TestUtils {
     static KafkaExpressDelivery kafkaExpressDelivery;
     static Codec codec;
+    static ProcessorUtils processorUtils;
 
-    public TestUtils(KafkaExpressDelivery kafkaExpressDelivery, Codec codec) {
+    public TestUtils(KafkaExpressDelivery kafkaExpressDelivery, Codec codec, ProcessorUtils processorUtils) {
         TestUtils.kafkaExpressDelivery = kafkaExpressDelivery;
         TestUtils.codec = codec;
+        TestUtils.processorUtils = processorUtils;
     }
 
     public static List<Message> sortMessages(List<Message> messages) {
@@ -48,6 +50,19 @@ public class TestUtils {
         assertEquals(expectedMsg.getState(), actualMsg.getState());
     }
 
+    public static void internalMessageEquals(Message expectedMsg, Message actualMsg) {
+        messageEquals(
+                Utils.convert(expectedMsg.getContent().getData(), Message.class),
+                Utils.convert(actualMsg.getContent().getData(), Message.class)
+        );
+
+        Message clonedExpectedMsg = expectedMsg.clone();
+        clonedExpectedMsg.getContent().setData("");
+        Message clonedActualMsg = actualMsg.clone();
+        clonedActualMsg.getContent().setData("");
+        messageEquals(clonedExpectedMsg, clonedActualMsg);
+    }
+
     public static TestUser loginUser(String userId, Address address) {
         Message message = Message.builder()
                 .from(Keywords.SYSTEM)
@@ -68,6 +83,10 @@ public class TestUtils {
 
     public static TestUser loginUser(String userId, Long socketId) {
         return loginUser(userId, new Address("domain-01", "connector-01", socketId));
+    }
+
+    public static TestUser loginDomainUser(String userId, Long socketId) {
+        return loginUser(processorUtils.resolveDomainUserId(userId), socketId);
     }
 
     public static void logoutUser(TestUser user) {

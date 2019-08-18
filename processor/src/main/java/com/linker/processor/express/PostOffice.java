@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.linker.common.*;
 import com.linker.common.codec.Codec;
+import com.linker.common.exceptions.ProcessMessageException;
 import com.linker.common.messagedelivery.ExpressDelivery;
 import com.linker.common.messagedelivery.ExpressDeliveryListener;
 import com.linker.common.messagedelivery.ExpressDeliveryType;
@@ -104,6 +105,9 @@ public class PostOffice implements ExpressDeliveryListener {
         processorUtils.assertInternalMessage(message);
         final String targetDomainName = message.getMeta().getTargetAddress().getDomainName();
         String nextDomainName = domainService.getNextDomainName(targetDomainName);
+        if (StringUtils.isBlank(nextDomainName)) {
+            throw new ProcessMessageException(String.format("can not resolve next domain name from domain [%s] to domain [%s]", applicationConfig.getDomainName(), targetDomainName));
+        }
         log.info("send message from domain [{}] to next domain [{}] for target domain name [{}]", applicationConfig.getDomainName(),
                 nextDomainName, targetDomainName);
 
@@ -163,16 +167,19 @@ public class PostOffice implements ExpressDeliveryListener {
         }
     }
 
-    Set<Address> getRouteTargetAddresses(Message message) {
-        String to = message.getTo();
+    public Set<Address> getRouteTargetAddresses(Message message) {
+        return getRouteTargetAddresses(message.getTo(), message.getMeta().getDeliveryType());
+    }
+
+    public Set<Address> getRouteTargetAddresses(String to, DeliveryType deliveryType) {
         if (StringUtils.isNotBlank(to)) {
-            if (processorUtils.isConnectorMessage(message)) {
+            if (processorUtils.isConnectorUser(to)) {
                 return ImmutableSet.of(new Address(applicationConfig.getDomainName(), to));
             }
 
-            UserChannel userChannel = userChannelService.getById(message.getTo());
+            UserChannel userChannel = userChannelService.getById(to);
             if (userChannel != null) {
-                if (message.getMeta().getDeliveryType() == DeliveryType.ALL) {
+                if (deliveryType == DeliveryType.ALL) {
                     return userChannel.getAddresses();
                 } else {
                     Address address = Utils.getRandomItemInCollection(userChannel.getAddresses());

@@ -59,6 +59,7 @@ public class TestUtils {
         kafkaExpressDelivery.onMessageArrived(json.getBytes(StandardCharsets.UTF_8));
         kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_CONNECTED);
         testUser.getReceivedMessage(MessageType.AUTH_CLIENT_REPLY);
+        testUser.setSocketId(Long.valueOf(note));
         return testUser;
     }
 

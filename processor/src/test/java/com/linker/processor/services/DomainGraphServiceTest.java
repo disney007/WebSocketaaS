@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.linker.common.router.DomainLink;
 import com.linker.processor.IntegrationTest;
+import com.linker.processor.ProcessorUtils;
+import com.linker.processor.configurations.ApplicationConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,17 @@ import static org.junit.Assert.assertEquals;
 
 public class DomainGraphServiceTest extends IntegrationTest {
 
-    @Autowired
     DomainGraphService domainGraphService;
     Set<String> routers;
     Set<DomainLink> links;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+    @Autowired
+    ProcessorUtils processorUtils;
     @Before
     public void setup() {
+        domainGraphService = new DomainGraphService(applicationConfig, processorUtils);
         routers = new HashSet<>();
         for (int i = 1; i <= 13; ++i) {
             routers.add(String.valueOf(i));

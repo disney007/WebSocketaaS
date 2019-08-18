@@ -55,18 +55,19 @@ public class ProcessorUtils {
     }
 
     public boolean isCurrentDomainMessage(Message message) {
-        final String currentDomainName = applicationConfig.getDomainName();
-
-        if (message.getMeta().getTargetAddress() != null) {
-            return StringUtils.equalsIgnoreCase(currentDomainName, message.getMeta().getTargetAddress().getDomainName());
-        }
-
         if (StringUtils.isBlank(message.getTo())) {
             return true;
         }
 
-        String targetDomainName = clientAppService.resolveDomain(message.getTo());
-        return StringUtils.equalsIgnoreCase(currentDomainName, targetDomainName);
+        final String currentDomainName = applicationConfig.getDomainName();
+        return StringUtils.equalsIgnoreCase(currentDomainName, resolveDomainName(message));
+    }
+
+    public String resolveDomainName(Message message) {
+        if (message.getMeta().getTargetAddress() != null) {
+            return message.getMeta().getTargetAddress().getDomainName();
+        }
+        return clientAppService.resolveDomain(message.getTo());
     }
 
     public boolean isProcessorMessage(Message message) {
@@ -76,6 +77,10 @@ public class ProcessorUtils {
 
     public boolean isConnectorMessage(Message message) {
         String to = message.getTo();
+        return isConnectorUser(to);
+    }
+
+    public boolean isConnectorUser(String to) {
         return StringUtils.isNotBlank(to) && StringUtils.startsWithIgnoreCase(to, Keywords.CONNECTOR);
     }
 

@@ -5,6 +5,8 @@ import com.linker.common.MessageContent;
 import com.linker.common.MessageContentOutput;
 import com.linker.common.MessageType;
 import com.linker.common.Utils;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -49,7 +51,12 @@ public class TestUser {
         }
     }
 
+    @Getter
+    @Setter
     String username;
+    @Getter
+    @Setter
+    Long socketId;
     WebSocketClient webSocketClient;
     Consumer<ServerHandshake> onConnectedCallback;
     Consumer<Exception> onErrorCallback;

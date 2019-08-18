@@ -51,7 +51,7 @@ public class MessageProcessorService {
                 .from(message.getFrom())
                 .to(message.getTo())
                 .content(MessageUtils.createMessageContent(MessageType.INTERNAL_MESSAGE, message, message.getContent().getFeature()))
-                .meta(new MessageMeta(message.getMeta().getOriginalAddress()))
+                .meta(new MessageMeta(message.getMeta().getOriginalAddress(), new Address(processorUtils.resolveDomainName(message), null, -1L)))
                 .build();
         process(internalMessage);
     }
@@ -70,7 +70,7 @@ public class MessageProcessorService {
             processor.preprocess(message, null);
 
             if (message.getContent().getType() != MessageType.INTERNAL_MESSAGE && !processorUtils.isCurrentDomainMessage(message)) {
-                log.info("message does not belong to current domain and send to domain [{}]", message);
+                log.info("message does not belong to current domain [{}],  target domain is [{}] - [{}]", applicationConfig.getDomainName(), processorUtils.resolveDomainName(message), message);
                 processCrossDomainMessage(message);
                 return;
             }

@@ -9,6 +9,7 @@ import com.linker.common.messagedelivery.MockKafkaExpressDelivery;
 import com.linker.common.messagedelivery.MockNatsExpressDelivery;
 import com.linker.common.router.Domain;
 import com.linker.common.router.DomainGraph;
+import com.linker.common.router.DomainLink;
 import com.linker.processor.services.MetaServerService;
 import com.mongodb.Mongo;
 import de.flapdoodle.embed.mongo.MongodExecutable;
@@ -101,10 +102,20 @@ public class TestConfig {
         when(serverService.getClientApps()).thenReturn(ImmutableList.of());
 
         DomainGraph graph = new DomainGraph();
-        Domain domain = new Domain();
-        domain.setName("domain-01");
-        graph.setDomains(ImmutableList.of(domain));
-        graph.setLinks(ImmutableSet.of());
+        graph.setDomains(ImmutableList.of(
+                new Domain("domain-01", ImmutableSet.of()),
+                new Domain("domain-02", ImmutableSet.of()),
+                new Domain("domain-03", ImmutableSet.of()),
+                new Domain("domain-04", ImmutableSet.of())
+        ));
+
+        graph.setLinks(ImmutableSet.of(
+                new DomainLink("domain-01", "domain-02"),
+                new DomainLink("domain-02", "domain-03"),
+                new DomainLink("domain-03", "domain-04"),
+                new DomainLink("domain-01", "domain-04")
+        ));
+
         when(serverService.getDomainGraph()).thenReturn(graph);
         return serverService;
     }

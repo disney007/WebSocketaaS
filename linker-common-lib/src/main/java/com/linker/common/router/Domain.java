@@ -1,12 +1,16 @@
 package com.linker.common.router;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Domain {
     String name;
     Set<String> urls;

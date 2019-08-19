@@ -5,7 +5,7 @@
     <parent>
         <artifactId>base</artifactId>
         <groupId>com.linker</groupId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -148,12 +148,12 @@
         <dependency>
             <groupId>com.linker</groupId>
             <artifactId>linker-common-lib</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.linker</groupId>
             <artifactId>linker-common-lib</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.2.0-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

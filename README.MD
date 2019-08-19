@@ -28,7 +28,8 @@ If a user on domain 1 wants to send a message to a user in domain 4, then
 * Processor in domain 4 receives the message finally and sends to connector and connector forwards to target user.
   
 Message will be persisted on the domain during the delivery if error occurred, and it will continue when problem gets resolved.
-
+## Single domain demo
+![](res/linker.gif)
 ## Running on your local machine in single domain
 ### Prerequisites
 * install docker

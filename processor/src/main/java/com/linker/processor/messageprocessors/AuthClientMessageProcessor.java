@@ -5,6 +5,7 @@ import com.linker.common.client.ClientApp;
 import com.linker.common.messages.AuthClient;
 import com.linker.common.messages.AuthClientReply;
 import com.linker.processor.ProcessorUtils;
+import com.linker.processor.configurations.ApplicationConfig;
 import com.linker.processor.express.PostOffice;
 import com.linker.processor.services.ClientAppService;
 import com.linker.processor.services.HttpService;
@@ -28,6 +29,8 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
 
     final HttpService httpService;
 
+    final ApplicationConfig applicationConfig;
+
     @Override
     public MessageType getMessageType() {
         return MessageType.AUTH_CLIENT;
@@ -48,6 +51,13 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
             return;
         }
 
+        String userDomain = clientAppService.resolveDomain(data.getUserId());
+        if (!StringUtils.equalsIgnoreCase(applicationConfig.getDomainName(), userDomain)) {
+            log.error("user belongs to domain [{}], not in current domain [{}]", userDomain, applicationConfig.getDomainName());
+            fail(message, data);
+            return;
+        }
+
         if (!clientApp.isAuthEnabled()) {
             log.info("client auth not enabled for app [{}]", clientApp.getAppName());
             pass(message, data);
@@ -60,6 +70,10 @@ public class AuthClientMessageProcessor extends MessageProcessor<AuthClient> {
             return;
         }
 
+        checkAuthUrl(clientApp, message, data);
+    }
+
+    void checkAuthUrl(ClientApp clientApp, Message message, AuthClient data) {
         try {
             httpService.post(clientApp.getAuthUrl(), data, AuthClientReply.class)
                     .thenAccept(authClientReply -> {

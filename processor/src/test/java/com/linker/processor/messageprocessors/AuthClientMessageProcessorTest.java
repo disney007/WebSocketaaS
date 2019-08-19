@@ -40,6 +40,7 @@ public class AuthClientMessageProcessorTest extends IntegrationTest {
         testAuth("app-id-343", "ANZ-123223", true);
         testAuth("app-id-344", "ANZ-123223", false);
         testAuth("app-id-343", "ANZXX-123223", false);
+        testAuth("app-id-343", "ANZ-3123223", false);
     }
 
     @Test

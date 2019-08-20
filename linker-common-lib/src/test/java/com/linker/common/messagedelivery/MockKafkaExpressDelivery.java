@@ -50,7 +50,12 @@ public class MockKafkaExpressDelivery extends KafkaExpressDelivery {
     }
 
     @Override
-    public void stop() {
+    public void stopConsumer() {
+
+    }
+
+    @Override
+    public void stopProducer() {
 
     }
 

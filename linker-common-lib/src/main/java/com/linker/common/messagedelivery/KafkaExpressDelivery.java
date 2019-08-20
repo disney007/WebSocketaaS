@@ -1,13 +1,14 @@
 package com.linker.common.messagedelivery;
 
 import com.google.common.collect.ImmutableSet;
-import com.linker.common.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -15,7 +16,6 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,10 +121,13 @@ public class KafkaExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void stop() {
+    public void stopConsumer() {
         log.info("kafka:close consumer");
         consumer.wakeup();
-        Utils.sleep(3000L);
+    }
+
+    @Override
+    public void stopProducer() {
         log.info("kafka:close producer");
         producer.close();
     }

@@ -193,9 +193,14 @@ public class PostOffice implements ExpressDeliveryListener {
         return ImmutableSet.of();
     }
 
-    public void shutdown() {
-        log.info("showdown post office");
-        expressDeliveryMap.values().forEach(ExpressDelivery::stop);
+    public void stopIncoming() {
+        log.info("post office stop incoming");
+        expressDeliveryMap.values().forEach(ExpressDelivery::stopConsumer);
+    }
+
+    public void stopOutging() {
+        log.info("post office stop outgoing");
+        expressDeliveryMap.values().forEach(ExpressDelivery::stopProducer);
     }
 
     ExpressDelivery getExpressDelivery(Message message) {

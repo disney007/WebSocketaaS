@@ -12,5 +12,6 @@ public interface ExpressDelivery {
 
     void start();
 
-    void stop();
+    void stopConsumer();
+    void stopProducer();
 }

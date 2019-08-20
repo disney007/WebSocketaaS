@@ -31,10 +31,14 @@ public class Application {
     @PreDestroy
     void shutdown() {
         log.info("shutting down application");
+        postOffice.stopIncoming();
+        sleep(3000L);
         networkUserService.users.forEach((key, value) -> value.forEach(SocketHandler::close));
         sleep(3000L);
         nettyService.shutdown();
-        postOffice.showdown();
         sleep(3000L);
+        postOffice.stopOutging();
+        sleep(3000L);
+        log.info("shutdown complete");
     }
 }

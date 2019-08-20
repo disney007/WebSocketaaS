@@ -45,7 +45,12 @@ public class MockNatsExpressDelivery extends NatsExpressDelivery {
     }
 
     @Override
-    public void stop() {
+    public void stopConsumer() {
+
+    }
+
+    @Override
+    public void stopProducer() {
 
     }
 

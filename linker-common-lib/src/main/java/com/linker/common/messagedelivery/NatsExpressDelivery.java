@@ -1,6 +1,5 @@
 package com.linker.common.messagedelivery;
 
-import com.linker.common.Utils;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
@@ -46,12 +45,15 @@ public class NatsExpressDelivery implements ExpressDelivery {
     }
 
     @Override
-    public void stop() {
+    public void stopConsumer() {
         log.info("Nats: close consumer");
         if (consumerDispatcher != null) {
             consumerDispatcher.unsubscribe(consumerTopic);
         }
-        Utils.sleep(3000L);
+    }
+
+    @Override
+    public void stopProducer() {
         log.info("Nats: close connection");
         if (connection != null) {
             try {

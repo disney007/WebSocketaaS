@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: connector-ingress
+  annotations:
+    #    kubernetes.io/ingress.global-static-ip-name: connector-ip-address
+    kubernetes.io/ingress.class: nginx
+#    kubernetes.io/tls-acme: true
+spec:
+  tls:
+    - hosts:
+        - sandbox-linker.spendzer.app
+      secretName: sandbox-linker-tls
+  rules:
+    - host: sandbox-linker.spendzer.app
+      http:
+        paths:
+          - path: /ws
+            backend:
+              serviceName: connector
+              servicePort: 8088

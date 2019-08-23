@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: connector
+  name: connector
+spec:
+  ports:
+  - name: "8088"
+    port: 8088
+    targetPort: 8088
+  selector:
+    app: connector
+  type: NodePort

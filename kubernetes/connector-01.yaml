@@ -2,25 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: processor
+    app: connector
     group: linker
-  name: processor
+  name: connector-01
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: processor
+      app: connector
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: processor
+        app: connector
         group: linker
     spec:
       containers:
-        - name: processor
-          image: eu.gcr.io/linker-246119/processor:2.2.0
+        - name: connector
+          image: eu.gcr.io/linker-246119/connector:2.2.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088
@@ -32,18 +32,16 @@ spec:
               value: "sandbox"
             - name: server.port
               value: "8080"
+            - name: wsPort
+              value: "8088"
             - name: domainName
               value: "domain-01"
-            - name: processorName
-              value: "processor"
+            - name: connectorName
+              value: "connector-01"
             - name: kafkaHosts
               value: "infra-kafka:29092"
             - name: natsHosts
               value: "nats://nats:4222"
-            - name: spring.redis.host
-              value: "redis"
-            - name: spring.data.mongodb.host
-              value: "mongo"
           readinessProbe:
             httpGet:
               scheme: HTTP

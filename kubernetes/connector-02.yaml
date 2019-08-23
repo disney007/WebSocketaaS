@@ -1,27 +1,10 @@
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: connector
-  name: connector
-spec:
-  ports:
-    - name: "8088"
-      port: 8088
-      targetPort: 8088
-  selector:
-    app: connector
-  type: LoadBalancer
-
----
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     app: connector
     group: linker
-  name: connector
+  name: connector-02
 spec:
   replicas: 1
   selector:
@@ -37,7 +20,7 @@ spec:
     spec:
       containers:
         - name: connector
-          image: eu.gcr.io/linker-246119/connector:1.0
+          image: eu.gcr.io/linker-246119/connector:2.2.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088

@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: connector-ingress
+  annotations:
+#    kubernetes.io/ingress.global-static-ip-name: connector-ip-address
+    kubernetes.io/tls-acme: true
+spec:
+  tls:
+    - hosts:
+      secretName: link-tls
+  backend:
+    serviceName: connector
+    servicePort: 8088

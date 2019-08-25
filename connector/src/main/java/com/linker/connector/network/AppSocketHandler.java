@@ -65,7 +65,7 @@ public class AppSocketHandler extends SimpleChannelInboundHandler<MessageContent
         this.context = ctx;
         log.info("channel added");
         ctx.channel().eventLoop().schedule(() -> {
-            if (this.authStatus != AuthStatus.AUTHENTICATED) {
+            if (this.authStatus != AuthStatus.AUTHENTICATED && !ctx.isRemoved()) {
                 log.info("timeout authentication for user [{}], close", userId != null ? userId : "no user id");
                 this.close();
             }

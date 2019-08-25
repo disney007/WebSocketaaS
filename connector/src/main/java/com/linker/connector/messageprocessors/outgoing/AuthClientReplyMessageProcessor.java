@@ -35,6 +35,10 @@ public class AuthClientReplyMessageProcessor extends OutgoingMessageProcessor<Au
         String userId = data.getUserId();
         Long socketId = Long.parseLong(message.getMeta().getNote());
         SocketHandler socketHandler = networkUserService.getPendingUser(userId, socketId);
+        if (socketHandler == null) {
+            return;
+        }
+
         networkUserService.removePendingUser(userId, socketId);
 
         if (data.getIsAuthenticated()) {

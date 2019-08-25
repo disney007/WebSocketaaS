@@ -58,7 +58,7 @@ public class NetworkUserService {
     static void removeUser(ConcurrentHashMap<String, List<SocketHandler>> map, String userId, Long socketId) {
         List<SocketHandler> socketHandlers = map.get(userId);
         if (socketHandlers != null) {
-            socketHandlers.removeIf(s ->  s.getSocketId().equals(socketId));
+            socketHandlers.removeIf(s -> s == null || s.getSocketId().equals(socketId));
             if (socketHandlers.isEmpty()) {
                 map.remove(userId);
             }

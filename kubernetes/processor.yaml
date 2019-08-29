@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: processor
-          image: eu.gcr.io/linker-246119/processor:2.2.0
+          image: eu.gcr.io/linker-246119/processor:2.4.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088

@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: connector
-          image: eu.gcr.io/linker-246119/connector:2.2.0
+          image: eu.gcr.io/linker-246119/connector:2.4.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8088

@@ -29,20 +29,30 @@ If a user on domain 1 wants to send a message to a user in domain 4, then
   
 Message will be persisted on the domain during the delivery if error occurred, and it will continue when problem gets resolved.
 ## Live demo
-- open `https://spendzer.app` in browser
-- no changes for websocket domain name `sandbox-linker.spendzer.app` and port number `443` since are well configured
-- click `connect` button
-- no changes for `userId` in section `AUTH_CLIENT` since is randomly generated
-- click `auth` button
+- open [https://spendzer.app](https://spendzer.app) in browser
+- click `connect` button to connect to `sandbox-linker.spendzer.app` with port number `443` in websocket
+- click `auth` button to login with randomly generated user id
 - `AUTH_CLIENT_REPLY` will show up
-- open `https://spendzer.app` in another tab
+- open [https://spendzer.app](https://spendzer.app) in another tab
 - do the same steps and auth with another user
 - you can send messages between the two users in section `MESSAGE` now
 - enjoy
+## Performance benchmark test
+- application was deployed in kubernetes cluster under google cloud platform with 3 nodes, 1 CPU for each and 4GB memory in total.
+- the cluster has 2 connectors, 2 processors, 1 kafka, 1 nats, 1 redis, 1 mongodb and 1 nginx deployed. 
+- tests were performed in 2 laptops (each laptop has 8 cores, 16GB)
+- each laptop opens 2 processes and each process issues 1000 connections and keeps sending messages to itself every 10ms.
+- each message has 1000 characters as payload.
+- time is measured between before sending the message and after receiving the same message.
+- the table contains the time (million seconds) per each message.
 
-## Single domain demo
-![](res/linker.gif)
+|  MessageType  | HTTPS Connection | 1000 Connections | 2000 Connections | 3000 Connections | 4000 Connections
+|---------------|------------------|------------------|------------------|------------------|-----------------
+| RELIABLE      |   200 ~ 220ms    |    45 ~ 70ms     |   70 ~ 100ms     |  100 ~ 170ms     | 170 ~ 220ms
+| FAST          |   200 ~ 220ms    |    35 ~ 50ms     |   35 ~ 50ms      |   35 ~ 50ms      |  35 ~ 50ms
+
 ## Running on your local machine in single domain
+![](res/linker.gif)
 ### Prerequisites
 * install docker
 * install jdk8

@@ -64,7 +64,7 @@ public class TestUtils {
     }
 
     public static void logout(TestUser testUser) throws TimeoutException {
-        if (testUser != null) {
+        if (testUser != null && !testUser.isClosed()) {
             testUser.close();
             kafkaExpressDelivery.getDeliveredMessage(MessageType.USER_DISCONNECTED);
         }

@@ -194,6 +194,18 @@ if message received from server, `onmessage` will be fired.
 ```
 * the above message will be sent to user `ANZ-1232121` and `ANZ-1232122`
 * the message confirmation is not available for `GROUP_MESSAGE`
+#### Close other user's connection
+Master user can close connection for other users
+```json
+{
+    "type": "CLOSE_CONNECTION",
+    "data": {
+        "userId": "ANZ-123224"
+    }
+}
+```
+* `userId` is target user to disconnect
+* the sender must be master user and has same appId as target user 
 #### Fetch missing/missed messages
 if target user is not found (connected and authenticated), the message will be persisted in database. The target user can 
 fetch the missing messages when login next time.\

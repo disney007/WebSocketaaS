@@ -120,6 +120,7 @@ public class TestUser {
 
     void onClosed(String str) {
         log.info("user [{}] closed", username);
+        this.webSocketClient = null;
         if (this.onMessageCallback != null) {
             this.onCloseCallback.accept(str);
         }
@@ -140,7 +141,15 @@ public class TestUser {
 
     public void close() {
         log.info("[{}] closed", this.username);
-        this.webSocketClient.close();
+        if (this.webSocketClient != null) {
+            this.webSocketClient.close();
+        }
+
+        this.webSocketClient = null;
+    }
+
+    public boolean isClosed() {
+        return webSocketClient == null;
     }
 
     public MessageContentOutput getReceivedMessage() throws InterruptedException {
